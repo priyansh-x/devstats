@@ -6,6 +6,8 @@ import { CsvUpload } from "@/components/csv-upload";
 import { PrivacyToggle } from "@/components/privacy-toggle";
 import { CliOnboard } from "@/components/cli-onboard";
 import { UsernameEdit } from "@/components/username-edit";
+import { ProfileEdit } from "@/components/profile-edit";
+import { UserNav } from "@/components/user-nav";
 import { getCurrentUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -15,61 +17,62 @@ export default async function Settings() {
   if (!user) redirect("/login");
 
   return (
-    <main className="max-w-3xl mx-auto px-6 py-10 space-y-6">
+    <main className="max-w-3xl mx-auto px-6 py-8 space-y-6">
       <header className="flex items-center justify-between border-b border-ink pb-4">
-        <div>
-          <span className="spec-label text-ink/60">SETTINGS / OPERATOR</span>
-          <h1 className="font-display text-3xl font-black leading-none mt-1">
-            {user.username.toUpperCase()}
-          </h1>
+        <div className="flex items-center gap-3">
+          <Link href="/" className="w-6 h-6 bg-hazard border border-ink" aria-label="home" />
+          <span className="font-bold tracking-tight">devstats</span>
         </div>
-        <Link
-          href="/dashboard"
-          className="spec-label border border-ink px-3 py-1 hover:bg-ink hover:text-hazard"
-        >
-          ← DASHBOARD
-        </Link>
+        <div className="flex items-center gap-4 text-sm">
+          <Link href="/dashboard" className="hover:text-hazard">dashboard</Link>
+          <UserNav user={{ username: user.username, isPublic: user.isPublic, avatarUrl: user.avatarUrl }} />
+        </div>
       </header>
 
+      <div>
+        <h1 className="font-display text-4xl font-black leading-none mb-1">Settings</h1>
+        <p className="text-ink/60 text-sm">{user.username} · {user.email}</p>
+      </div>
+
       {!user.apiKeyHash && (
-        <div className="border-2 border-hazard bg-hazard/10 p-4 font-mono text-sm">
-          <div className="spec-label font-bold text-hazard mb-1">START HERE</div>
+        <div className="border-2 border-hazard bg-hazard/10 p-4 text-sm">
+          <div className="font-bold text-hazard mb-1">Start here</div>
           <p className="text-ink/80">
-            New here? Three steps below to get your Claude Code, Cursor, and Antigravity
-            data flowing into the dashboard. Start with <b>API KEY</b>, then <b>GET YOUR DATA IN</b>.
+            Three quick steps to get your Claude Code, Cursor, and Antigravity data flowing.
+            Generate an API key, then follow the CLI walkthrough below.
           </p>
         </div>
       )}
 
-      <SpecCard label="API KEY / CLI ACCESS" meta="STEP 1">
+      <SpecCard label="API key" meta="step 1">
         <ApiKeyCard hasKey={!!user.apiKeyHash} />
       </SpecCard>
 
-      <SpecCard label="GET YOUR DATA IN" meta="STEP 2 · CLI WALKTHROUGH">
+      <SpecCard label="Get your data in" meta="step 2 · CLI walkthrough">
         <CliOnboard />
       </SpecCard>
 
-      <SpecCard label="VISIBILITY / LEADERBOARD" meta="OPTIONAL">
+      <SpecCard label="Visibility" meta="optional">
         <PrivacyToggle initialPublic={user.isPublic} username={user.username} />
       </SpecCard>
 
-      <SpecCard label="IMPORT / CSV UPLOAD" meta="MANUAL DATA">
+      <SpecCard label="Import from CSV" meta="manual">
         <CsvUpload />
       </SpecCard>
 
-      <SpecCard label="HANDLE">
+      <SpecCard label="Handle">
         <UsernameEdit initialUsername={user.username} />
       </SpecCard>
 
-      <SpecCard label="PROFILE">
-        <dl className="grid grid-cols-2 gap-3 font-mono text-sm">
-          <dt className="spec-label text-ink/60">EMAIL</dt>
+      <SpecCard label="Profile">
+        <ProfileEdit initialBio={user.bio} initialLocation={user.location} />
+      </SpecCard>
+
+      <SpecCard label="Account">
+        <dl className="grid grid-cols-2 gap-3 text-sm">
+          <dt className="text-xs text-ink/60 uppercase tracking-wide">Email</dt>
           <dd>{user.email}</dd>
-          <dt className="spec-label text-ink/60">USERNAME</dt>
-          <dd>{user.username}</dd>
-          <dt className="spec-label text-ink/60">VISIBILITY</dt>
-          <dd>{user.isPublic ? "PUBLIC" : "PRIVATE"}</dd>
-          <dt className="spec-label text-ink/60">SINCE</dt>
+          <dt className="text-xs text-ink/60 uppercase tracking-wide">Joined</dt>
           <dd>{user.createdAt.toISOString().slice(0, 10)}</dd>
         </dl>
       </SpecCard>

@@ -26,7 +26,7 @@ export async function GET(
     return new ImageResponse(
       (
         <div style={fullPage()}>
-          <div style={{ ...sectionBar(), fontSize: 28 }}>OPERATOR NOT FOUND</div>
+          <div style={{ ...sectionBar(), fontSize: 28 }}>not found</div>
         </div>
       ),
       { width: 1200, height: 630 },
@@ -39,7 +39,7 @@ export async function GET(
   return new ImageResponse(
     (
       <div style={fullPage()}>
-        {/* Left: orange spec sheet */}
+        {/* Left: hero panel */}
         <div style={{
           flex: 1,
           background: HAZARD,
@@ -49,42 +49,41 @@ export async function GET(
           justifyContent: "space-between",
           borderRight: `2px solid ${INK}`,
         }}>
-          <div style={{ fontSize: 18, letterSpacing: 2, fontWeight: 700 }}>
-            DSU-01 / OPERATOR SPEC SHEET
+          <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: 0 }}>
+            devstats
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ fontSize: 22, letterSpacing: 2 }}>OPERATOR</div>
-            <div style={{ fontSize: 96, fontWeight: 900, lineHeight: 0.95, marginTop: 8, letterSpacing: -2 }}>
-              {profile.username.toUpperCase()}
+            <div style={{ fontSize: 20, color: INK, opacity: 0.7 }}>
+              tokenmaxxing since {profile.createdAt.slice(0, 10)}
             </div>
-            <div style={{ fontSize: 20, marginTop: 16, letterSpacing: 1 }}>
-              SINCE {profile.createdAt.slice(0, 10)}
+            <div style={{ fontSize: 110, fontWeight: 900, lineHeight: 0.92, marginTop: 8, letterSpacing: -3 }}>
+              {profile.username}
             </div>
           </div>
-          <div style={{ fontSize: 16, letterSpacing: 2 }}>
-            DEVSTATS.APP/U/{profile.username.toUpperCase()}
+          <div style={{ fontSize: 18, opacity: 0.75 }}>
+            devstats.app/u/{profile.username}
           </div>
         </div>
 
-        {/* Right: specs block */}
+        {/* Right: stats panel */}
         <div style={{ width: 500, background: BONE, display: "flex", flexDirection: "column" }}>
-          <div style={sectionBar()}>SPECS</div>
+          <div style={sectionBar()}>Stats</div>
           <div style={{ padding: 36, display: "flex", flexDirection: "column", gap: 24 }}>
             {[
-              ["TOKENS",   totalTok],
-              ["SESSIONS", String(stats.totals.sessions)],
-              ["DURATION", fmtDuration(stats.totals.durationMs)],
-              ["STREAK",   `${stats.streak.current}D`],
-              ["ACTIVE",   `${stats.totals.activeDays}D`],
+              ["Tokens",     totalTok],
+              ["Sessions",   String(stats.totals.sessions)],
+              ["Duration",   fmtDuration(stats.totals.durationMs)],
+              ["Streak",     `${stats.streak.current}d`],
+              ["Active",     `${stats.totals.activeDays}d`],
             ].map(([k, v]) => (
               <div key={k} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                <span style={{ fontSize: 18, letterSpacing: 2, color: "#3A3A3A" }}>{k}</span>
-                <span style={{ fontSize: 44, fontWeight: 900, color: INK }}>{v}</span>
+                <span style={{ fontSize: 20, color: "#3A3A3A" }}>{k}</span>
+                <span style={{ fontSize: 46, fontWeight: 900, color: INK }}>{v}</span>
               </div>
             ))}
           </div>
-          <div style={{ marginTop: "auto", padding: "16px 36px", borderTop: `1px solid ${INK}33`, fontSize: 14, letterSpacing: 2, color: "#3A3A3A" }}>
-            FIELD OPS READY · MADE FOR DEVS
+          <div style={{ marginTop: "auto", padding: "16px 36px", borderTop: `1px solid ${INK}33`, fontSize: 14, color: "#3A3A3A" }}>
+            Made for devs
           </div>
         </div>
       </div>

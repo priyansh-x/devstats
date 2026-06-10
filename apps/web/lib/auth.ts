@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { createHash, randomBytes } from "node:crypto";
 import { prisma } from "./prisma";
@@ -6,12 +7,16 @@ import { createSupabaseServer } from "./supabase/server";
 const DEV_COOKIE = "devstats_dev_uid";
 
 /**
- * Resolve the current user.
+ * Resolve the current user. Wrapped in React's `cache()` so multiple server
+ * components in the same request share one Supabase + Postgres round-trip
+ * — without this, the header + page body each pay the cost.
+ *
  *  1. If Supabase env is configured, prefer the Supabase session.
  *  2. Otherwise, fall back to a dev cookie that points at a local User row.
- *     Lets you click around before pasting Supabase keys.
  */
-export async function getCurrentUser() {
+export const getCurrentUser = cache(_getCurrentUser);
+
+async function _getCurrentUser() {
   const sb = createSupabaseServer();
   if (sb) {
     const { data } = await sb.auth.getUser();

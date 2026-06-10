@@ -17,6 +17,8 @@ model User {
   email      String   @unique
   username   String   @unique
   avatarUrl  String?
+  bio        String?
+  location   String?  // user-set, free-form "City, Country" or whatever
   isPublic   Boolean  @default(false)
   apiKeyHash String?  @unique
   createdAt  DateTime @default(now())
@@ -27,7 +29,26 @@ model User {
   streak      Streak?
   leaderboard LeaderboardEntry[]
 
+  // GitHub-style follow graph: edges are one-way ("I follow you"). Mutual
+  // follows are inferred client-side.
+  following Friendship[] @relation("follower")
+  followers Friendship[] @relation("followed")
+
   @@index([isPublic])
+  @@index([location])
+}
+
+model Friendship {
+  id         String   @id @default(cuid())
+  followerId String
+  followedId String
+  createdAt  DateTime @default(now())
+
+  follower User @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  followed User @relation("followed", fields: [followedId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followedId])
+  @@index([followedId])
 }
 
 model Session {

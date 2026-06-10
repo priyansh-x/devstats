@@ -1,52 +1,56 @@
 import Link from "next/link";
 import { SpecCard } from "@/components/spec-card";
-import { Badge } from "@/components/badge";
 import { LeaderboardClient } from "@/components/leaderboard-client";
+import { UserNav } from "@/components/user-nav";
 import { getLeaderboard } from "@/lib/leaderboard";
+import { getCurrentUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function LeaderboardPage() {
-  // Server-render the default tab (weekly tokens) so the page is fast and
-  // crawlable. Client switches metric/period without a round-trip when needed.
-  const initial = await getLeaderboard("weekly", "tokens");
+  const [initial, me] = await Promise.all([
+    getLeaderboard("weekly", "tokens"),
+    getCurrentUser(),
+  ]);
 
   return (
-    <main className="max-w-5xl mx-auto px-6 py-10">
+    <main className="max-w-5xl mx-auto px-6 py-8">
       <header className="flex items-center justify-between border-b border-ink pb-4 mb-8">
         <div className="flex items-center gap-3">
           <Link href="/" className="w-6 h-6 bg-hazard border border-ink" aria-label="home" />
-          <span className="spec-label font-bold">DEVSTATS / LEADERBOARD</span>
+          <span className="font-bold tracking-tight">devstats</span>
         </div>
-        <nav className="flex items-center gap-4 spec-label">
-          <Link href="/dashboard" className="hover:text-hazard">DASHBOARD</Link>
-          <Link href="/settings" className="hover:text-hazard">SETTINGS</Link>
-        </nav>
+        <div className="flex items-center gap-4 text-sm">
+          {me ? (
+            <UserNav user={{ username: me.username, isPublic: me.isPublic, avatarUrl: me.avatarUrl }} />
+          ) : (
+            <Link href="/login" className="bg-ink text-bone px-3 py-1.5 hover:bg-hazard hover:text-ink">
+              sign in →
+            </Link>
+          )}
+        </div>
       </header>
 
-      <SpecCard
-        label="FIELD OPERATIONS / RANKINGS"
-        meta="REFRESHED HOURLY"
-        variant="hazard"
-        className="mb-8"
-      >
-        <h1 className="font-display text-4xl font-black leading-none">
-          OPERATOR RANKINGS
+      <div className="mb-8">
+        <h1 className="font-display text-5xl font-black leading-none mb-3">
+          Leaderboard.
         </h1>
-        <p className="font-mono text-sm mt-3 max-w-xl">
-          Public operators only. Toggle visibility in{" "}
-          <Link href="/settings" className="underline">SETTINGS</Link> to opt in.
-          Absolute numbers — no shame, no ratios.
+        <p className="text-ink/70 max-w-xl">
+          Public profiles only. Pick a period, a metric, narrow by location, or
+          flip to <b>Friends only</b> to compare against people you follow.
         </p>
-        <div className="flex flex-wrap gap-2 mt-4">
-          <Badge variant="solid">WEEKLY · TOKENS</Badge>
-          <Badge variant="solid">WEEKLY · SESSIONS</Badge>
-          <Badge variant="solid">ALL-TIME · DURATION</Badge>
-          <Badge variant="solid">ALL-TIME · LINES</Badge>
-        </div>
-      </SpecCard>
+      </div>
 
-      <LeaderboardClient initialRows={initial} />
+      <LeaderboardClient
+        initialRows={initial}
+        signedIn={!!me}
+        myUsername={me?.username ?? null}
+      />
+
+      <div className="mt-8 text-xs text-ink/50">
+        Refreshed hourly. Antigravity sessions don't carry token counts (Google
+        stores transcripts server-side), so they don't move the Tokens metric.
+      </div>
     </main>
   );
 }

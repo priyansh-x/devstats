@@ -1,8 +1,17 @@
+import { cache } from "react";
 import { prisma } from "./prisma";
 import { sessionCost } from "./pricing";
 import type { DashboardStats, YearHeatmap, Tool } from "@devstats/types";
 
-export async function getDashboardStats(userId: string): Promise<DashboardStats> {
+/**
+ * Wrapped in React's `cache()` so multiple server components within the same
+ * request (e.g. the dashboard page + a header that needs a count) only pay
+ * one round-trip. This is a perceptible perf win on the dashboard, which
+ * fans data into a half-dozen cards.
+ */
+export const getDashboardStats = cache(_getDashboardStats);
+
+async function _getDashboardStats(userId: string): Promise<DashboardStats> {
   const sessions = await prisma.session.findMany({
     where: { userId },
     orderBy: { startedAt: "asc" },

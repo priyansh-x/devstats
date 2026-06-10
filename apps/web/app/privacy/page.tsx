@@ -13,25 +13,24 @@ export default function PrivacyPage() {
       <header className="flex items-center justify-between border-b border-ink pb-4 mb-8">
         <div className="flex items-center gap-3">
           <Link href="/" className="w-6 h-6 bg-hazard border border-ink" aria-label="home" />
-          <span className="spec-label font-bold">DEVSTATS / PRIVACY MANIFESTO</span>
+          <span className="font-bold tracking-tight">devstats</span>
         </div>
-        <nav className="flex items-center gap-4 spec-label">
-          <Link href="/" className="hover:text-hazard">HOME</Link>
+        <nav className="flex items-center gap-4 text-sm">
+          <Link href="/" className="hover:text-hazard">home</Link>
         </nav>
       </header>
 
-      <SpecCard label="POSTURE" variant="hazard" className="mb-8">
-        <h1 className="font-display text-4xl font-black leading-none mb-3">
-          PRIVATE BY DEFAULT.
+      <SpecCard label="Posture" variant="hazard" className="mb-8">
+        <h1 className="font-display text-5xl font-black leading-none mb-3">
+          Private by default.
         </h1>
-        <p className="font-mono text-sm leading-relaxed max-w-xl">
-          DevStats is opinionated about what it touches. Below is a plain-English
-          spec: what we collect, what we refuse to collect, what we do with it,
-          and how to walk away.
+        <p className="text-base leading-relaxed max-w-xl">
+          Plain-English version: what we collect, what we refuse to collect,
+          what we do with it, and how to walk away.
         </p>
       </SpecCard>
 
-      <SpecCard label="WHAT WE COLLECT" className="mb-6">
+      <SpecCard label="What we collect" className="mb-6">
         <ul className="font-mono text-sm space-y-3 list-none">
           <Item label="SESSION COUNTS">Counts of conversations / chats per day, per tool.</Item>
           <Item label="TOKEN COUNTS">Aggregate input / output / cache tokens per session, when the tool exposes them.</Item>
@@ -42,7 +41,7 @@ export default function PrivacyPage() {
         </ul>
       </SpecCard>
 
-      <SpecCard label="WHAT WE NEVER COLLECT" className="mb-6">
+      <SpecCard label="What we never collect" className="mb-6">
         <ul className="font-mono text-sm space-y-2 list-none">
           {[
             "Message content, prompts, completions, or any conversation text",
@@ -60,7 +59,7 @@ export default function PrivacyPage() {
         </ul>
       </SpecCard>
 
-      <SpecCard label="HOW THE CLI ENFORCES THIS" className="mb-6">
+      <SpecCard label="How the CLI enforces this" className="mb-6">
         <p className="font-mono text-sm leading-relaxed mb-3">
           The CLI parses files locally and constructs a <code>NormalisedSession</code>{" "}
           object per session before any network call. The shape is fixed:
@@ -77,7 +76,7 @@ export default function PrivacyPage() {
         </p>
       </SpecCard>
 
-      <SpecCard label="VISIBILITY" className="mb-6">
+      <SpecCard label="Visibility" className="mb-6">
         <p className="font-mono text-sm leading-relaxed mb-3">
           Your account starts <Badge variant="outline">PRIVATE</Badge>. Going public
           requires an explicit consent modal that lists exactly what becomes
@@ -90,7 +89,7 @@ export default function PrivacyPage() {
         </ul>
       </SpecCard>
 
-      <SpecCard label="THIRD PARTIES" className="mb-6">
+      <SpecCard label="Third parties" className="mb-6">
         <ul className="font-mono text-sm space-y-2 list-none">
           <Item label="SUPABASE">Hosts auth + Postgres. Subject to their privacy terms.</Item>
           <Item label="UPSTASH">Hosts the Redis cache that powers the leaderboard's hourly refresh. Caches public aggregates only.</Item>
@@ -99,7 +98,7 @@ export default function PrivacyPage() {
         </ul>
       </SpecCard>
 
-      <SpecCard label="REMOVING YOUR DATA" className="mb-10">
+      <SpecCard label="Removing your data" className="mb-10">
         <p className="font-mono text-sm leading-relaxed mb-3">
           From <Link href="/settings" className="text-hazard underline">/settings</Link>:
         </p>
@@ -113,9 +112,9 @@ export default function PrivacyPage() {
         </p>
       </SpecCard>
 
-      <footer className="border-t border-ink pt-4 spec-label text-ink/60 flex items-center justify-between">
-        <span>LAST UPDATED · 2026-06-10</span>
-        <Link href="/" className="hover:text-hazard">← BACK TO HOME</Link>
+      <footer className="border-t border-ink pt-4 text-sm text-ink/60 flex items-center justify-between">
+        <span>Last updated · 2026-06-10</span>
+        <Link href="/" className="hover:text-hazard">← back to home</Link>
       </footer>
     </main>
   );

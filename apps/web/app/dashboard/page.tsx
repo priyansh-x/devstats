@@ -6,6 +6,7 @@ import { YearHeatmaps } from "@/components/heatmap";
 import { HourHeatmap } from "@/components/hour-heatmap";
 import { VelocityChart } from "@/components/velocity-chart";
 import { ImportLocalButton } from "@/components/import-button";
+import { UserNav } from "@/components/user-nav";
 import { getCurrentUser } from "@/lib/auth";
 import { getDashboardStats } from "@/lib/stats";
 import { fmtCompact, fmtDuration } from "@/lib/utils";
@@ -26,76 +27,79 @@ export default async function Dashboard() {
       : 0;
 
   return (
-    <main className="max-w-6xl mx-auto px-6 py-10">
+    <main className="max-w-6xl mx-auto px-6 py-8">
       <header className="flex items-center justify-between border-b border-ink pb-4 mb-8">
-        <div>
-          <span className="spec-label text-ink/60">
-            OPERATOR{stats.firstSessionAt ? ` · SINCE ${stats.firstSessionAt.slice(0, 10)}` : ""}
-          </span>
-          <h1 className="font-display text-3xl font-black leading-none mt-1">
-            {user.username.toUpperCase()}
-          </h1>
+        <div className="flex items-center gap-3">
+          <Link href="/" className="w-6 h-6 bg-hazard border border-ink" aria-label="home" />
+          <span className="font-bold tracking-tight">devstats</span>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge variant={user.isPublic ? "hazard" : "outline"}>
-            {user.isPublic ? "PUBLIC PROFILE" : "PRIVATE"}
-          </Badge>
-          <Link href="/settings" className="spec-label border border-ink px-3 py-1 hover:bg-ink hover:text-hazard">
-            SETTINGS
-          </Link>
+        <div className="flex items-center gap-4 text-sm">
+          <Link href="/leaderboard" className="hover:text-hazard">leaderboard</Link>
+          <UserNav user={{ username: user.username, isPublic: user.isPublic, avatarUrl: user.avatarUrl }} />
         </div>
       </header>
 
-      {/* Spend coverage disclaimer — only Claude Code reports cache-aware
-          token splits. Cursor reports flat counts, Antigravity reports none. */}
+      <div className="flex items-end justify-between mb-8">
+        <div>
+          <div className="text-sm text-ink/60">
+            {stats.firstSessionAt ? `Since ${stats.firstSessionAt.slice(0, 10)}` : "Welcome"}
+          </div>
+          <h1 className="font-display text-4xl font-black leading-none mt-1">
+            {user.username}
+          </h1>
+        </div>
+        <Badge variant={user.isPublic ? "hazard" : "outline"}>
+          {user.isPublic ? "public profile" : "private"}
+        </Badge>
+      </div>
+
+      {/* Spend coverage disclaimer */}
       {stats.toolBreakdown.some((t) => t.tool === "ANTIGRAVITY" || t.tool === "CURSOR") && (
-        <div className="border border-ink bg-bone-soft px-4 py-2 mb-6 font-mono text-xs text-ink/70 leading-relaxed">
-          <span className="spec-label text-hazard font-bold mr-2">EST. SPEND COVERAGE</span>
+        <div className="border border-ink bg-bone-soft px-4 py-2 mb-6 text-xs text-ink/70 leading-relaxed">
+          <span className="font-bold text-hazard mr-2">Spend estimate</span>
           Calculated from <b>Claude Code</b> with full cache splits.
-          {stats.toolBreakdown.some((t) => t.tool === "CURSOR") && " Cursor sessions include flat token costs at Cursor-reported rates."}
-          {stats.toolBreakdown.some((t) => t.tool === "ANTIGRAVITY") && " Antigravity sessions count as 0 — Google stores transcripts server-side, no local token data."}
+          {stats.toolBreakdown.some((t) => t.tool === "CURSOR") && " Cursor sessions use flat tokens-as-reported rates."}
+          {stats.toolBreakdown.some((t) => t.tool === "ANTIGRAVITY") && " Antigravity is counted at 0 — Google stores transcripts server-side."}
         </div>
       )}
 
-      {/* Summary strip */}
-      <SpecCard label="OPERATIONAL SUMMARY" meta="ALL-TIME" className="mb-6">
+      {/* Top metric strip */}
+      <SpecCard label="Overview" meta="all-time" className="mb-6">
         <div className="grid grid-cols-2 md:grid-cols-6 gap-6">
-          <SpecMetric label="TOKENS IN"  value={fmtCompact(stats.totals.tokensIn)} />
-          <SpecMetric label="TOKENS OUT" value={fmtCompact(stats.totals.tokensOut)} />
-          <SpecMetric label="SESSIONS"   value={stats.totals.sessions} />
-          <SpecMetric label="DURATION"   value={fmtDuration(stats.totals.durationMs)} />
-          <SpecMetric label="STREAK"     value={stats.streak.current} unit="D" />
-          <SpecMetric label="EST. SPEND" value={fmtUsd(stats.totals.costUsd)} />
+          <SpecMetric label="Tokens in"  value={fmtCompact(stats.totals.tokensIn)} />
+          <SpecMetric label="Tokens out" value={fmtCompact(stats.totals.tokensOut)} />
+          <SpecMetric label="Sessions"   value={stats.totals.sessions} />
+          <SpecMetric label="Duration"   value={fmtDuration(stats.totals.durationMs)} />
+          <SpecMetric label="Streak"     value={stats.streak.current} unit="d" />
+          <SpecMetric label="Spend est." value={fmtUsd(stats.totals.costUsd)} />
         </div>
         {cacheRatio > 0 && (
-          <div className="mt-5 pt-4 border-t border-ink/20 spec-label text-ink/60">
-            {cacheRatio.toFixed(0)}% OF INPUT TOKENS CAME FROM CACHE
-            · LONGEST STREAK {stats.streak.longest}D
-            · {stats.totals.activeDays} ACTIVE DAYS
+          <div className="mt-5 pt-4 border-t border-ink/20 text-xs text-ink/60">
+            {cacheRatio.toFixed(0)}% of input from cache · longest streak {stats.streak.longest}d · {stats.totals.activeDays} active days
           </div>
         )}
       </SpecCard>
 
       {/* Year-tabbed heatmap */}
-      <SpecCard label="ACTIVITY HEATMAP" meta="BY YEAR" className="mb-6">
+      <SpecCard label="Activity" meta="by year" className="mb-6">
         {hasData ? <YearHeatmaps years={stats.years} /> : <EmptyState />}
       </SpecCard>
 
       {/* Hour-of-week */}
       {hasData && (
-        <SpecCard label="TIME-OF-DAY MAP" meta="LOCAL · SESSIONS" className="mb-6">
+        <SpecCard label="When you code" meta="local time" className="mb-6">
           <HourHeatmap data={stats.hourly} />
         </SpecCard>
       )}
 
       <div className="grid md:grid-cols-2 gap-6 mb-6">
-        <SpecCard label="TOKEN VELOCITY" meta="30D">
-          {hasData ? <VelocityChart data={stats.velocity} /> : <p className="font-mono text-sm text-ink/60">No data yet.</p>}
+        <SpecCard label="Token velocity" meta="last 30 days">
+          {hasData ? <VelocityChart data={stats.velocity} /> : <p className="text-sm text-ink/60">No data yet.</p>}
         </SpecCard>
 
-        <SpecCard label="TOOL BREAKDOWN">
+        <SpecCard label="Tools">
           {stats.toolBreakdown.length === 0 ? (
-            <p className="font-mono text-sm text-ink/60">No data yet.</p>
+            <p className="text-sm text-ink/60">No data yet.</p>
           ) : (
             <ul className="space-y-3">
               {stats.toolBreakdown.map((t) => {
@@ -103,10 +107,10 @@ export default async function Dashboard() {
                 const pct = Math.round((t.tokens / max) * 100);
                 return (
                   <li key={t.tool}>
-                    <div className="flex items-center justify-between spec-label mb-1">
-                      <span>{t.tool.replace("_", " ")}</span>
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="font-bold uppercase tracking-wide">{t.tool.replace("_", " ")}</span>
                       <span className="text-ink/60">
-                        {t.sessions} · {fmtCompact(t.tokens)} TKN · {fmtUsd(t.costUsd)}
+                        {t.sessions} · {fmtCompact(t.tokens)} tkn · {fmtUsd(t.costUsd)}
                       </span>
                     </div>
                     <div className="h-2 bg-bone-soft border border-ink/20">
@@ -120,17 +124,17 @@ export default async function Dashboard() {
         </SpecCard>
       </div>
 
-      <SpecCard label="TOP MODELS / SPEND" className="mb-6">
+      <SpecCard label="Top models" className="mb-6">
         {stats.topModels.length === 0 ? (
-          <p className="font-mono text-sm text-ink/60">No data yet.</p>
+          <p className="text-sm text-ink/60">No data yet.</p>
         ) : (
-          <table className="w-full font-mono text-sm">
+          <table className="w-full text-sm">
             <thead>
-              <tr className="text-left spec-label text-ink/60 border-b border-ink/30">
-                <th className="py-2">MODEL</th>
-                <th className="py-2 text-right">SESSIONS</th>
-                <th className="py-2 text-right">TOKENS</th>
-                <th className="py-2 text-right">EST. SPEND</th>
+              <tr className="text-left text-xs uppercase tracking-wide text-ink/60 border-b border-ink/30">
+                <th className="py-2">Model</th>
+                <th className="py-2 text-right">Sessions</th>
+                <th className="py-2 text-right">Tokens</th>
+                <th className="py-2 text-right">Spend est.</th>
               </tr>
             </thead>
             <tbody>
@@ -147,15 +151,14 @@ export default async function Dashboard() {
         )}
       </SpecCard>
 
-      {/* Reimport (after schema change) */}
       {hasData && (
-        <SpecCard label="DATA OPS" className="mb-10">
+        <SpecCard label="Data ops" className="mb-10">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-4 justify-between">
-            <p className="font-mono text-xs text-ink/60 max-w-md">
+            <p className="text-xs text-ink/60 max-w-md">
               Wipe and reimport from <code>~/.claude</code> — useful after a parser
-              update so cache-split fields and spend estimates fully populate.
+              update so cache splits and spend estimates fully populate.
             </p>
-            <ImportLocalButton reset label="REBUILD FROM ~/.CLAUDE →" />
+            <ImportLocalButton reset label="Rebuild from ~/.claude →" />
           </div>
         </SpecCard>
       )}
@@ -167,61 +170,53 @@ function EmptyState() {
   return (
     <div className="border-2 border-dashed border-ink/30 p-8 space-y-6">
       <div className="text-center space-y-2">
-        <p className="spec-label text-ink/60">NO TELEMETRY RECEIVED</p>
-        <h3 className="font-display text-2xl font-black">PICK A WAY IN</h3>
-        <p className="font-mono text-sm text-ink/70">
-          You can have data flowing in 30 seconds. Choose what you have:
+        <h3 className="font-display text-2xl font-black">No data yet</h3>
+        <p className="text-sm text-ink/70">
+          Pick a way in — you'll see your stats in under a minute.
         </p>
       </div>
 
       <div className="grid md:grid-cols-3 gap-4">
-        {/* Path A — quick local Claude Code import (works only when devstats.app
-            is running on the same machine as your logs, i.e. local dev). */}
-        <div className="border border-ink bg-bone p-4 flex flex-col gap-3">
+        <div className="border border-ink bg-bone p-4 flex flex-col gap-3 hover:shadow-[4px_4px_0_0_#0A0A0A] transition-shadow">
           <div className="flex items-center justify-between">
-            <span className="spec-label font-bold">CLAUDE CODE</span>
-            <Badge variant="hazard">FASTEST</Badge>
+            <span className="font-bold text-sm">Claude Code</span>
+            <Badge variant="hazard">fastest</Badge>
           </div>
-          <p className="font-mono text-xs text-ink/70 flex-1">
-            One-click import from <code>~/.claude/projects</code> (only when DevStats
-            is on the same machine — i.e. local dev).
+          <p className="text-xs text-ink/70 flex-1">
+            One-click import from <code>~/.claude/projects</code> (works only when DevStats runs on the same machine).
           </p>
           <ImportLocalButton />
         </div>
 
-        {/* Path B — the CLI, covers all parsers including Antigravity. */}
-        <div className="border border-ink bg-bone p-4 flex flex-col gap-3">
+        <div className="border border-ink bg-bone p-4 flex flex-col gap-3 hover:shadow-[4px_4px_0_0_#0A0A0A] transition-shadow">
           <div className="flex items-center justify-between">
-            <span className="spec-label font-bold">CURSOR · ANTIGRAVITY · ALL</span>
-            <Badge variant="solid">RECOMMENDED</Badge>
+            <span className="font-bold text-sm">All tools via CLI</span>
+            <Badge variant="solid">recommended</Badge>
           </div>
-          <p className="font-mono text-xs text-ink/70 flex-1">
-            Install the CLI and run <code>devstats sync</code>. Auto-detects every
-            supported tool on your machine and uploads only new sessions.
+          <p className="text-xs text-ink/70 flex-1">
+            Install the CLI, run <code>devstats sync</code>. Auto-detects Claude Code, Cursor, and Antigravity.
           </p>
           <Link
             href="/settings"
-            className="bg-ink text-hazard spec-label font-bold px-4 py-2 border border-ink hover:bg-hazard hover:text-ink text-center"
+            className="bg-ink text-bone font-bold px-4 py-2 border border-ink hover:bg-hazard hover:text-ink text-center text-sm"
           >
-            SET UP CLI →
+            Set up CLI →
           </Link>
         </div>
 
-        {/* Path C — CSV fallback for anything else. */}
-        <div className="border border-ink bg-bone p-4 flex flex-col gap-3">
+        <div className="border border-ink bg-bone p-4 flex flex-col gap-3 hover:shadow-[4px_4px_0_0_#0A0A0A] transition-shadow">
           <div className="flex items-center justify-between">
-            <span className="spec-label font-bold">CSV / OTHER</span>
-            <Badge variant="outline">MANUAL</Badge>
+            <span className="font-bold text-sm">CSV / other</span>
+            <Badge variant="outline">manual</Badge>
           </div>
-          <p className="font-mono text-xs text-ink/70 flex-1">
-            Got an export from another tool? Upload a CSV with flexible column
-            mapping — date/tokens/duration/tool, all optional except date.
+          <p className="text-xs text-ink/70 flex-1">
+            Got an export from another tool? Upload a CSV with flexible column mapping.
           </p>
           <Link
             href="/settings"
-            className="border border-ink spec-label font-bold px-4 py-2 hover:bg-ink hover:text-hazard text-center"
+            className="border border-ink font-bold px-4 py-2 hover:bg-ink hover:text-bone text-center text-sm"
           >
-            UPLOAD CSV →
+            Upload CSV →
           </Link>
         </div>
       </div>
