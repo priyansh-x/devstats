@@ -1,0 +1,98 @@
+// DevStats schema. Default datasource is SQLite for local dev;
+// for Supabase Postgres switch `provider = "postgresql"` and uncomment directUrl.
+// We model enums as String + TS unions so the schema is portable across both.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  username   String   @unique
+  avatarUrl  String?
+  isPublic   Boolean  @default(false)
+  apiKeyHash String?  @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  sessions    Session[]
+  daily       DailySummary[]
+  streak      Streak?
+  leaderboard LeaderboardEntry[]
+
+  @@index([isPublic])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  tool         String   // Tool union: CLAUDE_CODE|CURSOR|WINDSURF|COPILOT|MANUAL
+  startedAt    DateTime
+  endedAt      DateTime?
+  durationMs   Int?
+  tokensIn         Int?  // sum: input + cache_creation + cache_read (kept for compat)
+  tokensInputRaw   Int?  // fresh input (the only fully-priced input)
+  tokensCacheRead  Int?  // cache read (cheapest, ~10% of input price for Claude)
+  tokensCacheCreate Int? // cache write (~125% of input price for Claude)
+  tokensOut    Int?
+  linesAdded   Int?
+  linesRemoved Int?
+  model        String?
+  projectSlug  String?
+  rawPayload   String?  // JSON-encoded; SQLite has no Json type
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tool, startedAt])
+  @@index([userId, startedAt])
+  @@index([userId, tool])
+}
+
+model DailySummary {
+  id              String   @id @default(cuid())
+  userId          String
+  date            DateTime
+  tool            String
+  totalTokensIn   Int      @default(0)
+  totalTokensOut  Int      @default(0)
+  totalDurationMs Int      @default(0)
+  sessionCount    Int      @default(0)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date, tool])
+  @@index([userId, date])
+}
+
+model Streak {
+  id             String    @id @default(cuid())
+  userId         String    @unique
+  currentStreak  Int       @default(0)
+  longestStreak  Int       @default(0)
+  lastActiveDate DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model LeaderboardEntry {
+  id         String   @id @default(cuid())
+  userId     String
+  period     String   // WEEKLY | ALLTIME
+  metric     String   // TOKENS | SESSIONS | DURATION | LINES
+  score      BigInt
+  rank       Int
+  computedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, period, metric])
+  @@index([period, metric, rank])
+}

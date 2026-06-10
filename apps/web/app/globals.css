@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --tw-grid: rgba(10, 10, 10, 0.07);
+}
+
+html, body {
+  background: #F5F1EA;
+  color: #0A0A0A;
+  font-family: var(--font-geist-mono), ui-monospace, Menlo, monospace;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Faint blueprint grid behind every page. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, var(--tw-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--tw-grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+#__next, main { position: relative; z-index: 1; }
+
+/* spec-sheet label utility */
+.spec-label {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
