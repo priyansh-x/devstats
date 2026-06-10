@@ -1,7 +1,6 @@
 {
-  "name": "@devstats/cli",
+  "name": "devstats-cli",
   "version": "0.0.1",
-  "private": true,
   "type": "module",
   "bin": { "devstats": "./dist/index.js" },
   "main": "./dist/index.js",

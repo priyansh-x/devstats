@@ -10,7 +10,7 @@
     "db:push": "prisma db push --schema=prisma/schema.prisma",
     "db:studio": "prisma studio --schema=prisma/schema.prisma",
     "db:generate": "prisma generate --schema=prisma/schema.prisma",
-    "cli": "pnpm --silent --filter @devstats/cli start"
+    "cli": "pnpm --silent --filter devstats-cli start"
   },
   "devDependencies": {
     "prisma": "^5.22.0",
