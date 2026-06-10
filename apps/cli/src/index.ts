@@ -3,7 +3,8 @@
 import { parseClaudeCode, parseCursor, parseAntigravity } from "@devstats/parsers";
 import { loadConfig, saveConfig, loadCursor, saveCursor, PATHS } from "./config.js";
 import { c, bar, row, ok, warn, err, info, blank, fmt, prompt } from "./ui.js";
-import { whoami, upload } from "./api.js";
+import { whoami, upload, leaderboard } from "./api.js";
+import { spawn } from "node:child_process";
 
 const DEFAULT_API_URL = process.env.DEVSTATS_URL ?? "http://localhost:3000";
 const args = process.argv.slice(2);
@@ -11,12 +12,15 @@ const cmd = args[0] ?? "help";
 
 async function main() {
   switch (cmd) {
-    case "login":   return cmdLogin();
-    case "whoami":  return cmdWhoami();
-    case "status":  return cmdStatus();
-    case "sync":    return cmdSync(args.slice(1));
-    case "logout":  return cmdLogout();
-    case "preview": return cmdPreview();
+    case "login":       return cmdLogin();
+    case "whoami":      return cmdWhoami();
+    case "status":      return cmdStatus();
+    case "sync":        return cmdSync(args.slice(1));
+    case "preview":     return cmdPreview();
+    case "open":        return cmdOpen(args.slice(1));
+    case "leaderboard":
+    case "lb":          return cmdLeaderboard(args.slice(1));
+    case "logout":      return cmdLogout();
     case "-v":
     case "--version":
       console.log("devstats-cli 0.0.1");
@@ -24,28 +28,43 @@ async function main() {
     case "help":
     case "--help":
     case "-h":
-    default:        return cmdHelp();
+    default:            return cmdHelp();
   }
 }
 
 function cmdHelp() {
   console.log(`${c.bold}devstats${c.reset} — telemetry for AI coding tools
 
-usage:
-  devstats login              authenticate (paste your API key)
-  devstats whoami             show current operator
-  devstats status             local sync state + remote totals
-  devstats sync [--dry-run] [--tool claude-code|cursor|antigravity] [--full]
-                              parse and upload (delta) sessions
-  devstats preview            parse local logs, print spec sheet (no upload)
-  devstats logout             remove stored credentials
+${c.bold}usage:${c.reset}
+  devstats login                       authenticate (paste your API key)
+  devstats whoami                      show current operator + remote totals
+  devstats status                      local sync state + remote totals
+  devstats sync [flags]                parse and upload (delta) sessions
+  devstats preview                     parse local logs, print spec sheet (no upload)
+  devstats leaderboard [flags]         fetch + print the public leaderboard
+  devstats open [page]                 open dashboard / settings / leaderboard / profile
+  devstats logout                      remove stored credentials
 
-  --dry-run                   parse + summarize, never upload
-  --full                      ignore the local cursor and reupload everything
-  --tool <name>               restrict to one parser (claude-code | cursor | antigravity)
+${c.bold}sync flags:${c.reset}
+  --dry-run                            parse + summarize, never upload
+  --full                               ignore the local cursor and reupload everything
+  --tool <name>                        restrict to one parser
+                                       (claude-code | cursor | antigravity)
 
-env:
-  DEVSTATS_URL                override the API host (default ${DEFAULT_API_URL})
+${c.bold}leaderboard flags:${c.reset}
+  --period weekly|alltime              default: weekly
+  --metric tokens|sessions|duration|lines  default: tokens
+  --top N                              default: 10
+
+${c.bold}open targets:${c.reset}
+  devstats open                        → dashboard
+  devstats open settings               → settings (API key, CLI walkthrough)
+  devstats open leaderboard            → public leaderboard
+  devstats open profile                → your public profile (only if public)
+
+${c.bold}env:${c.reset}
+  DEVSTATS_URL                         override the API host
+                                       (default ${DEFAULT_API_URL})
 
 config stored in ${PATHS.DIR}/`);
 }
@@ -222,6 +241,28 @@ async function cmdSync(rest: string[]) {
   bar("done");
   row("parsed",   totalParsed);
   row("uploaded", dryRun ? "(dry-run)" : totalInserted);
+
+  // Honest disclosure: tell the user about Antigravity's known limitation
+  // every time they sync that tool, so 0-token sessions are never a surprise.
+  if ((!onlyTool || onlyTool === "antigravity") && !dryRun) {
+    blank();
+    info(`${c.dim}note: Antigravity sessions land with 0 tokens — Google stores`);
+    info(`${c.dim}      transcripts server-side. Heatmap and active-days still work.${c.reset}`);
+  }
+
+  // Round-trip to whoami so we always print a true "total in your account" and
+  // a clickable URL — this is the answer to "where do I go to see my data?".
+  if (!dryRun) {
+    try {
+      const me = await whoami(cfg);
+      blank();
+      row("account total", `${me.sessions} sessions`);
+      row("dashboard",     `${c.hazard}${cfg.apiUrl}/dashboard${c.reset}`);
+      if (me.isPublic) {
+        row("public profile", `${c.hazard}${cfg.apiUrl}/u/${me.username}${c.reset}`);
+      }
+    } catch { /* don't fail the whole sync over a status print */ }
+  }
   blank();
 }
 
@@ -265,6 +306,105 @@ async function cmdPreview() {
   row("active days", days);
   if (warnings.length) row("warnings", warnings.length);
   blank();
+}
+
+async function cmdLeaderboard(rest: string[]) {
+  const cfg = await loadConfig();
+  if (!cfg?.apiKey) {
+    warn("Not logged in. Run `devstats login` first.");
+    process.exit(1);
+  }
+
+  const period = (flag(rest, "--period") ?? "weekly") as "weekly" | "alltime";
+  const metric = (flag(rest, "--metric") ?? "tokens") as
+    | "tokens" | "sessions" | "duration" | "lines";
+  const top = Number.parseInt(flag(rest, "--top") ?? "10", 10);
+
+  if (!["weekly", "alltime"].includes(period)) {
+    err(`bad --period (got "${period}"). Use weekly | alltime.`); process.exit(1);
+  }
+  if (!["tokens","sessions","duration","lines"].includes(metric)) {
+    err(`bad --metric (got "${metric}"). Use tokens | sessions | duration | lines.`);
+    process.exit(1);
+  }
+
+  try {
+    const res = await leaderboard(cfg, period, metric);
+    blank();
+    bar("leaderboard", `${period.toUpperCase()} · ${metric.toUpperCase()}`);
+    if (res.rows.length === 0) {
+      info("No public operators yet. Toggle visibility in /settings to be first.");
+      blank();
+      return;
+    }
+    const rows = res.rows.slice(0, Number.isFinite(top) ? top : 10);
+    const fmtScore = (n: number) =>
+      metric === "duration" ? `${(n / 3.6e6).toFixed(1)}H` : fmt(n);
+
+    const widthRank = 5;
+    const widthName = Math.max(8, ...rows.map((r) => r.username.length));
+    const widthScore = 12;
+    console.log(
+      `  ${c.dim}${"RANK".padEnd(widthRank)}  ${"OPERATOR".padEnd(widthName)}  ${"SCORE".padStart(widthScore)}  TOOLS${c.reset}`,
+    );
+    for (const r of rows) {
+      const rank = `#${String(r.rank).padStart(3, "0")}`;
+      const isMe = r.username === cfg.username;
+      const nameColor = isMe ? c.hazard : "";
+      console.log(
+        `  ${c.bold}${rank.padEnd(widthRank)}${c.reset}  ${nameColor}${r.username.padEnd(widthName)}${c.reset}  ${c.bold}${fmtScore(r.score).padStart(widthScore)}${c.reset}  ${c.dim}${r.tools.map(t => t.replace("_"," ")).join(" · ")}${c.reset}`,
+      );
+    }
+    blank();
+    row("page", `${c.hazard}${cfg.apiUrl}/leaderboard${c.reset}`);
+    blank();
+  } catch (e: any) {
+    err(`leaderboard failed: ${e.message}`);
+    process.exit(1);
+  }
+}
+
+async function cmdOpen(rest: string[]) {
+  const cfg = await loadConfig();
+  if (!cfg) {
+    warn("Not logged in. Run `devstats login` first.");
+    process.exit(1);
+  }
+  const target = (rest[0] ?? "dashboard").toLowerCase();
+  let path: string;
+  switch (target) {
+    case "dashboard":   path = "/dashboard"; break;
+    case "settings":    path = "/settings"; break;
+    case "leaderboard":
+    case "lb":          path = "/leaderboard"; break;
+    case "profile":
+    case "me": {
+      const me = await whoami(cfg).catch(() => null);
+      if (!me) { err("could not resolve username; is the server up?"); process.exit(1); }
+      if (!me.isPublic) {
+        warn("Your profile is private — flip it on at /settings first.");
+        path = "/settings";
+      } else {
+        path = `/u/${me.username}`;
+      }
+      break;
+    }
+    default:
+      err(`unknown target "${target}". Try: dashboard | settings | leaderboard | profile`);
+      process.exit(1);
+  }
+  const url = `${cfg.apiUrl}${path}`;
+  const opener =
+    process.platform === "darwin" ? "open"
+    : process.platform === "win32" ? "start"
+    : "xdg-open";
+  spawn(opener, [url], { detached: true, stdio: "ignore" }).unref();
+  info(`Opened ${c.bold}${url}${c.reset}`);
+}
+
+function flag(rest: string[], name: string): string | undefined {
+  const i = rest.indexOf(name);
+  return i >= 0 ? rest[i + 1] : undefined;
 }
 
 main().catch((e) => {

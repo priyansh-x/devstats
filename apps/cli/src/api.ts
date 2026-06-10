@@ -44,3 +44,24 @@ export const upload = (cfg: CliConfig, sessions: NormalisedSession[]) =>
     method: "POST",
     body: JSON.stringify({ sessions }),
   });
+
+export interface LbRow {
+  rank: number;
+  username: string;
+  score: number;
+  tools: string[];
+}
+export interface LeaderboardResponse {
+  period: string;
+  metric: string;
+  rows: LbRow[];
+}
+export const leaderboard = (
+  cfg: CliConfig,
+  period: "weekly" | "alltime",
+  metric: "tokens" | "sessions" | "duration" | "lines",
+) =>
+  req<LeaderboardResponse>(
+    cfg,
+    `/api/leaderboard?period=${period}&metric=${metric}`,
+  );
