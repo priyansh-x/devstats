@@ -8,10 +8,10 @@
  * would create a *new* User row keyed to Y and leave X orphaned.
  *
  * Usage:
- *   pnpm tsx scripts/merge-email.ts <oldEmail> <newEmail>
+ *   pnpm exec tsx scripts/merge-email.ts <oldEmail> <newEmail>
  *
  * Example:
- *   pnpm tsx scripts/merge-email.ts priyansh.joshi07@gmail.com priyansh@gh.example
+ *   pnpm exec tsx scripts/merge-email.ts priyansh.joshi07@gmail.com priyansh@gh.example
  *
  * What it does, in a transaction:
  *   1. Find User where email = oldEmail
