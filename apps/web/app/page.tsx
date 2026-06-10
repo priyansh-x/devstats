@@ -29,19 +29,19 @@ export default async function Landing() {
         </nav>
       </header>
 
-      {/* Hero — short, loud, real numbers */}
-      <section className="mb-16">
-        <Badge variant="hazard" className="mb-4">tokenmaxxing your editor</Badge>
-        <h1 className="font-display text-6xl md:text-7xl font-black leading-[0.95] tracking-tight mb-5">
+      {/* Hero — short, loud, real numbers, centered */}
+      <section className="text-center mb-20 mt-6">
+        <Badge variant="hazard" className="mb-5 inline-block">tokenmaxxing your editor</Badge>
+        <h1 className="font-display text-6xl md:text-7xl font-black leading-[0.95] tracking-tight mb-6">
           Your AI coding<br />
           stats. <span className="text-hazard">Public.</span>
         </h1>
-        <p className="text-lg leading-relaxed max-w-xl text-ink/80 mb-7">
+        <p className="text-lg leading-relaxed max-w-xl text-ink/80 mb-8 mx-auto">
           Plug in your Claude Code, Cursor, or Antigravity logs.
           Watch your tokens, streaks, and spend stack up.
           Climb the leaderboard if you're built like that.
         </p>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center justify-center gap-3">
           <Link
             href="/login"
             className="bg-ink text-bone font-bold px-5 py-3 border border-ink hover:bg-hazard hover:text-ink"
@@ -57,7 +57,7 @@ export default async function Landing() {
         </div>
 
         {stats.users > 0 && (
-          <div className="grid grid-cols-3 gap-4 mt-12 border-t border-ink pt-6 max-w-xl">
+          <div className="grid grid-cols-3 gap-4 mt-14 border-t border-ink pt-6 max-w-xl mx-auto">
             <Stat label="devs tracking" value={stats.users.toLocaleString()} />
             <Stat label="sessions logged" value={fmtCompact(stats.sessions)} />
             <Stat label="tokens through" value={fmtCompact(stats.tokens)} />
@@ -89,7 +89,7 @@ export default async function Landing() {
       <LeaderboardStrip />
 
       <footer className="border-t border-ink pt-6 flex items-center justify-between text-sm text-ink/60">
-        <span>Made for devs · MIT</span>
+        <span>Made for devs · BITS Pilani</span>
         <div className="flex items-center gap-4">
           <Link href="/privacy" className="hover:text-hazard">privacy</Link>
           <a href="https://github.com/priyansh-x/devstats" className="hover:text-hazard" target="_blank" rel="noopener noreferrer">
