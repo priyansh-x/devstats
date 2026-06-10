@@ -6,20 +6,28 @@ import { NextResponse, type NextRequest } from "next/server";
  * always see a fresh session. No-op when env vars aren't set.
  */
 export async function middleware(request: NextRequest) {
-  const response = NextResponse.next({ request });
+  let response = NextResponse.next({ request });
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !key) return response;
 
   const supabase = createServerClient(url, key, {
     cookies: {
-      get(name) {
+      get(name: string) {
         return request.cookies.get(name)?.value;
       },
-      set(name, value, options: CookieOptions) {
+      set(name: string, value: string, options: CookieOptions) {
+        request.cookies.set({ name, value, ...options });
+        response = NextResponse.next({
+          request: { headers: request.headers },
+        });
         response.cookies.set({ name, value, ...options });
       },
-      remove(name, options: CookieOptions) {
+      remove(name: string, options: CookieOptions) {
+        request.cookies.set({ name, value: "", ...options });
+        response = NextResponse.next({
+          request: { headers: request.headers },
+        });
         response.cookies.set({ name, value: "", ...options });
       },
     },

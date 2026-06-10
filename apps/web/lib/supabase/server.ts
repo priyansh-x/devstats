@@ -13,17 +13,17 @@ export function createSupabaseServer() {
   const store = cookies();
   return createServerClient(url, key, {
     cookies: {
-      get(name) {
+      get(name: string) {
         return store.get(name)?.value;
       },
-      set(name, value, options: CookieOptions) {
+      set(name: string, value: string, options: CookieOptions) {
         try {
           store.set({ name, value, ...options });
         } catch {
           /* ignore in server-component contexts */
         }
       },
-      remove(name, options: CookieOptions) {
+      remove(name: string, options: CookieOptions) {
         try {
           store.set({ name, value: "", ...options });
         } catch {
