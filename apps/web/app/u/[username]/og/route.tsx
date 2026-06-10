@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { getPublicProfile } from "@/lib/public-stats";
 import { fmtCompact, fmtDuration } from "@/lib/utils";
+import { ratelimit, ipFrom } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,9 +11,16 @@ const INK = "#0A0A0A";
 const BONE = "#F5F1EA";
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: { username: string } },
 ) {
+  const gate = await ratelimit("og", ipFrom(req));
+  if (!gate.ok) {
+    return new Response("rate limited", {
+      status: 429,
+      headers: { "Retry-After": String(gate.retryAfterSeconds) },
+    });
+  }
   const profile = await getPublicProfile(params.username);
   if (!profile) {
     return new ImageResponse(

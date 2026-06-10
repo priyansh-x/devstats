@@ -5,6 +5,7 @@ import { ApiKeyCard } from "@/components/api-key-card";
 import { CsvUpload } from "@/components/csv-upload";
 import { PrivacyToggle } from "@/components/privacy-toggle";
 import { CliOnboard } from "@/components/cli-onboard";
+import { UsernameEdit } from "@/components/username-edit";
 import { getCurrentUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -54,6 +55,10 @@ export default async function Settings() {
 
       <SpecCard label="IMPORT / CSV UPLOAD" meta="MANUAL DATA">
         <CsvUpload />
+      </SpecCard>
+
+      <SpecCard label="HANDLE">
+        <UsernameEdit initialUsername={user.username} />
       </SpecCard>
 
       <SpecCard label="PROFILE">

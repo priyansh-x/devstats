@@ -71,11 +71,9 @@ export function LeaderboardClient({ initialRows }: { initialRows: LbRow[] }) {
         </div>
       </div>
 
-      {pending && (
-        <div className="spec-label text-ink/60 mb-3">UPDATING…</div>
-      )}
-
-      {rows.length === 0 ? (
+      {pending ? (
+        <SkeletonRows count={6} />
+      ) : rows.length === 0 ? (
         <EmptyState />
       ) : (
         <table className="w-full font-mono text-sm">
@@ -123,6 +121,31 @@ export function LeaderboardClient({ initialRows }: { initialRows: LbRow[] }) {
         </table>
       )}
     </SpecCard>
+  );
+}
+
+function SkeletonRows({ count }: { count: number }) {
+  return (
+    <table className="w-full font-mono text-sm">
+      <thead>
+        <tr className="text-left spec-label text-ink/30 border-b border-ink/20">
+          <th className="py-2 w-12">RANK</th>
+          <th className="py-2">OPERATOR</th>
+          <th className="py-2">TOOLS</th>
+          <th className="py-2 text-right">SCORE</th>
+        </tr>
+      </thead>
+      <tbody>
+        {Array.from({ length: count }).map((_, i) => (
+          <tr key={i} className="border-b border-ink/10">
+            <td className="py-3"><div className="h-3 w-8 bg-ink/10 animate-pulse" /></td>
+            <td className="py-3"><div className="h-3 w-32 bg-ink/10 animate-pulse" /></td>
+            <td className="py-3"><div className="h-3 w-24 bg-ink/10 animate-pulse" /></td>
+            <td className="py-3 text-right"><div className="h-3 w-16 bg-ink/10 animate-pulse ml-auto" /></td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }
 

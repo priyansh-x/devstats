@@ -2,6 +2,7 @@ import { prisma } from "./prisma";
 import { getDashboardStats } from "./stats";
 import type { DashboardStats } from "@devstats/types";
 
+/** @public — also exported because compare/[a]/[b] re-uses the shape. */
 export interface PublicProfile {
   username: string;
   avatarUrl: string | null;

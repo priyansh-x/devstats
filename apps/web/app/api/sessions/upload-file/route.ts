@@ -5,6 +5,7 @@ import type { Tool } from "@devstats/types";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { recomputeStreak } from "@/lib/stats";
+import { ratelimit } from "@/lib/ratelimit";
 
 const MappingSchema = z.object({
   startedAt: z.string().min(1),
@@ -22,6 +23,14 @@ const MappingSchema = z.object({
 export async function POST(req: Request) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const gate = await ratelimit("uploadFile", user.id);
+  if (!gate.ok) {
+    return NextResponse.json(
+      { error: "rate limited", retryAfter: gate.retryAfterSeconds },
+      { status: 429, headers: { "Retry-After": String(gate.retryAfterSeconds) } },
+    );
+  }
 
   const form = await req.formData();
   const file = form.get("file");

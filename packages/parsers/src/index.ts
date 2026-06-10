@@ -7,3 +7,7 @@ export { parseCursor } from "./cursor";
 export type { CursorParseOptions } from "./cursor";
 export { parseAntigravity } from "./antigravity";
 export type { AntigravityParseOptions } from "./antigravity";
+export { parseWindsurf } from "./windsurf";
+export type { WindsurfParseOptions } from "./windsurf";
+export { parseCopilot } from "./copilot";
+export type { CopilotParseOptions } from "./copilot";

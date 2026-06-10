@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser, getUserFromApiKey } from "@/lib/auth";
 import { recomputeStreak } from "@/lib/stats";
+import { ratelimit } from "@/lib/ratelimit";
 
 const ToolEnum = z.enum(["CLAUDE_CODE", "CURSOR", "ANTIGRAVITY", "WINDSURF", "COPILOT", "MANUAL"]);
 
@@ -29,6 +30,14 @@ const BodySchema = z.object({
 export async function POST(req: Request) {
   const user = (await getUserFromApiKey(req)) ?? (await getCurrentUser());
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const gate = await ratelimit("upload", user.id);
+  if (!gate.ok) {
+    return NextResponse.json(
+      { error: "rate limited", retryAfter: gate.retryAfterSeconds },
+      { status: 429, headers: { "Retry-After": String(gate.retryAfterSeconds) } },
+    );
+  }
 
   let parsed;
   try {

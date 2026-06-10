@@ -10,6 +10,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { getDashboardStats } from "@/lib/stats";
 import { fmtCompact, fmtDuration } from "@/lib/utils";
 import { fmtUsd } from "@/lib/pricing";
+import { friendlyModel } from "@/lib/model-names";
 
 export const dynamic = "force-dynamic";
 
@@ -44,6 +45,17 @@ export default async function Dashboard() {
           </Link>
         </div>
       </header>
+
+      {/* Spend coverage disclaimer — only Claude Code reports cache-aware
+          token splits. Cursor reports flat counts, Antigravity reports none. */}
+      {stats.toolBreakdown.some((t) => t.tool === "ANTIGRAVITY" || t.tool === "CURSOR") && (
+        <div className="border border-ink bg-bone-soft px-4 py-2 mb-6 font-mono text-xs text-ink/70 leading-relaxed">
+          <span className="spec-label text-hazard font-bold mr-2">EST. SPEND COVERAGE</span>
+          Calculated from <b>Claude Code</b> with full cache splits.
+          {stats.toolBreakdown.some((t) => t.tool === "CURSOR") && " Cursor sessions include flat token costs at Cursor-reported rates."}
+          {stats.toolBreakdown.some((t) => t.tool === "ANTIGRAVITY") && " Antigravity sessions count as 0 — Google stores transcripts server-side, no local token data."}
+        </div>
+      )}
 
       {/* Summary strip */}
       <SpecCard label="OPERATIONAL SUMMARY" meta="ALL-TIME" className="mb-6">
@@ -124,7 +136,7 @@ export default async function Dashboard() {
             <tbody>
               {stats.topModels.map((m) => (
                 <tr key={m.model} className="border-b border-ink/10">
-                  <td className="py-2">{m.model}</td>
+                  <td className="py-2">{friendlyModel(m.model)}</td>
                   <td className="py-2 text-right tabular-nums">{m.sessions}</td>
                   <td className="py-2 text-right tabular-nums">{fmtCompact(m.tokens)}</td>
                   <td className="py-2 text-right tabular-nums">{fmtUsd(m.costUsd)}</td>

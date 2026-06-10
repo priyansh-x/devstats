@@ -65,3 +65,25 @@ export const leaderboard = (
     cfg,
     `/api/leaderboard?period=${period}&metric=${metric}`,
   );
+
+export interface PublicProfileResponse {
+  username: string;
+  createdAt: string;
+  stats: {
+    totals: {
+      tokensIn: number;
+      tokensOut: number;
+      sessions: number;
+      durationMs: number;
+      activeDays: number;
+      tokensCacheRead: number;
+    };
+    streak: { current: number; longest: number };
+    toolBreakdown: { tool: string; sessions: number; tokens: number }[];
+    topModels: { model: string; sessions: number; tokens: number }[];
+  };
+}
+
+/** Public profile endpoint — only succeeds for public users. */
+export const publicProfile = (cfg: CliConfig, username: string) =>
+  req<PublicProfileResponse>(cfg, `/api/stats/${encodeURIComponent(username)}`);

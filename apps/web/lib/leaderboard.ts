@@ -95,3 +95,15 @@ export async function getLeaderboard(period: LbPeriod, metric: LbMetric): Promis
   if (redis) await redis.set(cacheKey, rows, { ex: TTL_SECONDS });
   return rows;
 }
+
+/**
+ * Force-recompute (bypass cache). Used by the hourly Vercel cron to refresh
+ * every metric/period bucket so user-facing reads are always served from
+ * cache. The recompute uses the same getLeaderboard logic; we just blow away
+ * the cache key first.
+ */
+export async function refreshLeaderboard(period: LbPeriod, metric: LbMetric) {
+  const redis = getRedis();
+  if (redis) await redis.del(`lb:${period}:${metric}`);
+  return getLeaderboard(period, metric);
+}

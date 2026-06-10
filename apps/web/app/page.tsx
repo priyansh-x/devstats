@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { SpecCard, SpecMetric } from "@/components/spec-card";
 import { Badge } from "@/components/badge";
+import { LeaderboardStrip } from "@/components/leaderboard-strip";
 
-export default function Landing() {
+export const dynamic = "force-dynamic";
+
+export default async function Landing() {
   return (
     <main className="max-w-6xl mx-auto px-6 py-10">
       {/* Top bar */}
@@ -98,6 +101,10 @@ export default function Landing() {
           More parsers (Copilot, Windsurf) coming.
         </p>
       </SpecCard>
+
+      {/* Live (or sample) leaderboard at the bottom — gives visitors a
+          taste of what going public looks like before they sign up. */}
+      <LeaderboardStrip />
 
       <footer className="border-t border-ink pt-4 flex items-center justify-between spec-label text-ink/60">
         <span>MADE FOR DEVS · v0.1.0</span>

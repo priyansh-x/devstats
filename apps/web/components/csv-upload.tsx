@@ -22,6 +22,7 @@ export function CsvUpload() {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [headers, setHeaders] = useState<string[]>([]);
+  const [previewRows, setPreviewRows] = useState<string[][]>([]);
   const [mapping, setMapping] = useState<Record<string, string>>({});
   const [defaultTool, setDefaultTool] = useState("MANUAL");
   const [msg, setMsg] = useState<string | null>(null);
@@ -31,10 +32,11 @@ export function CsvUpload() {
     setFile(f);
     setMsg(null);
     const text = await f.text();
-    const firstLine = text.split(/\r?\n/)[0] ?? "";
-    const hs = parseHeader(firstLine);
+    const lines = text.split(/\r?\n/).filter((l) => l.length > 0);
+    const hs = parseHeader(lines[0] ?? "");
     setHeaders(hs);
-    // best-effort auto-map by name match
+    // Read up to 5 data rows so the user can see what they're about to upload.
+    setPreviewRows(lines.slice(1, 6).map((l) => parseHeader(l)));
     const auto: Record<string, string> = {};
     for (const t of TARGETS) {
       const found = hs.find((h) => h.toLowerCase().replace(/[_\s-]/g, "") === t.key.toLowerCase());
@@ -114,6 +116,49 @@ export function CsvUpload() {
               </tbody>
             </table>
           </div>
+
+          {/* Sample preview: show the first N raw rows so the user sees
+              what they're about to commit. Updates instantly as they re-map. */}
+          {previewRows.length > 0 && (
+            <div className="border border-ink/30">
+              <div className="bg-ink text-hazard spec-label font-bold px-3 py-2 flex items-center justify-between">
+                <span>PREVIEW · FIRST {previewRows.length} ROWS</span>
+                <span className="text-bone/60">RAW</span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="bg-bone-soft">
+                      {headers.map((h) => (
+                        <th key={h} className="px-2 py-1 spec-label text-ink/70 text-left border-r border-ink/10 last:border-r-0">
+                          {h}
+                          {Object.entries(mapping).find(([_, v]) => v === h)?.[0] && (
+                            <div className="text-hazard normal-case text-[10px] font-bold">
+                              → {Object.entries(mapping).find(([_, v]) => v === h)?.[0]}
+                            </div>
+                          )}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {previewRows.map((row, ri) => (
+                      <tr key={ri} className="border-t border-ink/10">
+                        {headers.map((_, ci) => (
+                          <td key={ci} className="px-2 py-1 border-r border-ink/10 last:border-r-0 text-ink/80">
+                            {row[ci] ?? ""}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="px-3 py-2 spec-label text-ink/60 border-t border-ink/20">
+                Hazard arrows show how each column will map. Re-pick above to change.
+              </p>
+            </div>
+          )}
 
           <button
             onClick={submit}

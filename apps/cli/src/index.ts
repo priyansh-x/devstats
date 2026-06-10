@@ -3,7 +3,7 @@
 import { parseClaudeCode, parseCursor, parseAntigravity } from "@devstats/parsers";
 import { loadConfig, saveConfig, loadCursor, saveCursor, PATHS } from "./config.js";
 import { c, bar, row, ok, warn, err, info, blank, fmt, prompt } from "./ui.js";
-import { whoami, upload, leaderboard } from "./api.js";
+import { whoami, upload, leaderboard, publicProfile } from "./api.js";
 import { spawn } from "node:child_process";
 
 const DEFAULT_API_URL = process.env.DEVSTATS_URL ?? "http://localhost:3000";
@@ -17,9 +17,11 @@ async function main() {
     case "status":      return cmdStatus();
     case "sync":        return cmdSync(args.slice(1));
     case "preview":     return cmdPreview();
-    case "open":        return cmdOpen(args.slice(1));
+    case "profile":     return cmdProfile(args.slice(1));
+    case "dashboard":   return cmdDashboard();
     case "leaderboard":
     case "lb":          return cmdLeaderboard(args.slice(1));
+    case "open":        return cmdOpen(args.slice(1));
     case "logout":      return cmdLogout();
     case "-v":
     case "--version":
@@ -41,8 +43,12 @@ ${c.bold}usage:${c.reset}
   devstats status                      local sync state + remote totals
   devstats sync [flags]                parse and upload (delta) sessions
   devstats preview                     parse local logs, print spec sheet (no upload)
+  devstats dashboard                   render your dashboard summary in this terminal
+  devstats profile [handle]            render an operator's public profile in this terminal
+                                       (defaults to your own handle)
   devstats leaderboard [flags]         fetch + print the public leaderboard
-  devstats open [page]                 open dashboard / settings / leaderboard / profile
+  devstats open [page]                 actually open dashboard / settings / leaderboard
+                                       in your browser
   devstats logout                      remove stored credentials
 
 ${c.bold}sync flags:${c.reset}
@@ -405,6 +411,95 @@ async function cmdOpen(rest: string[]) {
 function flag(rest: string[], name: string): string | undefined {
   const i = rest.indexOf(name);
   return i >= 0 ? rest[i + 1] : undefined;
+}
+
+/** Render the signed-in operator's dashboard as a spec sheet right here. */
+async function cmdDashboard() {
+  const cfg = await loadConfig();
+  if (!cfg?.apiKey) {
+    warn("Not logged in. Run `devstats login` first.");
+    process.exit(1);
+  }
+  try {
+    const me = await whoami(cfg);
+    blank();
+    bar("dashboard", me.username);
+    row("email",         me.email);
+    row("visibility",    me.isPublic ? "PUBLIC" : "PRIVATE");
+    row("sessions",      me.sessions);
+    row("tokens in",     fmt(me.tokensIn));
+    row("tokens out",    fmt(me.tokensOut));
+    row("last sync",     me.lastSyncAt?.slice(0, 19).replace("T", " ") ?? "—");
+    blank();
+    row("note", `${c.dim}for the full heatmap + breakdowns, run ${c.bold}devstats open${c.reset}`);
+    row("page", `${c.hazard}${cfg.apiUrl}/dashboard${c.reset}`);
+    blank();
+  } catch (e: any) {
+    err(`dashboard failed: ${e.message}`);
+    process.exit(1);
+  }
+}
+
+/** Render a public operator's profile (defaults to self if public). */
+async function cmdProfile(rest: string[]) {
+  const cfg = await loadConfig();
+  if (!cfg?.apiKey) {
+    warn("Not logged in. Run `devstats login` first.");
+    process.exit(1);
+  }
+
+  let handle = rest[0];
+  if (!handle) {
+    const me = await whoami(cfg).catch(() => null);
+    if (!me) { err("could not resolve your handle. Try `devstats profile <username>` directly."); process.exit(1); }
+    if (!me.isPublic) {
+      blank();
+      warn(`Your profile is private — no public stats to render.`);
+      info(`Toggle to public in ${c.bold}${cfg.apiUrl}/settings${c.reset}, or pass a handle:`);
+      info(`  ${c.dim}devstats profile <username>${c.reset}`);
+      blank();
+      return;
+    }
+    handle = me.username;
+  }
+
+  let p;
+  try {
+    p = await publicProfile(cfg, handle);
+  } catch (e: any) {
+    err(`profile failed: ${e.message}`);
+    process.exit(1);
+  }
+
+  blank();
+  bar("operator", p.username);
+  row("public since",  p.createdAt.slice(0, 10));
+  row("sessions",      p.stats.totals.sessions);
+  row("tokens in",     fmt(p.stats.totals.tokensIn));
+  row("tokens out",    fmt(p.stats.totals.tokensOut));
+  row("duration",      `${(p.stats.totals.durationMs / 3.6e6).toFixed(1)}H`);
+  row("active days",   p.stats.totals.activeDays);
+  row("streak",        `${p.stats.streak.current}D · longest ${p.stats.streak.longest}D`);
+  blank();
+
+  if (p.stats.toolBreakdown.length) {
+    bar("tools");
+    for (const t of p.stats.toolBreakdown) {
+      row(t.tool.replace("_"," "), `${t.sessions} sessions · ${fmt(t.tokens)} tkn`);
+    }
+    blank();
+  }
+
+  if (p.stats.topModels.length) {
+    bar("top models");
+    for (const m of p.stats.topModels.slice(0, 5)) {
+      row(m.model, `${m.sessions} sessions · ${fmt(m.tokens)} tkn`);
+    }
+    blank();
+  }
+
+  row("profile url", `${c.hazard}${cfg.apiUrl}/u/${p.username}${c.reset}`);
+  blank();
 }
 
 main().catch((e) => {

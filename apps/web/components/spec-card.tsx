@@ -23,7 +23,10 @@ export function SpecCard({
   return (
     <section
       className={clsx(
-        "border border-ink",
+        "border border-ink transition-shadow duration-200",
+        // Subtle hard "lifted" shadow — matches the spec-sheet print aesthetic
+        // (no blur, hazard offset) instead of generic Material elevation.
+        "hover:shadow-[4px_4px_0_0_#0A0A0A]",
         variant === "hazard" ? "bg-hazard" : "bg-bone",
         className,
       )}

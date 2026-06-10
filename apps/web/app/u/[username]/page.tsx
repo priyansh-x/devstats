@@ -8,6 +8,7 @@ import { HourHeatmap } from "@/components/hour-heatmap";
 import { ShareButton } from "@/components/share-button";
 import { getPublicProfile } from "@/lib/public-stats";
 import { fmtCompact, fmtDuration } from "@/lib/utils";
+import { friendlyModel } from "@/lib/model-names";
 
 export const dynamic = "force-dynamic";
 
@@ -78,6 +79,12 @@ export default async function PublicProfile(
             <span className="spec-label text-ink/60">
               devstats.app/u/{profile.username}
             </span>
+            <Link
+              href={`/compare/${profile.username}/`}
+              className="spec-label text-ink/60 underline hover:text-ink"
+            >
+              CHALLENGE TO HEAD-TO-HEAD →
+            </Link>
           </div>
         </div>
       </SpecCard>
@@ -141,7 +148,7 @@ export default async function PublicProfile(
           <tbody>
             {stats.topModels.map((m) => (
               <tr key={m.model} className="border-b border-ink/10">
-                <td className="py-2">{m.model}</td>
+                <td className="py-2">{friendlyModel(m.model)}</td>
                 <td className="py-2 text-right tabular-nums">{m.sessions}</td>
                 <td className="py-2 text-right tabular-nums">{fmtCompact(m.tokens)}</td>
               </tr>
@@ -150,10 +157,17 @@ export default async function PublicProfile(
         </table>
       </SpecCard>
 
-      <footer className="border-t border-ink pt-4 spec-label text-ink/60">
-        TOTAL: {fmtCompact(totalTokens)} TOKENS
-        · PUBLIC SINCE {profile.createdAt.slice(0, 10)}
-        · POWERED BY <Link href="/" className="underline">DEVSTATS</Link>
+      <footer className="border-t-2 border-ink pt-4 mt-2 flex items-center justify-between">
+        <div className="spec-label text-ink/60">
+          TOTAL · {fmtCompact(totalTokens)} TOKENS
+          · PUBLIC SINCE {profile.createdAt.slice(0, 10)}
+        </div>
+        <Link
+          href="/"
+          className="spec-label border border-ink px-3 py-1 hover:bg-ink hover:text-hazard"
+        >
+          MADE WITH DEVSTATS →
+        </Link>
       </footer>
     </main>
   );
