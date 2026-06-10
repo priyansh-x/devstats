@@ -1,6 +1,6 @@
 // shebang is added by tsup's banner config at build time; in dev we go
 // through `tsx src/index.ts` so it's never needed here.
-import { parseClaudeCode, parseCursor, parseAntigravity } from "@devstats/parsers";
+import { parseClaudeCode, parseCursor, parseAntigravity, parseWindsurf } from "@devstats/parsers";
 import { loadConfig, saveConfig, loadCursor, saveCursor, PATHS } from "./config.js";
 import { c, bar, row, ok, warn, err, info, blank, fmt, prompt } from "./ui.js";
 import { whoami, upload, leaderboard, publicProfile } from "./api.js";
@@ -55,7 +55,7 @@ ${c.bold}sync flags:${c.reset}
   --dry-run                            parse + summarize, never upload
   --full                               ignore the local cursor and reupload everything
   --tool <name>                        restrict to one parser
-                                       (claude-code | cursor | antigravity)
+                                       (claude-code | cursor | antigravity | windsurf)
 
 ${c.bold}leaderboard flags:${c.reset}
   --period weekly|alltime              default: weekly
@@ -241,6 +241,33 @@ async function cmdSync(rest: string[]) {
     }
   }
 
+  if (!onlyTool || onlyTool === "windsurf") {
+    const since = cursor["WINDSURF"];
+    if (since) info(`windsurf: only events ≥ ${new Date(since).toISOString().slice(0, 19)}Z`);
+    const { sessions, warnings } = await parseWindsurf({ sinceMs: since });
+    totalParsed += sessions.length;
+    for (const w of warnings.slice(0, 3)) warn(w);
+
+    if (sessions.length === 0) {
+      info("windsurf: nothing new.");
+    } else if (dryRun) {
+      printPreview("windsurf", sessions);
+    } else {
+      try {
+        const res = await upload(cfg, sessions);
+        ok(`windsurf: uploaded ${res.inserted} / ${res.received} (skipped ${res.skipped} dup).`);
+        totalInserted += res.inserted;
+        latest["WINDSURF"] = Math.max(
+          latest["WINDSURF"] ?? 0,
+          ...sessions.map((s) => s.startedAt.getTime()),
+        );
+      } catch (e: any) {
+        err(`windsurf upload failed: ${e.message}`);
+        process.exit(1);
+      }
+    }
+  }
+
   if (!dryRun) await saveCursor(latest);
 
   blank();
@@ -290,14 +317,15 @@ async function cmdLogout() {
 }
 
 async function cmdPreview() {
-  const [claude, cursor, antigrav] = await Promise.all([
+  const [claude, cursor, antigrav, windsurf] = await Promise.all([
     parseClaudeCode(),
     parseCursor(),
     parseAntigravity(),
+    parseWindsurf(),
   ]);
 
-  const sessions = [...claude.sessions, ...cursor.sessions, ...antigrav.sessions];
-  const warnings = [...claude.warnings, ...cursor.warnings, ...antigrav.warnings];
+  const sessions = [...claude.sessions, ...cursor.sessions, ...antigrav.sessions, ...windsurf.sessions];
+  const warnings = [...claude.warnings, ...cursor.warnings, ...antigrav.warnings, ...windsurf.warnings];
 
   const tin = sessions.reduce((s, r) => s + (r.tokensIn ?? 0), 0);
   const tout = sessions.reduce((s, r) => s + (r.tokensOut ?? 0), 0);

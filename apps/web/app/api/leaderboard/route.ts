@@ -12,7 +12,7 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const period = (url.searchParams.get("period") ?? "weekly") as LbPeriod;
   const metric = (url.searchParams.get("metric") ?? "tokens") as LbMetric;
-  const location = url.searchParams.get("location") ?? undefined;
+  const country = (url.searchParams.get("country") ?? "").trim().toUpperCase();
   const q = (url.searchParams.get("q") ?? "").trim().toLowerCase();
   const friendsOnly = url.searchParams.get("friendsOnly") === "1";
 
@@ -37,8 +37,8 @@ export async function GET(req: Request) {
 
   let rows = await getLeaderboard(period, metric, { userIds });
 
-  if (location) {
-    rows = rows.filter((r) => r.location?.toLowerCase().includes(location.toLowerCase()));
+  if (country) {
+    rows = rows.filter((r) => r.countryCode?.toUpperCase() === country);
   }
   if (q) {
     rows = rows.filter((r) => r.username.toLowerCase().includes(q));

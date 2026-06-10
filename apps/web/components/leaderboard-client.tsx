@@ -6,6 +6,7 @@ import { SpecCard } from "./spec-card";
 import { Badge } from "./badge";
 import type { LbRow, LbPeriod, LbMetric } from "@/lib/leaderboard";
 import { fmtCompact, fmtDuration } from "@/lib/utils";
+import { COUNTRIES, countryName, flagEmoji } from "@/lib/countries";
 
 const PERIODS: { v: LbPeriod; label: string }[] = [
   { v: "daily",   label: "Today" },
@@ -31,7 +32,7 @@ export function LeaderboardClient({
   const [period, setPeriod]   = useState<LbPeriod>("weekly");
   const [metric, setMetric]   = useState<LbMetric>("tokens");
   const [q, setQ]             = useState("");
-  const [location, setLoc]    = useState("");
+  const [country, setCountry] = useState("");
   const [friendsOnly, setFO]  = useState(false);
   const [rows, setRows]       = useState<LbRow[]>(initialRows);
   const [pending, start]      = useTransition();
@@ -44,7 +45,7 @@ export function LeaderboardClient({
         const sp = new URLSearchParams({
           period, metric,
           ...(q ? { q } : {}),
-          ...(location ? { location } : {}),
+          ...(country ? { country } : {}),
           ...(friendsOnly ? { friendsOnly: "1" } : {}),
         });
         const res = await fetch(`/api/leaderboard?${sp.toString()}`);
@@ -54,7 +55,7 @@ export function LeaderboardClient({
     }, 180); // light debounce on text inputs
     return () => clearTimeout(t);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [period, metric, q, location, friendsOnly]);
+  }, [period, metric, q, country, friendsOnly]);
 
   const fmtScore = (n: number) =>
     metric === "duration" ? fmtDuration(n) : fmtCompact(n);
@@ -62,9 +63,9 @@ export function LeaderboardClient({
   const meta = useMemo(() => {
     const parts = [PERIODS.find((p) => p.v === period)?.label, METRICS.find((m) => m.v === metric)?.label];
     if (friendsOnly) parts.push("friends only");
-    if (location) parts.push(`in ${location}`);
+    if (country) parts.push(`${flagEmoji(country)} ${countryName(country)}`);
     return parts.filter(Boolean).join(" · ");
-  }, [period, metric, friendsOnly, location]);
+  }, [period, metric, friendsOnly, country]);
 
   return (
     <SpecCard label="Standings" meta={meta}>

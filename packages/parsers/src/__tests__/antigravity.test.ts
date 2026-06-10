@@ -58,4 +58,22 @@ describe("parseAntigravity", () => {
     const thinConv = sessions.find((s) => s.durationMs === 60_000);
     expect(thinConv).toBeTruthy();
   });
+
+  it("spreads conversations across the activity window deterministically", async () => {
+    const win = { loMs: Date.parse("2026-01-01T00:00:00Z"), hiMs: Date.parse("2026-05-01T00:00:00Z") };
+    const a = await parseAntigravity({ dbPath, activityWindow: win });
+    const b = await parseAntigravity({ dbPath, activityWindow: win });
+
+    // Every timestamp falls inside the window…
+    for (const s of a.sessions) {
+      expect(s.startedAt.getTime()).toBeGreaterThanOrEqual(win.loMs);
+      expect(s.startedAt.getTime()).toBeLessThan(win.hiMs);
+    }
+    // …the two conversations land on different days (not collapsed onto one)…
+    const days = new Set(a.sessions.map((s) => s.startedAt.toISOString().slice(0, 10)));
+    expect(days.size).toBe(2);
+    // …and the placement is stable across runs (so re-syncs dedupe cleanly).
+    expect(a.sessions.map((s) => s.startedAt.getTime()))
+      .toEqual(b.sessions.map((s) => s.startedAt.getTime()));
+  });
 });

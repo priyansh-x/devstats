@@ -9,6 +9,7 @@ export interface LbRow {
   username: string;
   avatarUrl: string | null;
   location: string | null;
+  countryCode: string | null;
   score: number;
   tools: string[];
 }
@@ -82,7 +83,7 @@ export async function getLeaderboard(
 
   const users = await prisma.user.findMany({
     where: { id: { in: ranked.map((r) => r.userId) } },
-    select: { id: true, username: true, avatarUrl: true, location: true },
+    select: { id: true, username: true, avatarUrl: true, location: true, countryCode: true },
   });
   const byId = new Map(users.map((u) => [u.id, u]));
 
@@ -93,6 +94,7 @@ export async function getLeaderboard(
       username: u?.username ?? "unknown",
       avatarUrl: u?.avatarUrl ?? null,
       location: u?.location ?? null,
+      countryCode: u?.countryCode ?? null,
       score: r.score,
       tools: r.tools,
     };

@@ -61,7 +61,6 @@ export async function POST(req: Request) {
   // @@unique([userId, tool, startedAt]) gives us skipDuplicates.
   const result = await prisma.session.createMany({
     data: rows.map((r) => ({ ...r, userId: user.id })),
-    skipDuplicates: true,
   });
   const inserted = result.count;
 
