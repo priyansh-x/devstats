@@ -43,6 +43,7 @@ export default function Landing() {
             <div className="flex flex-wrap gap-2">
               <Badge variant="solid">CLAUDE CODE</Badge>
               <Badge variant="solid">CURSOR</Badge>
+              <Badge variant="solid">ANTIGRAVITY</Badge>
               <Badge variant="solid">COPILOT</Badge>
               <Badge variant="solid">WINDSURF</Badge>
               <Badge variant="outline">CSV / JSON IMPORT</Badge>
@@ -61,9 +62,9 @@ export default function Landing() {
       <SpecCard label="DEPLOYMENT / 3-STEP" className="mb-10">
         <div className="grid md:grid-cols-3 gap-6">
           {[
-            { n: "01", t: "INSTALL CLI", b: "npx devstats login → opens browser. Token stored in ~/.devstats." },
-            { n: "02", t: "SYNC", b: "devstats sync auto-detects every supported tool and uploads only the delta." },
-            { n: "03", t: "DEPLOY PROFILE", b: "Opt into public profile in /settings. Leaderboard entry is created on consent." },
+            { n: "01", t: "LOG IN", b: "Sign in with GitHub or email. Generate an API key in Settings — that's how the CLI talks to your account." },
+            { n: "02", t: "INSTALL CLI + SYNC", b: "One install command. Then `devstats sync` auto-detects Claude Code, Cursor, and Antigravity on your machine and uploads only new sessions." },
+            { n: "03", t: "DEPLOY PROFILE", b: "Your dashboard fills in. Flip to public in Settings to appear on the leaderboard and share devstats.app/u/<you>." },
           ].map((s) => (
             <div key={s.n} className="border-l-2 border-ink pl-4">
               <span className="spec-label text-hazard font-bold">{s.n}</span>
@@ -72,6 +73,30 @@ export default function Landing() {
             </div>
           ))}
         </div>
+      </SpecCard>
+
+      {/* Where data comes from — explicit, named tools */}
+      <SpecCard label="DATA SOURCES / SUPPORTED TOOLS" className="mb-10">
+        <div className="grid md:grid-cols-3 gap-5 font-mono text-xs">
+          {[
+            { tool: "CLAUDE CODE", where: "~/.claude/projects", note: "Full token splits, cache reads, models, costs.", auto: true },
+            { tool: "CURSOR",      where: "state.vscdb",        note: "One session per chat, real timestamps, token counts.", auto: true },
+            { tool: "ANTIGRAVITY", where: "state.vscdb",        note: "Activity presence (Google stores transcripts in cloud — tokens not local yet).", auto: true },
+          ].map((d) => (
+            <div key={d.tool} className="border border-ink p-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="spec-label font-bold">{d.tool}</span>
+                <Badge variant="hazard">AUTO</Badge>
+              </div>
+              <code className="text-ink/60 text-[11px]">{d.where}</code>
+              <p className="text-ink/70 mt-2 leading-relaxed">{d.note}</p>
+            </div>
+          ))}
+        </div>
+        <p className="font-mono text-xs text-ink/60 mt-4">
+          Got something else? Upload a CSV in Settings — flexible column mapping.
+          More parsers (Copilot, Windsurf) coming.
+        </p>
       </SpecCard>
 
       <footer className="border-t border-ink pt-4 flex items-center justify-between spec-label text-ink/60">

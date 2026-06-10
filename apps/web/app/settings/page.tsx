@@ -4,6 +4,7 @@ import { SpecCard } from "@/components/spec-card";
 import { ApiKeyCard } from "@/components/api-key-card";
 import { CsvUpload } from "@/components/csv-upload";
 import { PrivacyToggle } from "@/components/privacy-toggle";
+import { CliOnboard } from "@/components/cli-onboard";
 import { getCurrentUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -29,41 +30,26 @@ export default async function Settings() {
         </Link>
       </header>
 
-      <SpecCard label="VISIBILITY / LEADERBOARD">
-        <PrivacyToggle initialPublic={user.isPublic} username={user.username} />
-      </SpecCard>
+      {!user.apiKeyHash && (
+        <div className="border-2 border-hazard bg-hazard/10 p-4 font-mono text-sm">
+          <div className="spec-label font-bold text-hazard mb-1">START HERE</div>
+          <p className="text-ink/80">
+            New here? Three steps below to get your Claude Code, Cursor, and Antigravity
+            data flowing into the dashboard. Start with <b>API KEY</b>, then <b>GET YOUR DATA IN</b>.
+          </p>
+        </div>
+      )}
 
-      <SpecCard label="API KEY / CLI ACCESS">
+      <SpecCard label="API KEY / CLI ACCESS" meta="STEP 1">
         <ApiKeyCard hasKey={!!user.apiKeyHash} />
       </SpecCard>
 
-      <SpecCard label="CLI / QUICKSTART" meta="LOCAL DEV">
-        <p className="font-mono text-xs text-ink/70 mb-3">
-          One-time setup — pick whichever you prefer:
-        </p>
-        <pre className="bg-ink text-hazard p-4 font-mono text-xs overflow-x-auto">
-{`# Option A — shell alias (no sudo, no PATH edit)
-echo 'alias devstats=~/Desktop/devstats/bin/devstats' >> ~/.zshrc
-source ~/.zshrc
+      <SpecCard label="GET YOUR DATA IN" meta="STEP 2 · CLI WALKTHROUGH">
+        <CliOnboard />
+      </SpecCard>
 
-# Option B — symlink into your PATH
-sudo ln -sf ~/Desktop/devstats/bin/devstats /usr/local/bin/devstats
-
-# Option C — add bin/ to PATH
-echo 'export PATH="$HOME/Desktop/devstats/bin:$PATH"' >> ~/.zshrc`}
-        </pre>
-        <p className="font-mono text-xs text-ink/70 mt-3 mb-2">Then use it from anywhere:</p>
-        <pre className="bg-ink text-hazard p-4 font-mono text-xs overflow-x-auto">
-{`devstats login            # paste the key above
-devstats sync --dry-run   # preview
-devstats sync             # upload delta
-devstats whoami`}
-        </pre>
-        <p className="font-mono text-xs text-ink/60 mt-3">
-          The CLI defaults to <code>http://localhost:3000</code>. Override with{" "}
-          <code className="bg-bone-soft px-1">DEVSTATS_URL=https://…</code> once deployed.
-          The published <code>devstats-cli</code> npm package lands in Phase 4.
-        </p>
+      <SpecCard label="VISIBILITY / LEADERBOARD" meta="OPTIONAL">
+        <PrivacyToggle initialPublic={user.isPublic} username={user.username} />
       </SpecCard>
 
       <SpecCard label="IMPORT / CSV UPLOAD" meta="MANUAL DATA">

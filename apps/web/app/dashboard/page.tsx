@@ -153,13 +153,66 @@ export default async function Dashboard() {
 
 function EmptyState() {
   return (
-    <div className="border-2 border-dashed border-ink/30 p-8 text-center space-y-4">
-      <p className="spec-label text-ink/60">NO TELEMETRY RECEIVED</p>
-      <p className="font-mono text-sm">
-        Run <code className="bg-ink text-hazard px-2 py-0.5">npx devstats sync</code>{" "}
-        or pull from your local Claude Code logs right now:
-      </p>
-      <ImportLocalButton />
+    <div className="border-2 border-dashed border-ink/30 p-8 space-y-6">
+      <div className="text-center space-y-2">
+        <p className="spec-label text-ink/60">NO TELEMETRY RECEIVED</p>
+        <h3 className="font-display text-2xl font-black">PICK A WAY IN</h3>
+        <p className="font-mono text-sm text-ink/70">
+          You can have data flowing in 30 seconds. Choose what you have:
+        </p>
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-4">
+        {/* Path A — quick local Claude Code import (works only when devstats.app
+            is running on the same machine as your logs, i.e. local dev). */}
+        <div className="border border-ink bg-bone p-4 flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <span className="spec-label font-bold">CLAUDE CODE</span>
+            <Badge variant="hazard">FASTEST</Badge>
+          </div>
+          <p className="font-mono text-xs text-ink/70 flex-1">
+            One-click import from <code>~/.claude/projects</code> (only when DevStats
+            is on the same machine — i.e. local dev).
+          </p>
+          <ImportLocalButton />
+        </div>
+
+        {/* Path B — the CLI, covers all parsers including Antigravity. */}
+        <div className="border border-ink bg-bone p-4 flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <span className="spec-label font-bold">CURSOR · ANTIGRAVITY · ALL</span>
+            <Badge variant="solid">RECOMMENDED</Badge>
+          </div>
+          <p className="font-mono text-xs text-ink/70 flex-1">
+            Install the CLI and run <code>devstats sync</code>. Auto-detects every
+            supported tool on your machine and uploads only new sessions.
+          </p>
+          <Link
+            href="/settings"
+            className="bg-ink text-hazard spec-label font-bold px-4 py-2 border border-ink hover:bg-hazard hover:text-ink text-center"
+          >
+            SET UP CLI →
+          </Link>
+        </div>
+
+        {/* Path C — CSV fallback for anything else. */}
+        <div className="border border-ink bg-bone p-4 flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <span className="spec-label font-bold">CSV / OTHER</span>
+            <Badge variant="outline">MANUAL</Badge>
+          </div>
+          <p className="font-mono text-xs text-ink/70 flex-1">
+            Got an export from another tool? Upload a CSV with flexible column
+            mapping — date/tokens/duration/tool, all optional except date.
+          </p>
+          <Link
+            href="/settings"
+            className="border border-ink spec-label font-bold px-4 py-2 hover:bg-ink hover:text-hazard text-center"
+          >
+            UPLOAD CSV →
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
