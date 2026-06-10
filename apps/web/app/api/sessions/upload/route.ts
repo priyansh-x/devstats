@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser, getUserFromApiKey } from "@/lib/auth";
 import { recomputeStreak } from "@/lib/stats";
 
-const ToolEnum = z.enum(["CLAUDE_CODE", "CURSOR", "WINDSURF", "COPILOT", "MANUAL"]);
+const ToolEnum = z.enum(["CLAUDE_CODE", "CURSOR", "ANTIGRAVITY", "WINDSURF", "COPILOT", "MANUAL"]);
 
 const SessionInput = z.object({
   tool: ToolEnum,

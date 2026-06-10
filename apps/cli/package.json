@@ -1,23 +1,48 @@
 {
   "name": "devstats-cli",
   "version": "0.0.1",
+  "description": "Local telemetry for AI coding tools (Claude Code, Cursor, …) — parses your logs, uploads to devstats.app.",
+  "keywords": [
+    "claude",
+    "claude-code",
+    "cursor",
+    "ai",
+    "telemetry",
+    "developer-tools",
+    "leaderboard"
+  ],
+  "license": "MIT",
   "type": "module",
-  "bin": { "devstats": "./dist/index.js" },
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "devstats": "./dist/index.js"
+  },
   "main": "./dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsup && chmod +x dist/index.js",
     "start": "tsx src/index.ts",
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@devstats/parsers": "workspace:*",
-    "@devstats/types": "workspace:*"
+    "better-sqlite3": "^12.10.0"
   },
-  "files": ["dist", "README.md"],
-  "publishConfig": { "access": "public" },
   "devDependencies": {
+    "@devstats/parsers": "workspace:*",
+    "@devstats/types": "workspace:*",
     "@types/node": "^22.9.0",
+    "tsup": "^8.3.5",
     "tsx": "^4.19.2",
     "typescript": "^5.6.3"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
   }
 }

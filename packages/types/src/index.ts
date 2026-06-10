@@ -1,6 +1,7 @@
 export type Tool =
   | "CLAUDE_CODE"
   | "CURSOR"
+  | "ANTIGRAVITY"
   | "WINDSURF"
   | "COPILOT"
   | "MANUAL";

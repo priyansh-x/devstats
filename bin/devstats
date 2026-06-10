@@ -3,4 +3,4 @@
 # Resolves the repo root from this script's location so it works regardless of CWD.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
-exec pnpm --silent -C "$REPO_ROOT" --filter @devstats/cli start "$@"
+exec pnpm --silent -C "$REPO_ROOT" --filter devstats-cli start "$@"

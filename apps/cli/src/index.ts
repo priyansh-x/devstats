@@ -1,5 +1,6 @@
-#!/usr/bin/env node
-import { parseClaudeCode, parseCursor } from "@devstats/parsers";
+// shebang is added by tsup's banner config at build time; in dev we go
+// through `tsx src/index.ts` so it's never needed here.
+import { parseClaudeCode, parseCursor, parseAntigravity } from "@devstats/parsers";
 import { loadConfig, saveConfig, loadCursor, saveCursor, PATHS } from "./config.js";
 import { c, bar, row, ok, warn, err, info, blank, fmt, prompt } from "./ui.js";
 import { whoami, upload } from "./api.js";
@@ -34,14 +35,14 @@ usage:
   devstats login              authenticate (paste your API key)
   devstats whoami             show current operator
   devstats status             local sync state + remote totals
-  devstats sync [--dry-run] [--tool claude-code|cursor] [--full]
+  devstats sync [--dry-run] [--tool claude-code|cursor|antigravity] [--full]
                               parse and upload (delta) sessions
   devstats preview            parse local logs, print spec sheet (no upload)
   devstats logout             remove stored credentials
 
   --dry-run                   parse + summarize, never upload
   --full                      ignore the local cursor and reupload everything
-  --tool <name>               restrict to one parser (claude-code | …)
+  --tool <name>               restrict to one parser (claude-code | cursor | antigravity)
 
 env:
   DEVSTATS_URL                override the API host (default ${DEFAULT_API_URL})
@@ -188,6 +189,33 @@ async function cmdSync(rest: string[]) {
     }
   }
 
+  if (!onlyTool || onlyTool === "antigravity") {
+    const since = cursor["ANTIGRAVITY"];
+    if (since) info(`antigravity: only events ≥ ${new Date(since).toISOString().slice(0, 19)}Z`);
+    const { sessions, warnings } = await parseAntigravity({ sinceMs: since });
+    totalParsed += sessions.length;
+    for (const w of warnings.slice(0, 3)) warn(w);
+
+    if (sessions.length === 0) {
+      info("antigravity: nothing new.");
+    } else if (dryRun) {
+      printPreview("antigravity", sessions);
+    } else {
+      try {
+        const res = await upload(cfg, sessions);
+        ok(`antigravity: uploaded ${res.inserted} / ${res.received} (skipped ${res.skipped} dup).`);
+        totalInserted += res.inserted;
+        latest["ANTIGRAVITY"] = Math.max(
+          latest["ANTIGRAVITY"] ?? 0,
+          ...sessions.map((s) => s.startedAt.getTime()),
+        );
+      } catch (e: any) {
+        err(`antigravity upload failed: ${e.message}`);
+        process.exit(1);
+      }
+    }
+  }
+
   if (!dryRun) await saveCursor(latest);
 
   blank();
@@ -215,11 +243,14 @@ async function cmdLogout() {
 }
 
 async function cmdPreview() {
-  const claude = await parseClaudeCode();
-  const cursor = await parseCursor();
-  
-  const sessions = [...claude.sessions, ...cursor.sessions];
-  const warnings = [...claude.warnings, ...cursor.warnings];
+  const [claude, cursor, antigrav] = await Promise.all([
+    parseClaudeCode(),
+    parseCursor(),
+    parseAntigravity(),
+  ]);
+
+  const sessions = [...claude.sessions, ...cursor.sessions, ...antigrav.sessions];
+  const warnings = [...claude.warnings, ...cursor.warnings, ...antigrav.warnings];
 
   const tin = sessions.reduce((s, r) => s + (r.tokensIn ?? 0), 0);
   const tout = sessions.reduce((s, r) => s + (r.tokensOut ?? 0), 0);
