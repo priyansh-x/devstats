@@ -103,13 +103,10 @@ export default function PrivacyPage() {
           From <Link href="/settings" className="text-hazard underline">/settings</Link>:
         </p>
         <ul className="font-mono text-sm space-y-2 list-none">
-          <Item label="EXPORT">Download every session row as JSON. (Coming soon — wire-up tracked.)</Item>
-          <Item label="DELETE ACCOUNT">Removes your user row, every session, every daily summary, every leaderboard entry. Cascade-deleted by Postgres FK. Irreversible.</Item>
+          <Item label="EXPORT">Download every session row, your profile, streaks, and follow graph as one JSON file — Settings → Your data → Download JSON.</Item>
+          <Item label="DELETE ONE TOOL">Wipe a single tool's sessions (e.g. after a bad import) without touching the rest — Settings → Your data → Delete session data.</Item>
+          <Item label="DELETE ACCOUNT">Removes your user row, every session, streaks, leaderboard entries, and follows. Also deletes the auth identity. Irreversible — Settings → Your data → Delete account.</Item>
         </ul>
-        <p className="font-mono text-xs text-ink/60 mt-4">
-          Until the in-app delete ships, email the maintainer or open an issue on
-          GitHub and we'll wipe the account by hand.
-        </p>
       </SpecCard>
 
       <footer className="border-t border-ink pt-4 text-sm text-ink/60 flex items-center justify-between">

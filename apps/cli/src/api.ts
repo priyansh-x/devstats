@@ -58,7 +58,7 @@ export interface LeaderboardResponse {
 }
 export const leaderboard = (
   cfg: CliConfig,
-  period: "weekly" | "alltime",
+  period: "daily" | "weekly" | "monthly" | "alltime",
   metric: "tokens" | "sessions" | "duration" | "lines",
 ) =>
   req<LeaderboardResponse>(

@@ -47,6 +47,13 @@ export function HourHeatmap({ data }: { data: { dow: number; hour: number; sessi
           ))}
         </tbody>
       </table>
+      <div className="flex items-center gap-2 mt-3 text-xs uppercase tracking-wide text-ink/60">
+        <span>Fewer sessions</span>
+        {["#EDE7DC", "#FFE0CC", "#FF9C66", "#FF7A33", "#FF5A1F"].map((c) => (
+          <span key={c} className="w-3 h-3 border border-ink/10" style={{ background: c }} />
+        ))}
+        <span>More</span>
+      </div>
     </div>
   );
 }

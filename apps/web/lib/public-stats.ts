@@ -6,6 +6,7 @@ import type { DashboardStats } from "@devstats/types";
 export interface PublicProfile {
   username: string;
   avatarUrl: string | null;
+  bio: string | null;
   createdAt: string;
   /** Aggregate stats — cost intentionally omitted. */
   stats: Omit<DashboardStats, "totals"> & {
@@ -20,7 +21,7 @@ export interface PublicProfile {
 export async function getPublicProfile(username: string): Promise<PublicProfile | null> {
   const user = await prisma.user.findUnique({
     where: { username },
-    select: { id: true, username: true, avatarUrl: true, isPublic: true, createdAt: true },
+    select: { id: true, username: true, avatarUrl: true, bio: true, isPublic: true, createdAt: true },
   });
   if (!user || !user.isPublic) return null;
 
@@ -29,6 +30,7 @@ export async function getPublicProfile(username: string): Promise<PublicProfile 
   return {
     username: user.username,
     avatarUrl: user.avatarUrl,
+    bio: user.bio,
     createdAt: user.createdAt.toISOString(),
     stats: { ...stats, totals: totalsSansCost },
   };

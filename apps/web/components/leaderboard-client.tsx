@@ -11,6 +11,7 @@ import { COUNTRIES, countryName, flagEmoji } from "@/lib/countries";
 const PERIODS: { v: LbPeriod; label: string }[] = [
   { v: "daily",   label: "Today" },
   { v: "weekly",  label: "This week" },
+  { v: "monthly", label: "This month" },
   { v: "alltime", label: "All time" },
 ];
 const METRICS: { v: LbMetric; label: string }[] = [

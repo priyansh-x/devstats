@@ -11,9 +11,16 @@ import type { DashboardStats, YearHeatmap, Tool } from "@devstats/types";
  */
 export const getDashboardStats = cache(_getDashboardStats);
 
-async function _getDashboardStats(userId: string): Promise<DashboardStats> {
+async function _getDashboardStats(
+  userId: string,
+  sinceDays?: number,
+): Promise<DashboardStats> {
+  const cutoff =
+    sinceDays && Number.isFinite(sinceDays)
+      ? new Date(Date.now() - sinceDays * 24 * 60 * 60 * 1000)
+      : undefined;
   const sessions = await prisma.session.findMany({
-    where: { userId },
+    where: { userId, ...(cutoff ? { startedAt: { gte: cutoff } } : {}) },
     orderBy: { startedAt: "asc" },
     select: {
       tool: true,
@@ -137,7 +144,16 @@ export async function recomputeStreak(userId: string) {
     where: { userId }, select: { startedAt: true }, orderBy: { startedAt: "asc" },
   });
   const set = new Set(days.map((d) => isoDay(d.startedAt)));
-  if (set.size === 0) return;
+  if (set.size === 0) {
+    // No sessions left (e.g. after per-tool or full data deletion) — zero the
+    // streak instead of leaving a stale one behind.
+    await prisma.streak.upsert({
+      where: { userId },
+      create: { userId, currentStreak: 0, longestStreak: 0, lastActiveDate: null },
+      update: { currentStreak: 0, lastActiveDate: null },
+    });
+    return;
+  }
 
   let longest = 0, current = 0;
   let prev: string | null = null;

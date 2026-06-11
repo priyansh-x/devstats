@@ -9,17 +9,37 @@ import { ImportLocalButton } from "@/components/import-button";
 import { UserNav } from "@/components/user-nav";
 import { getCurrentUser } from "@/lib/auth";
 import { getDashboardStats } from "@/lib/stats";
+import { prisma } from "@/lib/prisma";
 import { fmtCompact, fmtDuration } from "@/lib/utils";
 import { fmtUsd } from "@/lib/pricing";
 import { friendlyModel } from "@/lib/model-names";
 
 export const dynamic = "force-dynamic";
 
-export default async function Dashboard() {
+const RANGES: { v: string; days?: number; label: string }[] = [
+  { v: "30",  days: 30,  label: "30d" },
+  { v: "90",  days: 90,  label: "90d" },
+  { v: "365", days: 365, label: "1y" },
+  { v: "all",            label: "All" },
+];
+
+export default async function Dashboard({
+  searchParams,
+}: {
+  searchParams: { range?: string };
+}) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const stats = await getDashboardStats(user.id);
+  const range = RANGES.find((r) => r.v === searchParams.range) ?? RANGES[3]!;
+  const [stats, lastSession] = await Promise.all([
+    getDashboardStats(user.id, range.days),
+    prisma.session.findFirst({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      select: { createdAt: true },
+    }),
+  ]);
   const hasData = stats.totals.sessions > 0;
   const cacheRatio =
     stats.totals.tokensIn > 0
@@ -39,18 +59,37 @@ export default async function Dashboard() {
         </div>
       </header>
 
-      <div className="flex items-end justify-between mb-8">
+      <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
         <div>
           <div className="text-sm text-ink/60">
             {stats.firstSessionAt ? `Since ${stats.firstSessionAt.slice(0, 10)}` : "Welcome"}
+            {lastSession && (
+              <span> · last synced {timeAgo(lastSession.createdAt)}</span>
+            )}
           </div>
           <h1 className="font-display text-4xl font-black leading-none mt-1">
             {user.username}
           </h1>
         </div>
-        <Badge variant={user.isPublic ? "hazard" : "outline"}>
-          {user.isPublic ? "public profile" : "private"}
-        </Badge>
+        <div className="flex items-center gap-3">
+          {/* Date-range switcher — server-rendered links, no client JS needed */}
+          <div className="flex gap-1">
+            {RANGES.map((r) => (
+              <Link
+                key={r.v}
+                href={r.v === "all" ? "/dashboard" : `/dashboard?range=${r.v}`}
+                className={`text-xs uppercase tracking-wide font-bold px-3 py-1 border border-ink transition-colors ${
+                  r.v === range.v ? "bg-ink text-bone" : "bg-bone hover:bg-ink/10"
+                }`}
+              >
+                {r.label}
+              </Link>
+            ))}
+          </div>
+          <Badge variant={user.isPublic ? "hazard" : "outline"}>
+            {user.isPublic ? "public profile" : "private"}
+          </Badge>
+        </div>
       </div>
 
       {/* Spend coverage disclaimer */}
@@ -64,7 +103,7 @@ export default async function Dashboard() {
       )}
 
       {/* Top metric strip */}
-      <SpecCard label="Overview" meta="all-time" className="mb-6">
+      <SpecCard label="Overview" meta={range.days ? `last ${range.label}` : "all-time"} className="mb-6">
         <div className="grid grid-cols-2 md:grid-cols-6 gap-6">
           <SpecMetric label="Tokens in"  value={fmtCompact(stats.totals.tokensIn)} />
           <SpecMetric label="Tokens out" value={fmtCompact(stats.totals.tokensOut)} />
@@ -164,6 +203,14 @@ export default async function Dashboard() {
       )}
     </main>
   );
+}
+
+function timeAgo(d: Date): string {
+  const s = Math.floor((Date.now() - d.getTime()) / 1000);
+  if (s < 60) return "just now";
+  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+  return `${Math.floor(s / 86400)}d ago`;
 }
 
 function EmptyState() {

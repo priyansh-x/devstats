@@ -13,8 +13,9 @@ const cmd = args[0] ?? "help";
 async function main() {
   switch (cmd) {
     case "login":       return cmdLogin();
-    case "whoami":      return cmdWhoami();
+    case "whoami":      return cmdWhoami(args.slice(1));
     case "status":      return cmdStatus();
+    case "config":      return cmdConfig(args.slice(1));
     case "sync":        return cmdSync(args.slice(1));
     case "preview":     return cmdPreview();
     case "profile":     return cmdProfile(args.slice(1));
@@ -49,6 +50,8 @@ ${c.bold}usage:${c.reset}
   devstats leaderboard [flags]         fetch + print the public leaderboard
   devstats open [page]                 actually open dashboard / settings / leaderboard
                                        in your browser
+  devstats config                      show local config (key masked)
+  devstats config set url <url>        point the CLI at a different host
   devstats logout                      remove stored credentials
 
 ${c.bold}sync flags:${c.reset}
@@ -58,9 +61,13 @@ ${c.bold}sync flags:${c.reset}
                                        (claude-code | cursor | antigravity | windsurf)
 
 ${c.bold}leaderboard flags:${c.reset}
-  --period weekly|alltime              default: weekly
+  --period daily|weekly|monthly|alltime    default: weekly
   --metric tokens|sessions|duration|lines  default: tokens
   --top N                              default: 10
+
+${c.bold}scripting:${c.reset}
+  --json                               on whoami / leaderboard / profile,
+                                       print raw JSON instead of tables
 
 ${c.bold}open targets:${c.reset}
   devstats open                        → dashboard
@@ -98,7 +105,7 @@ async function cmdLogin() {
   }
 }
 
-async function cmdWhoami() {
+async function cmdWhoami(rest: string[] = []) {
   const cfg = await loadConfig();
   if (!cfg?.apiKey) {
     warn("Not logged in. Run `devstats login` first.");
@@ -106,6 +113,10 @@ async function cmdWhoami() {
   }
   try {
     const me = await whoami(cfg);
+    if (rest.includes("--json")) {
+      console.log(JSON.stringify(me, null, 2));
+      return;
+    }
     blank();
     bar("operator", me.username);
     row("email",         me.email);
@@ -349,13 +360,15 @@ async function cmdLeaderboard(rest: string[]) {
     process.exit(1);
   }
 
-  const period = (flag(rest, "--period") ?? "weekly") as "weekly" | "alltime";
+  const period = (flag(rest, "--period") ?? "weekly") as
+    | "daily" | "weekly" | "monthly" | "alltime";
   const metric = (flag(rest, "--metric") ?? "tokens") as
     | "tokens" | "sessions" | "duration" | "lines";
   const top = Number.parseInt(flag(rest, "--top") ?? "10", 10);
 
-  if (!["weekly", "alltime"].includes(period)) {
-    err(`bad --period (got "${period}"). Use weekly | alltime.`); process.exit(1);
+  if (!["daily", "weekly", "monthly", "alltime"].includes(period)) {
+    err(`bad --period (got "${period}"). Use daily | weekly | monthly | alltime.`);
+    process.exit(1);
   }
   if (!["tokens","sessions","duration","lines"].includes(metric)) {
     err(`bad --metric (got "${metric}"). Use tokens | sessions | duration | lines.`);
@@ -364,6 +377,10 @@ async function cmdLeaderboard(rest: string[]) {
 
   try {
     const res = await leaderboard(cfg, period, metric);
+    if (rest.includes("--json")) {
+      console.log(JSON.stringify(res, null, 2));
+      return;
+    }
     blank();
     bar("leaderboard", `${period.toUpperCase()} · ${metric.toUpperCase()}`);
     if (res.rows.length === 0) {
@@ -441,6 +458,55 @@ function flag(rest: string[], name: string): string | undefined {
   return i >= 0 ? rest[i + 1] : undefined;
 }
 
+/**
+ * `devstats config`              — show local config (API key masked)
+ * `devstats config set url <u>`  — repoint the CLI at a different host
+ *
+ * Beats hand-editing ~/.devstats/config.json, which is how everyone was
+ * switching ports during local dev.
+ */
+async function cmdConfig(rest: string[]) {
+  const cfg = await loadConfig();
+
+  if (rest.length === 0) {
+    blank();
+    bar("config", PATHS.CONFIG_PATH);
+    if (!cfg?.apiKey) {
+      info("Not logged in.");
+    } else {
+      row("api url",  cfg.apiUrl);
+      row("operator", cfg.username ?? "—");
+      row("api key",  `ds_live_…${cfg.apiKey.slice(-4)}`);
+    }
+    blank();
+    info(`Change the host: ${c.bold}devstats config set url <url>${c.reset}`);
+    blank();
+    return;
+  }
+
+  if (rest[0] === "set" && rest[1] === "url" && rest[2]) {
+    if (!cfg?.apiKey) {
+      warn("Not logged in. Run `devstats login` first (it stores the URL too).");
+      process.exit(1);
+    }
+    const url = rest[2].replace(/\/+$/, "");
+    await saveConfig({ ...cfg, apiUrl: url });
+    ok(`API URL → ${c.bold}${url}${c.reset}`);
+    // Sanity-probe the new host so a typo is caught immediately.
+    try {
+      const me = await whoami({ ...cfg, apiUrl: url });
+      ok(`Verified — signed in as ${c.bold}${me.username}${c.reset}.`);
+    } catch (e: any) {
+      warn(`Saved, but the probe failed: ${e.message}`);
+      warn("Check the URL or re-run `devstats login`.");
+    }
+    return;
+  }
+
+  err(`unknown config command. Use:\n  devstats config\n  devstats config set url <url>`);
+  process.exit(1);
+}
+
 /** Render the signed-in operator's dashboard as a spec sheet right here. */
 async function cmdDashboard() {
   const cfg = await loadConfig();
@@ -476,7 +542,8 @@ async function cmdProfile(rest: string[]) {
     process.exit(1);
   }
 
-  let handle = rest[0];
+  const asJson = rest.includes("--json");
+  let handle = rest.filter((a) => !a.startsWith("--"))[0];
   if (!handle) {
     const me = await whoami(cfg).catch(() => null);
     if (!me) { err("could not resolve your handle. Try `devstats profile <username>` directly."); process.exit(1); }
@@ -497,6 +564,11 @@ async function cmdProfile(rest: string[]) {
   } catch (e: any) {
     err(`profile failed: ${e.message}`);
     process.exit(1);
+  }
+
+  if (asJson) {
+    console.log(JSON.stringify(p, null, 2));
+    return;
   }
 
   blank();

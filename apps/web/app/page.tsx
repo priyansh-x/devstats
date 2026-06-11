@@ -88,10 +88,18 @@ export default async function Landing() {
       {/* Live leaderboard preview */}
       <LeaderboardStrip />
 
-      <footer className="border-t border-ink pt-6 flex items-center justify-between text-sm text-ink/60">
+      <footer className="border-t border-ink pt-6 flex flex-wrap items-center justify-between gap-3 text-sm text-ink/60">
         <span>Made for devs · BITS Pilani</span>
         <div className="flex items-center gap-4">
           <Link href="/privacy" className="hover:text-hazard">privacy</Link>
+          <a
+            href="https://github.com/priyansh-x/devstats/issues"
+            className="hover:text-hazard"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            report a bug
+          </a>
           <a href="https://github.com/priyansh-x/devstats" className="hover:text-hazard" target="_blank" rel="noopener noreferrer">
             github →
           </a>

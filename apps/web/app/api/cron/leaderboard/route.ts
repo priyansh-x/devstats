@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getLeaderboard, type LbPeriod, type LbMetric } from "@/lib/leaderboard";
+import { refreshLeaderboard, type LbPeriod, type LbMetric } from "@/lib/leaderboard";
 
 export const dynamic = "force-dynamic";
 
@@ -19,13 +19,14 @@ export async function GET(req: Request) {
     }
   }
 
-  const periods: LbPeriod[] = ["weekly", "alltime"];
+  const periods: LbPeriod[] = ["daily", "weekly", "monthly", "alltime"];
   const metrics: LbMetric[] = ["tokens", "sessions", "duration", "lines"];
 
   const results: { period: LbPeriod; metric: LbMetric; rows: number }[] = [];
   for (const p of periods) {
     for (const m of metrics) {
-      const rows = await getLeaderboard(p, m);
+      // refresh (not get) — busts the stale cache entry before recomputing
+      const rows = await refreshLeaderboard(p, m);
       results.push({ period: p, metric: m, rows: rows.length });
     }
   }

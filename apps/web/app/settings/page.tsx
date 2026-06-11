@@ -7,6 +7,7 @@ import { PrivacyToggle } from "@/components/privacy-toggle";
 import { CliOnboard } from "@/components/cli-onboard";
 import { UsernameEdit } from "@/components/username-edit";
 import { ProfileEdit } from "@/components/profile-edit";
+import { DangerZone } from "@/components/danger-zone";
 import { UserNav } from "@/components/user-nav";
 import { getCurrentUser } from "@/lib/auth";
 
@@ -79,6 +80,10 @@ export default async function Settings() {
           <dt className="text-xs text-ink/60 uppercase tracking-wide">Joined</dt>
           <dd>{user.createdAt.toISOString().slice(0, 10)}</dd>
         </dl>
+      </SpecCard>
+
+      <SpecCard label="Your data" meta="export · delete">
+        <DangerZone username={user.username} />
       </SpecCard>
     </main>
   );

@@ -115,6 +115,11 @@ export default async function PublicProfile(
               {[cityLine, countryName(countryCode)].filter(Boolean).join(" · ")}
             </div>
           )}
+          {profile.bio && (
+            <p className="text-sm text-ink/80 mt-2 max-w-md leading-relaxed">
+              {profile.bio}
+            </p>
+          )}
           <div className="flex flex-wrap gap-2 mt-3">
             {stats.toolBreakdown.slice(0, 4).map((t) => (
               <Badge key={t.tool} variant="solid">{t.tool.replace("_", " ").toLowerCase()}</Badge>
@@ -122,6 +127,15 @@ export default async function PublicProfile(
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {/* Head-to-head is only meaningful between two public profiles. */}
+          {me?.isPublic && !isSelf && (
+            <Link
+              href={`/compare/${me.username}/${profile.username}`}
+              className="border border-ink font-bold px-3 py-1.5 text-xs uppercase tracking-wide hover:bg-ink hover:text-bone"
+            >
+              Compare vs you
+            </Link>
+          )}
           <FollowButton
             username={profile.username}
             initialFollowing={isFollowing}
