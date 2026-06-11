@@ -73,7 +73,8 @@ export function UserNav({
           )}
           <NavItem href="/leaderboard" onClose={() => setOpen(false)}>Leaderboard</NavItem>
           <NavItem href="/squads" onClose={() => setOpen(false)}>Squads</NavItem>
-          <NavItem href="/settings" onClose={() => setOpen(false)}>Settings</NavItem>
+          <NavItem href="/settings" onClose={() => setOpen(false)}>Setup</NavItem>
+          <NavItem href="/settings/account" onClose={() => setOpen(false)}>Account</NavItem>
           <div className="border-t border-ink/20" />
           <button
             onClick={signOut}

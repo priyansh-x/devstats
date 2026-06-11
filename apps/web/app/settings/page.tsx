@@ -5,15 +5,12 @@ import { ApiKeyCard } from "@/components/api-key-card";
 import { CsvUpload } from "@/components/csv-upload";
 import { PrivacyToggle } from "@/components/privacy-toggle";
 import { CliOnboard } from "@/components/cli-onboard";
-import { UsernameEdit } from "@/components/username-edit";
-import { ProfileEdit } from "@/components/profile-edit";
-import { DangerZone } from "@/components/danger-zone";
 import { UserNav } from "@/components/user-nav";
 import { getCurrentUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
-export default async function Settings() {
+export default async function SetupPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
@@ -30,9 +27,14 @@ export default async function Settings() {
         </div>
       </header>
 
-      <div>
-        <h1 className="font-display text-4xl font-black leading-none mb-1">Settings</h1>
-        <p className="text-ink/60 text-sm">{user.username} · {user.email}</p>
+      <div className="flex items-end justify-between">
+        <div>
+          <h1 className="font-display text-4xl font-black leading-none mb-1">Setup</h1>
+          <p className="text-ink/60 text-sm">get your data flowing</p>
+        </div>
+        <Link href="/settings/account" className="text-sm hover:text-hazard">
+          account settings →
+        </Link>
       </div>
 
       {!user.apiKeyHash && (
@@ -63,31 +65,6 @@ export default async function Settings() {
 
       <SpecCard label="Import from CSV" meta="manual">
         <CsvUpload />
-      </SpecCard>
-
-      <SpecCard label="Handle">
-        <UsernameEdit initialUsername={user.username} />
-      </SpecCard>
-
-      <SpecCard label="Profile">
-        <ProfileEdit
-          initialBio={user.bio}
-          initialLocation={user.location}
-          initialCountryCode={user.countryCode}
-        />
-      </SpecCard>
-
-      <SpecCard label="Account">
-        <dl className="grid grid-cols-2 gap-3 text-sm">
-          <dt className="text-xs text-ink/60 uppercase tracking-wide">Email</dt>
-          <dd>{user.email}</dd>
-          <dt className="text-xs text-ink/60 uppercase tracking-wide">Joined</dt>
-          <dd>{user.createdAt.toISOString().slice(0, 10)}</dd>
-        </dl>
-      </SpecCard>
-
-      <SpecCard label="Your data" meta="export · delete">
-        <DangerZone username={user.username} />
       </SpecCard>
     </main>
   );

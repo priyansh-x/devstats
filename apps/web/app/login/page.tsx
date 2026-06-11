@@ -2,10 +2,15 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { SpecCard } from "@/components/spec-card";
 import { LoginForm } from "@/components/login-form";
-import { ensureDevUser } from "@/lib/auth";
+import { ensureDevUser, getCurrentUser } from "@/lib/auth";
 import { createSupabaseServer } from "@/lib/supabase/server";
 
-export default function LoginPage() {
+export const dynamic = "force-dynamic";
+
+export default async function LoginPage() {
+  const user = await getCurrentUser();
+  if (user) redirect("/dashboard");
+
   const supabaseConfigured = !!createSupabaseServer();
 
   async function devLoginAction() {

@@ -20,12 +20,12 @@ export function CliOnboard() {
     <div className="space-y-6 font-mono text-sm">
       <Step n="01" title="INSTALL THE CLI">
         <p className="text-ink/70 mb-3">
-          One-time setup. Add the local wrapper as a shell alias — no PATH edit, no sudo:
+          One-time setup. Clone the repo and add a shell alias:
         </p>
-        <Copy text={`echo 'alias devstats=~/Desktop/devstats/bin/devstats' >> ~/.zshrc && source ~/.zshrc`} />
+        <Copy text={`git clone https://github.com/priyansh-x/devstats.git ~/devstats && echo 'alias devstats=~/devstats/bin/devstats' >> ~/.zshrc && source ~/.zshrc`} />
         <p className="text-ink/50 text-xs mt-3">
-          (Once <code>devstats-cli</code> is on npm, this becomes{" "}
-          <code className="bg-bone-soft px-1">npm i -g devstats-cli</code>.)
+          Already cloned? Just add the alias. Once on npm this becomes{" "}
+          <code className="bg-bone-soft px-1">npm i -g devstats-cli</code>.
         </p>
       </Step>
 

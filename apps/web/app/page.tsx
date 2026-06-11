@@ -30,15 +30,14 @@ export default async function Landing() {
 
       {/* Hero */}
       <section className="text-center mb-14 mt-4">
-        <Badge variant="hazard" className="mb-4 inline-block">tokenmaxxing your editor</Badge>
         <h1 className="font-display text-5xl md:text-6xl font-black leading-[0.95] tracking-tight mb-5">
-          Your AI coding<br />
-          stats. <span className="text-hazard">Public.</span>
+          Tokenmaxxing<br />
+          your <span className="text-hazard">editor.</span>
         </h1>
-        <p className="text-base leading-relaxed max-w-lg text-ink/80 mb-6 mx-auto">
-          Plug in your Claude Code, Cursor, or Antigravity logs.
-          Watch your tokens, streaks, and spend stack up —
-          no cap. Climb the leaderboard if you&apos;re built like that.
+        <p className="text-base leading-relaxed max-w-md text-ink/80 mb-6 mx-auto">
+          Plug in your Claude Code, Cursor, or Antigravity logs
+          and watch your tokens, streaks, and spend stack up.
+          Climb the leaderboard if you&apos;re built like that.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Link
@@ -69,7 +68,7 @@ export default async function Landing() {
         <h2 className="font-display text-2xl font-black mb-5">How it works</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { n: "1", t: "Sign in", b: "GitHub login, literally 5 seconds. No repo access — just your handle." },
+            { n: "1", t: "Sign in", b: "GitHub login, literally 5 seconds. No repo access, just your handle." },
             { n: "2", t: "Install CLI", b: "One command. devstats sync reads your local AI editor logs. That's it, that's the tweet." },
             { n: "3", t: "Go public", b: "Stay lowkey and track privately, or go main character and hit the leaderboard." },
             { n: "4", t: "Make a squad", b: "Private group leaderboards. Invite the homies, compare stats, talk your trash." },
@@ -89,7 +88,7 @@ export default async function Landing() {
       <LeaderboardStrip />
 
       <footer className="border-t border-ink pt-5 flex flex-wrap items-center justify-between gap-3 text-sm text-ink/60">
-        <span>ts tuff fr fr · stay locked in</span>
+        <span>ts tuff fr fr · stay locked in · no cap</span>
         <div className="flex items-center gap-4">
           <Link href="/privacy" className="hover:text-hazard">privacy</Link>
           <a

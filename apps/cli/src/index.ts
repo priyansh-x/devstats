@@ -9,7 +9,7 @@ import {
 } from "./api.js";
 import { spawn } from "node:child_process";
 
-const DEFAULT_API_URL = process.env.DEVSTATS_URL ?? "http://localhost:3000";
+const DEFAULT_API_URL = process.env.DEVSTATS_URL ?? "https://devstats-x.vercel.app";
 const args = process.argv.slice(2);
 const cmd = args[0] ?? "help";
 
@@ -97,7 +97,6 @@ async function cmdLogin() {
   const apiUrl = DEFAULT_API_URL;
   blank();
   info(`Open ${c.bold}${apiUrl}/settings${c.reset} → API KEY → GENERATE KEY → copy it.`);
-  info(`(override the host with ${c.dim}DEVSTATS_URL=https://…${c.reset})`);
   blank();
   const apiKey = await prompt("Paste API key:", { hidden: true });
   if (!apiKey.startsWith("ds_live_")) {
