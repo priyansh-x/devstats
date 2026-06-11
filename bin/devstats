@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
-# devstats wrapper — runs the workspace CLI without the pnpm preamble.
-# Resolves the repo root from this script's location so it works regardless of CWD.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
-exec pnpm --silent -C "$REPO_ROOT" --filter devstats-cli start "$@"
+CLI_DIR="$REPO_ROOT/apps/cli"
+DIST="$CLI_DIR/dist/index.js"
+
+# First run: install deps and build
+if [ ! -f "$DIST" ]; then
+  echo "First run — installing and building CLI..."
+  (cd "$REPO_ROOT" && pnpm install --frozen-lockfile && pnpm --filter devstats-cli build) || exit 1
+fi
+
+exec node "$DIST" "$@"
