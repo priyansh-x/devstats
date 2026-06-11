@@ -104,3 +104,56 @@ export function flagEmoji(code: string | null | undefined): string {
   const A = 0x1f1e6;
   return String.fromCodePoint(A + (cc.charCodeAt(0) - 65), A + (cc.charCodeAt(1) - 65));
 }
+
+// Reverse index, lower-cased, for guessCountryCode below.
+const BY_NAME = new Map(COUNTRIES.map((c) => [c.name.toLowerCase(), c.code]));
+
+/**
+ * Common shorthands and demonyms people actually write on GitHub. Kept small
+ * and obviously-correct — we'd rather skip a guess than mis-classify.
+ */
+const ALIAS: Record<string, string> = {
+  "usa": "US",
+  "u.s.a.": "US",
+  "u.s.": "US",
+  "united states of america": "US",
+  "america": "US",
+  "uk": "GB",
+  "u.k.": "GB",
+  "england": "GB",
+  "scotland": "GB",
+  "wales": "GB",
+  "great britain": "GB",
+  "uae": "AE",
+  "u.a.e.": "AE",
+  "south korea": "KR",
+  "korea": "KR",
+  "republic of korea": "KR",
+  "russia": "RU",
+  "russian federation": "RU",
+  "czech republic": "CZ",
+  "the netherlands": "NL",
+  "holland": "NL",
+  "viet nam": "VN",
+};
+
+/**
+ * Best-effort: parse a GitHub-style location string ("Mumbai, India",
+ * "San Francisco, CA", "Berlin, Germany") → ISO 3166-1 alpha-2. Returns null
+ * if no comma-separated segment matches a known country or alias.
+ *
+ * Walks right→left because the country usually trails city/state. Never
+ * invents a country code from a US state abbreviation or similar — better to
+ * leave the field null than mark a Texan as Tonga.
+ */
+export function guessCountryCode(location: string | null | undefined): string | null {
+  if (!location) return null;
+  const segments = location.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+  if (segments.length === 0) return null;
+  for (let i = segments.length - 1; i >= 0; i--) {
+    const s = segments[i]!;
+    if (BY_NAME.has(s)) return BY_NAME.get(s)!;
+    if (ALIAS[s]) return ALIAS[s];
+  }
+  return null;
+}
