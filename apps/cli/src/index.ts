@@ -3,7 +3,10 @@
 import { parseClaudeCode, parseCursor, parseAntigravity, parseWindsurf } from "@devstats/parsers";
 import { loadConfig, saveConfig, loadCursor, saveCursor, PATHS } from "./config.js";
 import { c, bar, row, ok, warn, err, info, blank, fmt, prompt } from "./ui.js";
-import { whoami, upload, leaderboard, publicProfile } from "./api.js";
+import {
+  whoami, upload, leaderboard, publicProfile,
+  squadList, squadCreate, squadJoin, squadLeave, squadStandings,
+} from "./api.js";
 import { spawn } from "node:child_process";
 
 const DEFAULT_API_URL = process.env.DEVSTATS_URL ?? "http://localhost:3000";
@@ -23,6 +26,8 @@ async function main() {
     case "leaderboard":
     case "lb":          return cmdLeaderboard(args.slice(1));
     case "open":        return cmdOpen(args.slice(1));
+    case "squad":       return cmdSquad(args.slice(1));
+    case "doctor":      return cmdDoctor(args.slice(1));
     case "logout":      return cmdLogout();
     case "-v":
     case "--version":
@@ -50,6 +55,12 @@ ${c.bold}usage:${c.reset}
   devstats leaderboard [flags]         fetch + print the public leaderboard
   devstats open [page]                 actually open dashboard / settings / leaderboard
                                        in your browser
+  devstats squad list                  your squads + invite codes
+  devstats squad create <name>         create a squad, get an invite code
+  devstats squad join <code>           join with an invite code
+  devstats squad <slug>                squad standings in the terminal
+  devstats squad leave <slug>          leave (last member out deletes it)
+  devstats doctor [--report]           diagnose local tool detection / parsing
   devstats config                      show local config (key masked)
   devstats config set url <url>        point the CLI at a different host
   devstats logout                      remove stored credentials
@@ -456,6 +467,185 @@ async function cmdOpen(rest: string[]) {
 function flag(rest: string[], name: string): string | undefined {
   const i = rest.indexOf(name);
   return i >= 0 ? rest[i + 1] : undefined;
+}
+
+/**
+ * Squads — private team leaderboards.
+ *   devstats squad list | create <name> | join <code> | leave <slug> | <slug>
+ */
+async function cmdSquad(rest: string[]) {
+  const cfg = await loadConfig();
+  if (!cfg?.apiKey) {
+    warn("Not logged in. Run `devstats login` first.");
+    process.exit(1);
+  }
+  const sub = rest[0];
+
+  try {
+    if (!sub || sub === "list") {
+      const { squads } = await squadList(cfg);
+      blank();
+      bar("squads", `${squads.length}`);
+      if (squads.length === 0) {
+        info("No squads yet. Create one: devstats squad create <name>");
+      } else {
+        for (const s of squads) {
+          row(s.slug, `${s.name} · ${s.memberCount} member${s.memberCount === 1 ? "" : "s"} · code ${s.inviteCode}`);
+        }
+      }
+      blank();
+      return;
+    }
+
+    if (sub === "create") {
+      const name = rest.slice(1).join(" ").trim();
+      if (!name) { err("Usage: devstats squad create <name>"); process.exit(1); }
+      const s = await squadCreate(cfg, name);
+      blank();
+      ok(`Created ${c.bold}${s.name}${c.reset}.`);
+      row("invite code", `${c.hazard}${s.inviteCode}${c.reset}`);
+      row("share", `friends run: devstats squad join ${s.inviteCode}`);
+      row("board", `${cfg.apiUrl}/squads/${s.slug}`);
+      blank();
+      return;
+    }
+
+    if (sub === "join") {
+      const code = rest[1];
+      if (!code) { err("Usage: devstats squad join <code>"); process.exit(1); }
+      const s = await squadJoin(cfg, code);
+      ok(`Joined ${c.bold}${s.name}${c.reset}. Standings: devstats squad ${s.slug}`);
+      return;
+    }
+
+    if (sub === "leave") {
+      const slug = rest[1];
+      if (!slug) { err("Usage: devstats squad leave <slug>"); process.exit(1); }
+      await squadLeave(cfg, slug);
+      ok(`Left ${slug}.`);
+      return;
+    }
+
+    // Anything else is treated as a slug → print standings.
+    const period = flag(rest, "--period") ?? "weekly";
+    const metric = flag(rest, "--metric") ?? "tokens";
+    const data = await squadStandings(cfg, sub, period, metric);
+    if (rest.includes("--json")) { console.log(JSON.stringify(data, null, 2)); return; }
+    blank();
+    bar(data.squad.name, `${period} · ${metric}`);
+    if (data.rows.length === 0) {
+      info("No activity in this window. First to sync takes #1.");
+    } else {
+      for (const r of data.rows) {
+        const me = cfg.username && r.username === cfg.username;
+        const crown = r.rank === 1 ? "👑 " : "   ";
+        const line = `${crown}#${String(r.rank).padEnd(3)} ${r.username.padEnd(20)} ${fmt(r.score).padStart(10)}`;
+        console.log(me ? `  ${c.hazard}${line} ← you${c.reset}` : `  ${line}`);
+      }
+    }
+    blank();
+    row("invite code", data.squad.inviteCode);
+    row("board", `${cfg.apiUrl}/squads/${data.squad.slug}`);
+    blank();
+  } catch (e: any) {
+    err(`squad: ${e.message}`);
+    process.exit(1);
+  }
+}
+
+/**
+ * `devstats doctor` — diagnose what the parsers can (and can't) see on this
+ * machine. The first thing to run when "my data doesn't show up". `--report`
+ * writes an anonymized JSON bundle (counts, paths, warnings — never message
+ * content) to attach to a GitHub issue.
+ */
+async function cmdDoctor(rest: string[]) {
+  const report: Record<string, any> = {
+    generatedAt: new Date().toISOString(),
+    platform: process.platform,
+    nodeVersion: process.version,
+    cliVersion: "0.0.1",
+    tools: {},
+  };
+
+  blank();
+  bar("devstats doctor", process.platform);
+
+  const checks: { name: string; key: string; run: () => Promise<{ sessions: any[]; warnings: string[] }> }[] = [
+    { name: "claude-code", key: "CLAUDE_CODE", run: () => parseClaudeCode() },
+    { name: "cursor",      key: "CURSOR",      run: () => parseCursor() },
+    { name: "antigravity", key: "ANTIGRAVITY", run: () => parseAntigravity() },
+    { name: "windsurf",    key: "WINDSURF",    run: () => parseWindsurf() },
+  ];
+
+  for (const check of checks) {
+    let sessions: any[] = [];
+    let warnings: string[] = [];
+    let error: string | null = null;
+    const t0 = Date.now();
+    try {
+      const r = await check.run();
+      sessions = r.sessions;
+      warnings = r.warnings;
+    } catch (e: any) {
+      error = e.message;
+    }
+    const ms = Date.now() - t0;
+
+    const detected = sessions.length > 0 || warnings.length > 0;
+    const dates = sessions.map((s) => s.startedAt.getTime());
+    const tin = sessions.reduce((a, s) => a + (s.tokensIn ?? 0), 0);
+    const summary = {
+      detected,
+      sessions: sessions.length,
+      tokensIn: tin,
+      firstSession: dates.length ? new Date(Math.min(...dates)).toISOString().slice(0, 10) : null,
+      lastSession:  dates.length ? new Date(Math.max(...dates)).toISOString().slice(0, 10) : null,
+      warnings,
+      error,
+      parseMs: ms,
+    };
+    report.tools[check.key] = summary;
+
+    blank();
+    if (error) {
+      err(`${check.name}: parser crashed — ${error}`);
+    } else if (sessions.length > 0) {
+      ok(`${check.name}: ${sessions.length} sessions · ${fmt(tin)} tokens in · ${summary.firstSession} → ${summary.lastSession} (${ms}ms)`);
+    } else if (warnings.length > 0) {
+      warn(`${check.name}: detected but 0 sessions parsed (${ms}ms)`);
+    } else {
+      info(`${check.name}: not installed (or no data) — skipped.`);
+    }
+    for (const w of warnings) warn(`  ${w}`);
+  }
+
+  // Connectivity + auth.
+  blank();
+  const cfg = await loadConfig();
+  if (!cfg?.apiKey) {
+    warn("auth: not logged in (devstats login)");
+    report.auth = { loggedIn: false };
+  } else {
+    try {
+      const me = await whoami(cfg);
+      ok(`auth: signed in as ${me.username} · ${me.sessions} sessions on ${cfg.apiUrl}`);
+      report.auth = { loggedIn: true, apiUrl: cfg.apiUrl, remoteSessions: me.sessions };
+    } catch (e: any) {
+      err(`auth: can't reach ${cfg.apiUrl} — ${e.message}`);
+      report.auth = { loggedIn: true, apiUrl: cfg.apiUrl, error: e.message };
+    }
+  }
+
+  if (rest.includes("--report")) {
+    const { writeFile } = await import("node:fs/promises");
+    const path = `devstats-doctor-${Date.now()}.json`;
+    await writeFile(path, JSON.stringify(report, null, 2));
+    blank();
+    ok(`Wrote ${path} — attach it to a GitHub issue.`);
+    info("Contains counts, dates, and warnings only. Never message content or paths' contents.");
+  }
+  blank();
 }
 
 /**

@@ -72,6 +72,7 @@ export function UserNav({
             </NavItem>
           )}
           <NavItem href="/leaderboard" onClose={() => setOpen(false)}>Leaderboard</NavItem>
+          <NavItem href="/squads" onClose={() => setOpen(false)}>Squads</NavItem>
           <NavItem href="/settings" onClose={() => setOpen(false)}>Settings</NavItem>
           <div className="border-t border-ink/20" />
           <button

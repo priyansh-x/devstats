@@ -36,9 +36,40 @@ model User {
   following Friendship[] @relation("follower")
   followers Friendship[] @relation("followed")
 
+  squadMemberships SquadMember[]
+  squadsCreated    Squad[]       @relation("squadCreator")
+
   @@index([isPublic])
   @@index([location])
   @@index([countryCode])
+}
+
+// A squad is a named friend-group with one shared leaderboard and an invite
+// code. Joining a squad = consenting to share your aggregate stats with its
+// members (even if your global profile is private).
+model Squad {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  inviteCode  String   @unique
+  createdById String
+  createdAt   DateTime @default(now())
+
+  createdBy User          @relation("squadCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  members   SquadMember[]
+}
+
+model SquadMember {
+  id       String   @id @default(cuid())
+  squadId  String
+  userId   String
+  joinedAt DateTime @default(now())
+
+  squad Squad @relation(fields: [squadId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([squadId, userId])
+  @@index([userId])
 }
 
 model Friendship {

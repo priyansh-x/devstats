@@ -87,3 +87,43 @@ export interface PublicProfileResponse {
 /** Public profile endpoint — only succeeds for public users. */
 export const publicProfile = (cfg: CliConfig, username: string) =>
   req<PublicProfileResponse>(cfg, `/api/stats/${encodeURIComponent(username)}`);
+
+// ── Squads ──────────────────────────────────────────────────
+export interface SquadSummary {
+  slug: string;
+  name: string;
+  memberCount: number;
+  inviteCode: string;
+  isCreator: boolean;
+}
+
+export const squadList = (cfg: CliConfig) =>
+  req<{ squads: SquadSummary[] }>(cfg, "/api/squads");
+
+export const squadCreate = (cfg: CliConfig, name: string) =>
+  req<{ slug: string; name: string; inviteCode: string }>(cfg, "/api/squads", {
+    method: "POST",
+    body: JSON.stringify({ name }),
+  });
+
+export const squadJoin = (cfg: CliConfig, code: string) =>
+  req<{ joined: boolean; slug: string; name: string }>(cfg, "/api/squads/join", {
+    method: "POST",
+    body: JSON.stringify({ code }),
+  });
+
+export const squadLeave = (cfg: CliConfig, slug: string) =>
+  req<{ left: boolean }>(cfg, `/api/squads/${encodeURIComponent(slug)}`, { method: "DELETE" });
+
+export const squadStandings = (
+  cfg: CliConfig,
+  slug: string,
+  period: string,
+  metric: string,
+) =>
+  req<{
+    squad: { name: string; slug: string; inviteCode: string; memberCount: number };
+    rows: { rank: number; username: string; countryCode: string | null; score: number; tools: string[] }[];
+    period: string;
+    metric: string;
+  }>(cfg, `/api/squads/${encodeURIComponent(slug)}?period=${period}&metric=${metric}`);

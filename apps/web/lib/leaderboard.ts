@@ -39,8 +39,11 @@ function sinceFor(period: LbPeriod): Date {
 export async function getLeaderboard(
   period: LbPeriod,
   metric: LbMetric,
-  opts: { userIds?: string[]; pinUserId?: string } = {},
+  opts: { userIds?: string[]; pinUserId?: string; requirePublic?: boolean } = {},
 ): Promise<LbRow[]> {
+  // Squads pass requirePublic: false — joining a squad is itself consent to
+  // share aggregates with its members, regardless of global visibility.
+  const requirePublic = opts.requirePublic ?? true;
   const isAllowlist = Array.isArray(opts.userIds);
   const skipCache = isAllowlist || !!opts.pinUserId;
   const cacheKey = `lb:${period}:${metric}`;
@@ -55,7 +58,7 @@ export async function getLeaderboard(
     by: ["userId", "tool"],
     where: {
       startedAt: { gte: since },
-      user: { isPublic: true },
+      ...(requirePublic ? { user: { isPublic: true } } : {}),
       ...(opts.userIds && opts.userIds.length > 0
         ? { userId: { in: opts.userIds } }
         : {}),
