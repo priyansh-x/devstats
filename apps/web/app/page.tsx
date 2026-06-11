@@ -89,7 +89,7 @@ export default async function Landing() {
       <LeaderboardStrip />
 
       <footer className="border-t border-ink pt-6 flex flex-wrap items-center justify-between gap-3 text-sm text-ink/60">
-        <span>Made for devs · BITS Pilani</span>
+        <span>Made for devs · stay locked in</span>
         <div className="flex items-center gap-4">
           <Link href="/privacy" className="hover:text-hazard">privacy</Link>
           <a

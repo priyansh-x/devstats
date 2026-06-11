@@ -4,14 +4,12 @@ import { useState, useTransition } from "react";
 import { createSupabaseBrowser } from "@/lib/supabase/client";
 
 /**
- * GitHub-first login. Magic links exist in the SDK but Supabase's built-in
- * email sender is rate-limited to ~3/hour/project on the free tier, so we
- * keep it tucked away as a fallback only.
+ * GitHub-only login. Magic links were removed deliberately: Supabase's
+ * built-in email sender caps at ~3 emails/hour on the free tier, which reads
+ * as "broken" to users. One good auth path beats two flaky ones.
  */
 export function LoginForm() {
   const [busy, start] = useTransition();
-  const [showEmail, setShowEmail] = useState(false);
-  const [email, setEmail] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
 
   const signInGithub = () =>
@@ -24,18 +22,6 @@ export function LoginForm() {
         options: { redirectTo: `${location.origin}/auth/callback?next=/dashboard` },
       });
       if (error) setMsg(error.message);
-    });
-
-  const sendMagicLink = () =>
-    start(async () => {
-      setMsg(null);
-      const sb = createSupabaseBrowser();
-      if (!sb) return setMsg("Supabase client unavailable.");
-      const { error } = await sb.auth.signInWithOtp({
-        email,
-        options: { emailRedirectTo: `${location.origin}/auth/callback?next=/dashboard` },
-      });
-      setMsg(error ? error.message : "Check your inbox.");
     });
 
   return (
@@ -54,40 +40,8 @@ export function LoginForm() {
 
       <p className="text-xs text-ink/60 text-center">
         We only request your public profile and email. No repo access, no writes.
+        Your username, avatar, and country auto-fill from GitHub.
       </p>
-
-      {!showEmail ? (
-        <button
-          type="button"
-          onClick={() => setShowEmail(true)}
-          className="block w-full text-center text-xs text-ink/50 hover:text-ink underline"
-        >
-          email magic link (slow — rate-limited)
-        </button>
-      ) : (
-        <div className="border-t border-ink/20 pt-4 space-y-2">
-          <label className="block text-xs text-ink/60">Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
-            className="w-full bg-bone border border-ink px-3 py-2 text-sm focus:outline-none focus:bg-bone-soft"
-          />
-          <button
-            type="button"
-            onClick={sendMagicLink}
-            disabled={busy || !email}
-            className="w-full border border-ink font-bold py-2 text-sm hover:bg-ink hover:text-bone transition-colors disabled:opacity-30"
-          >
-            {busy ? "Sending…" : "Send magic link"}
-          </button>
-          <p className="text-[11px] text-ink/50">
-            Free Supabase tier allows ~3 emails per hour total across the project.
-            GitHub is faster and more reliable.
-          </p>
-        </div>
-      )}
 
       {msg && (
         <div className="text-sm text-hazard border-l-2 border-hazard pl-3">

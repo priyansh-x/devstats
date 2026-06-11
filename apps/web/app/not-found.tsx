@@ -5,14 +5,13 @@ export default function NotFound() {
   return (
     <main className="max-w-2xl mx-auto px-6 py-16">
       <SpecCard label="404 / SIGNAL LOST" variant="hazard">
-        <p className="spec-label">ERROR CODE</p>
+        <p className="spec-label">404</p>
         <h1 className="font-display text-6xl font-black leading-none mt-1 mb-4">
-          NOT FOUND
+          This page got cooked.
         </h1>
         <p className="font-mono text-sm leading-relaxed mb-6">
-          This page either never existed or has been decommissioned. Likely
-          causes: a stale link, a typoed username, or a private profile whose
-          owner switched back to private.
+          It either never existed or it's gone — stale link, typoed username,
+          or a profile whose owner went back to private.
         </p>
         <div className="flex flex-wrap gap-2">
           <Link

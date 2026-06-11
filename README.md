@@ -192,4 +192,3 @@ Issues and PRs welcome. Areas with shovel-ready scope:
 ## License
 
 MIT — see [`LICENSE`](LICENSE).
-Built at **BITS Pilani**.

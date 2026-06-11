@@ -219,7 +219,7 @@ function EmptyState() {
       <div className="text-center space-y-2">
         <h3 className="font-display text-2xl font-black">No data yet</h3>
         <p className="text-sm text-ink/70">
-          Pick a way in — you'll see your stats in under a minute.
+          Pick a way in — you'll be tokenmaxxing in under a minute.
         </p>
       </div>
 

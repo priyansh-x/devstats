@@ -221,15 +221,15 @@ function EmptyState({ friendsOnly }: { friendsOnly: boolean }) {
   return (
     <div className="border-2 border-dashed border-ink/30 p-8 text-center space-y-2">
       <p className="text-sm font-bold uppercase tracking-wide text-ink/60">
-        {friendsOnly ? "No friends here yet" : "No matches"}
+        {friendsOnly ? "No friends here yet" : "No one's locked in yet"}
       </p>
       <p className="text-sm text-ink/70">
         {friendsOnly ? (
           <>Follow a few people on their public profiles to populate this view.</>
         ) : (
           <>
-            Try a different filter, or be the first —{" "}
-            <Link href="/settings" className="text-hazard underline">toggle public</Link>.
+            Try a different filter, or be first —{" "}
+            <Link href="/settings" className="text-hazard underline">go public</Link>.
           </>
         )}
       </p>
