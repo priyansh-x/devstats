@@ -4,7 +4,7 @@ import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "DevStats — Field Ops for AI Coding",
+  title: "devstats",
   description:
     "Track tokens, sessions, streaks across Claude Code, Cursor, Copilot. Private by default.",
 };
