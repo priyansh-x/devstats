@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowser } from "@/lib/supabase/client";
+import { flagEmoji } from "@/lib/countries";
 
 /**
  * Profile pill in the header. Click → dropdown with avatar/initials, handle,
@@ -12,7 +13,7 @@ import { createSupabaseBrowser } from "@/lib/supabase/client";
 export function UserNav({
   user,
 }: {
-  user: { username: string; isPublic: boolean; avatarUrl: string | null };
+  user: { username: string; isPublic: boolean; avatarUrl: string | null; countryCode?: string | null };
 }) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
@@ -49,7 +50,10 @@ export function UserNav({
             {initials}
           </span>
         )}
-        <span className="font-bold text-sm">{user.username}</span>
+        <span className="font-bold text-sm flex items-center gap-1">
+          {user.countryCode && <span>{flagEmoji(user.countryCode)}</span>}
+          {user.username}
+        </span>
         <svg width="10" height="10" viewBox="0 0 10 10" className={open ? "rotate-180" : ""}>
           <path d="M1 3l4 4 4-4" stroke="currentColor" strokeWidth="1.5" fill="none" />
         </svg>

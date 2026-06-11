@@ -86,7 +86,7 @@ export function LeaderboardClient({
         )}
       </div>
 
-      {/* Search + location filter */}
+      {/* Search + country filter */}
       <div className="grid sm:grid-cols-2 gap-2 mb-5">
         <input
           value={q}
@@ -94,12 +94,18 @@ export function LeaderboardClient({
           placeholder="Search by username…"
           className="bg-bone border border-ink px-3 py-2 text-sm focus:outline-none focus:bg-bone-soft"
         />
-        <input
-          value={location}
-          onChange={(e) => setLoc(e.target.value)}
-          placeholder="Filter by location (e.g. Mumbai, Berlin)"
+        <select
+          value={country}
+          onChange={(e) => setCountry(e.target.value)}
           className="bg-bone border border-ink px-3 py-2 text-sm focus:outline-none focus:bg-bone-soft"
-        />
+        >
+          <option value="">All countries</option>
+          {COUNTRIES.map((c) => (
+            <option key={c.code} value={c.code}>
+              {flagEmoji(c.code)} {c.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       {pending ? (
@@ -112,7 +118,7 @@ export function LeaderboardClient({
             <tr className="text-left text-xs uppercase tracking-wide text-ink/60 border-b border-ink/30">
               <th className="py-2 w-12">#</th>
               <th className="py-2">User</th>
-              <th className="py-2">Where</th>
+              <th className="py-2">Country</th>
               <th className="py-2">Tools</th>
               <th className="py-2 text-right">Score</th>
             </tr>
@@ -128,11 +134,19 @@ export function LeaderboardClient({
                     </span>
                   </td>
                   <td className="py-2">
-                    <Link href={`/u/${r.username}`} className="font-bold hover:text-hazard">
-                      {r.username}{isMe && <span className="ml-2 text-xs text-hazard">you</span>}
+                    <Link href={`/u/${r.username}`} className="font-bold hover:text-hazard inline-flex items-center gap-1.5">
+                      {r.countryCode && (
+                        <span title={countryName(r.countryCode) ?? r.countryCode}>
+                          {flagEmoji(r.countryCode)}
+                        </span>
+                      )}
+                      <span>{r.username}</span>
+                      {isMe && <span className="ml-1 text-xs text-hazard">you</span>}
                     </Link>
                   </td>
-                  <td className="py-2 text-xs text-ink/60">{r.location ?? "—"}</td>
+                  <td className="py-2 text-xs text-ink/60">
+                    {r.countryCode ? (countryName(r.countryCode) ?? "—") : (r.location ?? "—")}
+                  </td>
                   <td className="py-2">
                     <div className="flex flex-wrap gap-1">
                       {r.tools.map((t) => (

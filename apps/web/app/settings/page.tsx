@@ -25,7 +25,7 @@ export default async function Settings() {
         </div>
         <div className="flex items-center gap-4 text-sm">
           <Link href="/dashboard" className="hover:text-hazard">dashboard</Link>
-          <UserNav user={{ username: user.username, isPublic: user.isPublic, avatarUrl: user.avatarUrl }} />
+          <UserNav user={{ username: user.username, isPublic: user.isPublic, avatarUrl: user.avatarUrl, countryCode: user.countryCode }} />
         </div>
       </header>
 
@@ -65,7 +65,11 @@ export default async function Settings() {
       </SpecCard>
 
       <SpecCard label="Profile">
-        <ProfileEdit initialBio={user.bio} initialLocation={user.location} />
+        <ProfileEdit
+          initialBio={user.bio}
+          initialLocation={user.location}
+          initialCountryCode={user.countryCode}
+        />
       </SpecCard>
 
       <SpecCard label="Account">

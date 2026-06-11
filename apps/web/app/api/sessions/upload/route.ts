@@ -58,9 +58,11 @@ export async function POST(req: Request) {
     return true;
   });
 
-  // @@unique([userId, tool, startedAt]) gives us skipDuplicates.
+  // @@unique([userId, tool, startedAt]) gives us skipDuplicates. Without
+  // this flag, re-syncs would throw P2002 instead of silently no-oping.
   const result = await prisma.session.createMany({
     data: rows.map((r) => ({ ...r, userId: user.id })),
+    skipDuplicates: true,
   });
   const inserted = result.count;
 

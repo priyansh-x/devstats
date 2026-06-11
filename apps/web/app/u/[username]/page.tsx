@@ -13,6 +13,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { fmtCompact, fmtDuration } from "@/lib/utils";
 import { friendlyModel } from "@/lib/model-names";
+import { countryName, flagEmoji } from "@/lib/countries";
 
 export const dynamic = "force-dynamic";
 
@@ -49,23 +50,25 @@ export default async function PublicProfile(
   const isSelf = me?.username === profile.username;
   let isFollowing = false;
   let followerCount = 0;
-  if (!isSelf) {
-    const target = await prisma.user.findUnique({
-      where: { username: profile.username },
-      select: { id: true },
-    });
-    if (target) {
-      const [n, edge] = await Promise.all([
-        prisma.friendship.count({ where: { followedId: target.id } }),
-        me ? prisma.friendship.findUnique({
-          where: { followerId_followedId: { followerId: me.id, followedId: target.id } },
-          select: { id: true },
-        }) : Promise.resolve(null),
-      ]);
-      followerCount = n;
-      isFollowing = !!edge;
-    }
+  const target = await prisma.user.findUnique({
+    where: { username: profile.username },
+    select: { id: true, countryCode: true, location: true },
+  });
+  if (target && !isSelf) {
+    const [n, edge] = await Promise.all([
+      prisma.friendship.count({ where: { followedId: target.id } }),
+      me
+        ? prisma.friendship.findUnique({
+            where: { followerId_followedId: { followerId: me.id, followedId: target.id } },
+            select: { id: true },
+          })
+        : Promise.resolve(null),
+    ]);
+    followerCount = n;
+    isFollowing = !!edge;
   }
+  const countryCode = target?.countryCode ?? null;
+  const cityLine = target?.location ?? null;
 
   const { stats } = profile;
   const totalTokens = stats.totals.tokensIn + stats.totals.tokensOut;
@@ -85,7 +88,7 @@ export default async function PublicProfile(
         <div className="flex items-center gap-4 text-sm">
           <Link href="/leaderboard" className="hover:text-hazard">leaderboard</Link>
           {me ? (
-            <UserNav user={{ username: me.username, isPublic: me.isPublic, avatarUrl: me.avatarUrl }} />
+            <UserNav user={{ username: me.username, isPublic: me.isPublic, avatarUrl: me.avatarUrl, countryCode: me.countryCode }} />
           ) : (
             <Link href="/login" className="bg-ink text-bone px-3 py-1.5 hover:bg-hazard hover:text-ink">
               sign in →
@@ -99,9 +102,19 @@ export default async function PublicProfile(
           <div className="text-sm text-ink/60">
             Since {profile.createdAt.slice(0, 10)}{followerCount > 0 ? ` · ${followerCount} followers` : ""}
           </div>
-          <h1 className="font-display text-5xl font-black leading-none mt-1">
-            {profile.username}
+          <h1 className="font-display text-5xl font-black leading-none mt-1 flex items-center gap-3 flex-wrap">
+            {countryCode && (
+              <span className="text-4xl" title={countryName(countryCode) ?? countryCode}>
+                {flagEmoji(countryCode)}
+              </span>
+            )}
+            <span>{profile.username}</span>
           </h1>
+          {(countryCode || cityLine) && (
+            <div className="text-sm text-ink/60 mt-2">
+              {[cityLine, countryName(countryCode)].filter(Boolean).join(" · ")}
+            </div>
+          )}
           <div className="flex flex-wrap gap-2 mt-3">
             {stats.toolBreakdown.slice(0, 4).map((t) => (
               <Badge key={t.tool} variant="solid">{t.tool.replace("_", " ").toLowerCase()}</Badge>

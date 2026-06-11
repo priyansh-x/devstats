@@ -35,7 +35,7 @@ export default async function Dashboard() {
         </div>
         <div className="flex items-center gap-4 text-sm">
           <Link href="/leaderboard" className="hover:text-hazard">leaderboard</Link>
-          <UserNav user={{ username: user.username, isPublic: user.isPublic, avatarUrl: user.avatarUrl }} />
+          <UserNav user={{ username: user.username, isPublic: user.isPublic, avatarUrl: user.avatarUrl, countryCode: user.countryCode }} />
         </div>
       </header>
 

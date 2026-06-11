@@ -22,7 +22,7 @@ export default async function LeaderboardPage() {
         </div>
         <div className="flex items-center gap-4 text-sm">
           {me ? (
-            <UserNav user={{ username: me.username, isPublic: me.isPublic, avatarUrl: me.avatarUrl }} />
+            <UserNav user={{ username: me.username, isPublic: me.isPublic, avatarUrl: me.avatarUrl, countryCode: me.countryCode }} />
           ) : (
             <Link href="/login" className="bg-ink text-bone px-3 py-1.5 hover:bg-hazard hover:text-ink">
               sign in →
