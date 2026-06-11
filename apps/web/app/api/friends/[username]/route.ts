@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ratelimit } from "@/lib/ratelimit";
 
 /**
  * Follow / unfollow another user. POST to add, DELETE to remove. Always
@@ -10,6 +11,15 @@ import { prisma } from "@/lib/prisma";
 export async function POST(_req: Request, { params }: { params: { username: string } }) {
   const me = await getCurrentUser();
   if (!me) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  // 30 follow actions/hour — stops "follow 10k users" spam runs cold.
+  const gate = await ratelimit("follow", me.id);
+  if (!gate.ok) {
+    return NextResponse.json(
+      { error: "slow down — too many follow actions", retryAfter: gate.retryAfterSeconds },
+      { status: 429, headers: { "Retry-After": String(gate.retryAfterSeconds) } },
+    );
+  }
 
   const target = await prisma.user.findUnique({
     where: { username: params.username },

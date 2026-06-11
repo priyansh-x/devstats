@@ -3,7 +3,15 @@
 import { useState, useTransition } from "react";
 import { Badge } from "./badge";
 
-export function ApiKeyCard({ hasKey }: { hasKey: boolean }) {
+export function ApiKeyCard({
+  hasKey,
+  issuedAt,
+  lastUsedAt,
+}: {
+  hasKey: boolean;
+  issuedAt?: string | null;
+  lastUsedAt?: string | null;
+}) {
   const [pending, start] = useTransition();
   const [issued, setIssued] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -33,6 +41,16 @@ export function ApiKeyCard({ hasKey }: { hasKey: boolean }) {
           {hasKey ? "ACTIVE" : "NONE"}
         </Badge>
       </div>
+
+      {hasKey && (issuedAt || lastUsedAt) && (
+        <div className="text-xs text-ink/60 space-y-0.5">
+          {issuedAt && <div>Issued · {issuedAt.slice(0, 16).replace("T", " ")}</div>}
+          <div>
+            Last used ·{" "}
+            {lastUsedAt ? lastUsedAt.slice(0, 16).replace("T", " ") : "never"}
+          </div>
+        </div>
+      )}
 
       {issued ? (
         <div className="border border-ink bg-ink text-hazard p-3 break-all">

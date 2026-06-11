@@ -21,6 +21,8 @@ model User {
   countryCode String? // ISO 3166-1 alpha-2 (uppercase) — drives flag + country filter
   isPublic   Boolean  @default(false)
   apiKeyHash String?  @unique
+  apiKeyIssuedAt   DateTime? // when the current key was generated
+  apiKeyLastUsedAt DateTime? // coarse (throttled to ~5-min granularity)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 

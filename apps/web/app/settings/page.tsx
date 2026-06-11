@@ -46,7 +46,11 @@ export default async function Settings() {
       )}
 
       <SpecCard label="API key" meta="step 1">
-        <ApiKeyCard hasKey={!!user.apiKeyHash} />
+        <ApiKeyCard
+          hasKey={!!user.apiKeyHash}
+          issuedAt={user.apiKeyIssuedAt?.toISOString() ?? null}
+          lastUsedAt={user.apiKeyLastUsedAt?.toISOString() ?? null}
+        />
       </SpecCard>
 
       <SpecCard label="Get your data in" meta="step 2 · CLI walkthrough">

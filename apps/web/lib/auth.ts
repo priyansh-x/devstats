@@ -141,7 +141,18 @@ export async function getUserFromApiKey(req: Request) {
   const auth = req.headers.get("authorization");
   if (!auth?.startsWith("Bearer ")) return null;
   const hash = hashApiKey(auth.slice(7).trim());
-  return prisma.user.findUnique({ where: { apiKeyHash: hash } });
+  const user = await prisma.user.findUnique({ where: { apiKeyHash: hash } });
+  if (!user) return null;
+
+  // Track key usage at ~5-minute granularity. Throttled + fire-and-forget so
+  // hot sync loops don't pay a write per request.
+  const STALE_MS = 5 * 60 * 1000;
+  if (!user.apiKeyLastUsedAt || Date.now() - user.apiKeyLastUsedAt.getTime() > STALE_MS) {
+    prisma.user
+      .update({ where: { id: user.id }, data: { apiKeyLastUsedAt: new Date() } })
+      .catch(() => {});
+  }
+  return user;
 }
 
 function deriveUsername(seed: string) {

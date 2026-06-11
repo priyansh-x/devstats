@@ -15,19 +15,25 @@ export async function POST() {
   const raw = "ds_live_" + randomBytes(24).toString("base64url");
   const hash = hashApiKey(raw);
 
+  const issuedAt = new Date();
   await prisma.user.update({
     where: { id: user.id },
-    data: { apiKeyHash: hash },
+    // Rotation resets last-used — the old key's history dies with it.
+    data: { apiKeyHash: hash, apiKeyIssuedAt: issuedAt, apiKeyLastUsedAt: null },
   });
 
   return NextResponse.json({
     apiKey: raw,
-    issuedAt: new Date().toISOString(),
+    issuedAt: issuedAt.toISOString(),
   });
 }
 
 export async function GET() {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  return NextResponse.json({ hasKey: !!user.apiKeyHash });
+  return NextResponse.json({
+    hasKey: !!user.apiKeyHash,
+    issuedAt: user.apiKeyIssuedAt?.toISOString() ?? null,
+    lastUsedAt: user.apiKeyLastUsedAt?.toISOString() ?? null,
+  });
 }

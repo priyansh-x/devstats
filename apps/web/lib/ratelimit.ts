@@ -7,7 +7,7 @@ import { getRedis } from "./redis";
  *
  * Identifiers should be user IDs when authenticated, IP fallback otherwise.
  */
-type Scope = "upload" | "uploadFile" | "og" | "leaderboard" | "publicProfile";
+type Scope = "upload" | "uploadFile" | "og" | "leaderboard" | "publicProfile" | "follow";
 
 const LIMITS: Record<Scope, { tokens: number; window: `${number} ${"s" | "m" | "h" | "d"}` }> = {
   upload:        { tokens: 60,  window: "1 m" },   // CLI sync — 60 batches/min/user
@@ -15,6 +15,7 @@ const LIMITS: Record<Scope, { tokens: number; window: `${number} ${"s" | "m" | "
   og:            { tokens: 30,  window: "1 m" },   // OG image — 30/min/ip
   leaderboard:   { tokens: 120, window: "1 m" },   // GET /api/leaderboard
   publicProfile: { tokens: 60,  window: "1 m" },   // /u/[username] page
+  follow:        { tokens: 30,  window: "1 h" },   // follow/unfollow — anti-spam
 };
 
 const cache: Partial<Record<Scope, Ratelimit | null>> = {};
