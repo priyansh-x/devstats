@@ -19,6 +19,7 @@ export default async function Landing() {
         </div>
         <nav className="flex items-center gap-5 text-sm">
           <Link href="/leaderboard" className="hover:text-hazard">leaderboard</Link>
+          <Link href="/squads" className="hover:text-hazard">squads</Link>
           <Link href="/privacy" className="hover:text-hazard">privacy</Link>
           <Link
             href="/login"
@@ -82,6 +83,27 @@ export default async function Landing() {
               <p className="text-sm text-ink/70 leading-relaxed">{s.b}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Squads callout */}
+      <section className="mb-16 border border-ink p-6 bg-bone hover:shadow-[4px_4px_0_0_#0A0A0A] transition-shadow">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <Badge variant="hazard" className="mb-3 inline-block">new</Badge>
+            <h2 className="font-display text-3xl font-black mb-2">Squads</h2>
+            <p className="text-sm text-ink/70 leading-relaxed max-w-lg">
+              Private team leaderboards. Create a squad, invite your crew with a
+              join code, and compare stats without going public. Perfect for
+              teams, friend groups, or hackathon squads.
+            </p>
+          </div>
+          <Link
+            href="/squads"
+            className="shrink-0 border border-ink font-bold px-5 py-3 text-center hover:bg-ink hover:text-bone"
+          >
+            Browse squads →
+          </Link>
         </div>
       </section>
 
