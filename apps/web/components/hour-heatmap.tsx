@@ -16,7 +16,7 @@ export function HourHeatmap({ data }: { data: { dow: number; hour: number; sessi
   return (
     <div>
       <div className="overflow-x-auto">
-        <table className="border-collapse mx-auto">
+        <table className="border-collapse w-full table-fixed max-w-3xl">
           <thead>
             <tr>
               <th className="w-6" />
@@ -41,11 +41,11 @@ export function HourHeatmap({ data }: { data: { dow: number; hour: number; sessi
                     : "#FF5A1F";
                   const isSelected = selected?.dow === dow && selected?.hour === h;
                   return (
-                    <td key={h} className="p-[1px]">
+                    <td key={h} className="p-[1.5px]">
                       <button
                         onClick={() => setSelected(isSelected ? null : { dow, hour: h })}
                         aria-label={`${DOW_LABELS[dow]} ${h}:00 — ${n} sessions`}
-                        className={`w-[14px] h-[14px] border transition-[transform,border-color] duration-100 ease-out hover:scale-125 hover:border-ink ${
+                        className={`block w-full aspect-square border transition-[transform,border-color] duration-100 ease-out hover:scale-125 hover:border-ink ${
                           isSelected ? "border-ink scale-125" : "border-ink/10"
                         }`}
                         style={{ background: bg }}
@@ -59,9 +59,9 @@ export function HourHeatmap({ data }: { data: { dow: number; hour: number; sessi
         </table>
       </div>
 
-      <div className="mt-3 min-h-[2rem] flex items-center justify-center">
+      <div className="mt-3 min-h-[2rem] flex items-center">
         {sel ? (
-          <div className="flex items-center gap-3 text-sm animate-in fade-in duration-150">
+          <div className="flex items-center gap-3 text-sm w-full animate-in fade-in duration-150">
             <span className="w-3 h-3 bg-hazard border border-ink shrink-0" aria-hidden />
             <span className="font-bold">{DOW_LABELS[sel.dow]} {sel.hour}:00–{sel.hour + 1}:00</span>
             <span className="text-ink/40">·</span>
