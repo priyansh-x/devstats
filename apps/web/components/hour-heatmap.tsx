@@ -16,12 +16,12 @@ export function HourHeatmap({ data }: { data: { dow: number; hour: number; sessi
   return (
     <div>
       <div className="overflow-x-auto">
-        <table className="border-collapse">
+        <table className="border-collapse w-full table-fixed max-w-3xl">
           <thead>
             <tr>
-              <th className="w-5" />
+              <th className="w-6" />
               {Array.from({ length: 24 }).map((_, h) => (
-                <th key={h} className="spec-label text-ink/40 font-normal w-4 text-center align-bottom pb-1 text-[9px]">
+                <th key={h} className="spec-label text-ink/40 font-normal text-center align-bottom pb-1 text-[9px]">
                   {h % 3 === 0 ? h : ""}
                 </th>
               ))}
@@ -41,11 +41,11 @@ export function HourHeatmap({ data }: { data: { dow: number; hour: number; sessi
                     : "#FF5A1F";
                   const isSelected = selected?.dow === dow && selected?.hour === h;
                   return (
-                    <td key={h} className="p-0">
+                    <td key={h} className="p-[1.5px]">
                       <button
                         onClick={() => setSelected(isSelected ? null : { dow, hour: h })}
                         aria-label={`${DOW_LABELS[dow]} ${h}:00 — ${n} sessions`}
-                        className={`w-4 h-4 border transition-[transform,border-color] duration-100 ease-out hover:scale-125 hover:border-ink ${
+                        className={`block w-full aspect-square border transition-[transform,border-color] duration-100 ease-out hover:scale-125 hover:border-ink ${
                           isSelected ? "border-ink scale-125" : "border-ink/10"
                         }`}
                         style={{ background: bg }}

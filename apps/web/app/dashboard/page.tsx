@@ -109,19 +109,15 @@ export default async function Dashboard({
         )}
       </SpecCard>
 
-      {/* Heatmaps */}
-      {hasData ? (
-        <div className="grid md:grid-cols-[1fr_auto] gap-6 mb-6">
-          <SpecCard label="Activity" meta="by year">
-            <YearHeatmaps years={stats.years} />
-          </SpecCard>
-          <SpecCard label="When you code" meta="local time">
-            <HourHeatmap data={stats.hourly} />
-          </SpecCard>
-        </div>
-      ) : (
-        <SpecCard label="Activity" meta="by year" className="mb-6">
-          <EmptyState />
+      {/* Year-tabbed heatmap */}
+      <SpecCard label="Activity" meta="by year" className="mb-6">
+        {hasData ? <YearHeatmaps years={stats.years} /> : <EmptyState />}
+      </SpecCard>
+
+      {/* Hour-of-week */}
+      {hasData && (
+        <SpecCard label="When you code" meta="local time" className="mb-6">
+          <HourHeatmap data={stats.hourly} />
         </SpecCard>
       )}
 

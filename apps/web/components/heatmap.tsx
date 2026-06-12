@@ -57,12 +57,13 @@ function YearGrid({ cells }: { cells: YearHeatmap["cells"] }) {
   return (
     <div>
       <div className="overflow-x-auto">
-        <div className="flex gap-[3px] min-w-fit">
+        {/* Columns flex to fill the card width — cells stay square via aspect-ratio */}
+        <div className="flex gap-[3px]">
           {cols.map((col, ci) => (
-            <div key={ci} className="flex flex-col gap-[3px]">
+            <div key={ci} className="flex flex-col gap-[3px] flex-1 min-w-[10px] max-w-[22px]">
               {Array.from({ length: 7 }).map((_, ri) => {
                 const d = col[ri] ?? null;
-                if (!d) return <div key={ri} className="w-3 h-3" />;
+                if (!d) return <div key={ri} className="w-full aspect-square" />;
                 const t = d.tokens / max;
                 const bg =
                   t === 0 ? "#EDE7DC"
@@ -76,7 +77,7 @@ function YearGrid({ cells }: { cells: YearHeatmap["cells"] }) {
                     key={ri}
                     onClick={() => setSelected(isSelected ? null : d.date)}
                     aria-label={d.date}
-                    className={`w-3 h-3 border transition-[transform,border-color] duration-100 ease-out hover:scale-125 hover:border-ink ${
+                    className={`w-full aspect-square border transition-[transform,border-color] duration-100 ease-out hover:scale-125 hover:border-ink ${
                       isSelected ? "border-ink scale-125" : "border-ink/10"
                     }`}
                     style={{ background: bg }}
