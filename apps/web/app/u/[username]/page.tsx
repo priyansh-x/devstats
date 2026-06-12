@@ -168,13 +168,14 @@ export default async function PublicProfile(
         )}
       </SpecCard>
 
-      <SpecCard label="Activity" meta="by year" className="mb-6">
-        <YearHeatmaps years={stats.years} />
-      </SpecCard>
-
-      <SpecCard label="When they code" meta="local time" className="mb-6">
-        <HourHeatmap data={stats.hourly} />
-      </SpecCard>
+      <div className="grid md:grid-cols-[1fr_auto] gap-6 mb-6">
+        <SpecCard label="Activity" meta="by year">
+          <YearHeatmaps years={stats.years} />
+        </SpecCard>
+        <SpecCard label="When they code" meta="local time">
+          <HourHeatmap data={stats.hourly} />
+        </SpecCard>
+      </div>
 
       <SpecCard label="Tools" className="mb-6">
         <ul className="space-y-3">

@@ -19,9 +19,9 @@ export function HourHeatmap({ data }: { data: { dow: number; hour: number; sessi
         <table className="border-collapse">
           <thead>
             <tr>
-              <th className="w-6" />
+              <th className="w-5" />
               {Array.from({ length: 24 }).map((_, h) => (
-                <th key={h} className="spec-label text-ink/40 font-normal w-5 text-center align-bottom pb-1">
+                <th key={h} className="spec-label text-ink/40 font-normal w-4 text-center align-bottom pb-1 text-[9px]">
                   {h % 3 === 0 ? h : ""}
                 </th>
               ))}
@@ -30,7 +30,7 @@ export function HourHeatmap({ data }: { data: { dow: number; hour: number; sessi
           <tbody>
             {grid.map((row, dow) => (
               <tr key={dow}>
-                <td className="spec-label text-ink/40 pr-2">{DOW_SHORT[dow]}</td>
+                <td className="spec-label text-ink/40 pr-1.5 text-[10px]">{DOW_SHORT[dow]}</td>
                 {row.map((n, h) => {
                   const t = n / max;
                   const bg =
@@ -45,7 +45,7 @@ export function HourHeatmap({ data }: { data: { dow: number; hour: number; sessi
                       <button
                         onClick={() => setSelected(isSelected ? null : { dow, hour: h })}
                         aria-label={`${DOW_LABELS[dow]} ${h}:00 — ${n} sessions`}
-                        className={`w-5 h-5 border transition-[transform,border-color] duration-100 ease-out hover:scale-125 hover:border-ink ${
+                        className={`w-4 h-4 border transition-[transform,border-color] duration-100 ease-out hover:scale-125 hover:border-ink ${
                           isSelected ? "border-ink scale-125" : "border-ink/10"
                         }`}
                         style={{ background: bg }}

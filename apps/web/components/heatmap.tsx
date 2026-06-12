@@ -12,14 +12,14 @@ export function YearHeatmaps({ years }: { years: YearHeatmap[] }) {
   const tokenTotal = current.cells.reduce((s, c) => s + c.tokens, 0);
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex gap-1">
           {years.map((y) => (
             <button
               key={y.year}
               onClick={() => setActive(y.year)}
-              className={`spec-label px-3 py-1 border border-ink transition-colors ${
+              className={`spec-label px-2.5 py-0.5 border border-ink transition-colors text-[10px] ${
                 y.year === active
                   ? "bg-ink text-hazard"
                   : "bg-bone text-ink hover:bg-ink/10"
@@ -29,7 +29,7 @@ export function YearHeatmaps({ years }: { years: YearHeatmap[] }) {
             </button>
           ))}
         </div>
-        <div className="spec-label text-ink/60">
+        <div className="spec-label text-ink/60 text-[10px]">
           {sessionTotal} SESSIONS · {fmt(tokenTotal)} TKN
         </div>
       </div>
@@ -43,9 +43,10 @@ function YearGrid({ cells }: { cells: YearHeatmap["cells"] }) {
 
   if (cells.length === 0) return null;
   const firstDow = new Date(cells[0]!.date).getUTCDay();
+  const todayStr = new Date().toISOString().slice(0, 10);
   const padded: (YearHeatmap["cells"][number] | null)[] = [];
   for (let i = 0; i < firstDow; i++) padded.push(null);
-  padded.push(...cells);
+  padded.push(...cells.filter((c) => c.date <= todayStr));
 
   const cols: typeof padded[] = [];
   for (let i = 0; i < padded.length; i += 7) cols.push(padded.slice(i, i + 7));
