@@ -48,8 +48,8 @@ export default async function LeaderboardPage() {
       />
 
       <div className="mt-8 text-xs text-ink/50">
-        Refreshed hourly. Antigravity sessions don't carry token counts (Google
-        stores transcripts server-side), so they don't move the Tokens metric.
+        Refreshed daily. Antigravity sessions don&apos;t carry token counts (Google
+        stores transcripts server-side), so they don&apos;t move the Tokens metric.
       </div>
     </main>
   );
