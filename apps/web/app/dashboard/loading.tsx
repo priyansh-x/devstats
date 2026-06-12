@@ -20,7 +20,7 @@ export default function DashboardLoading() {
       <div className="border border-ink">
         <div className="bg-ink h-9" />
         <div className="min-h-[60vh] flex items-center justify-center">
-          <BoxLoader label="PULLING YOUR STATS" />
+          <BoxLoader label="COOKING YOUR STATS RN" />
         </div>
       </div>
     </main>

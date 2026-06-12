@@ -14,7 +14,7 @@ export default function SquadsLoading() {
       <div className="border border-ink">
         <div className="bg-ink h-9" />
         <div className="min-h-[50vh] flex items-center justify-center">
-          <BoxLoader label="ASSEMBLING THE SQUAD" />
+          <BoxLoader label="GETTING THE GANG" />
         </div>
       </div>
     </main>

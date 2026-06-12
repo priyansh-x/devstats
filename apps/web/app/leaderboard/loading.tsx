@@ -14,7 +14,7 @@ export default function LeaderboardLoading() {
       <div className="border border-ink">
         <div className="bg-ink h-9" />
         <div className="min-h-[60vh] flex items-center justify-center">
-          <BoxLoader label="RANKING THE OPS" />
+          <BoxLoader label="WHOS COOKING HARDEST" />
         </div>
       </div>
     </main>

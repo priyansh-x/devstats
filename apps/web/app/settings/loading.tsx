@@ -14,7 +14,7 @@ export default function SettingsLoading() {
       <div className="border border-ink">
         <div className="bg-ink h-9" />
         <div className="min-h-[50vh] flex items-center justify-center">
-          <BoxLoader label="LOADING SETUP" />
+          <BoxLoader label="HOLD UP BESTIE" />
         </div>
       </div>
     </main>
