@@ -43,10 +43,9 @@ function YearGrid({ cells }: { cells: YearHeatmap["cells"] }) {
 
   if (cells.length === 0) return null;
   const firstDow = new Date(cells[0]!.date).getUTCDay();
-  const todayStr = new Date().toISOString().slice(0, 10);
   const padded: (YearHeatmap["cells"][number] | null)[] = [];
   for (let i = 0; i < firstDow; i++) padded.push(null);
-  padded.push(...cells.filter((c) => c.date <= todayStr));
+  padded.push(...cells);
 
   const cols: typeof padded[] = [];
   for (let i = 0; i < padded.length; i += 7) cols.push(padded.slice(i, i + 7));
@@ -57,13 +56,12 @@ function YearGrid({ cells }: { cells: YearHeatmap["cells"] }) {
   return (
     <div>
       <div className="overflow-x-auto">
-        {/* Columns flex to fill the card width — cells stay square via aspect-ratio */}
-        <div className="flex gap-[3px]">
+        <div className="flex gap-[2px] justify-center">
           {cols.map((col, ci) => (
-            <div key={ci} className="flex flex-col gap-[3px] flex-1 min-w-[10px] max-w-[22px]">
+            <div key={ci} className="flex flex-col gap-[2px]">
               {Array.from({ length: 7 }).map((_, ri) => {
                 const d = col[ri] ?? null;
-                if (!d) return <div key={ri} className="w-full aspect-square" />;
+                if (!d) return <div key={ri} className="w-[14px] h-[14px]" />;
                 const t = d.tokens / max;
                 const bg =
                   t === 0 ? "#EDE7DC"
@@ -77,7 +75,7 @@ function YearGrid({ cells }: { cells: YearHeatmap["cells"] }) {
                     key={ri}
                     onClick={() => setSelected(isSelected ? null : d.date)}
                     aria-label={d.date}
-                    className={`w-full aspect-square border transition-[transform,border-color] duration-100 ease-out hover:scale-125 hover:border-ink ${
+                    className={`w-[14px] h-[14px] border transition-[transform,border-color] duration-100 ease-out hover:scale-125 hover:border-ink ${
                       isSelected ? "border-ink scale-125" : "border-ink/10"
                     }`}
                     style={{ background: bg }}
@@ -90,9 +88,9 @@ function YearGrid({ cells }: { cells: YearHeatmap["cells"] }) {
       </div>
 
       {/* Reserved-height footer: legend or detail bar — no layout shift on toggle */}
-      <div className="mt-3 min-h-[2rem] flex items-center">
+      <div className="mt-3 min-h-[2rem] flex items-center justify-center">
         {sel ? (
-          <div className="flex items-center gap-3 text-sm w-full animate-in fade-in duration-150">
+          <div className="flex items-center gap-3 text-sm animate-in fade-in duration-150">
             <span className="w-3 h-3 bg-hazard border border-ink shrink-0" aria-hidden />
             <span className="font-bold">
               {new Date(sel.date + "T00:00:00").toLocaleDateString("en-US", {
