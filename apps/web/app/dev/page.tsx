@@ -59,7 +59,7 @@ export default function DevDashboard() {
           onSubmit={(e) => { e.preventDefault(); load(pw); }}
           className="border-2 border-ink p-8 space-y-4 max-w-sm w-full"
         >
-          <h1 className="font-display text-2xl font-black">devstats /dev</h1>
+          <h1 className="font-display text-2xl font-black">DevStats /dev</h1>
           <p className="text-ink/60 text-sm">admin access only.</p>
           <input
             type="password"
@@ -87,7 +87,7 @@ export default function DevDashboard() {
   return (
     <main className="max-w-6xl mx-auto px-6 py-8 font-mono text-sm">
       <div className="flex items-center justify-between border-b border-ink pb-4 mb-8">
-        <h1 className="font-display text-3xl font-black">devstats /dev</h1>
+        <h1 className="font-display text-3xl font-black">DevStats /dev</h1>
         <button
           onClick={refresh}
           className="bg-ink text-hazard px-3 py-1 text-xs font-bold hover:bg-hazard hover:text-ink border border-ink transition-colors"

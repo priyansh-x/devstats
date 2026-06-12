@@ -50,7 +50,7 @@ export async function GET(
           borderRight: `2px solid ${INK}`,
         }}>
           <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: 0 }}>
-            devstats
+            DevStats
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div style={{ fontSize: 20, color: INK, opacity: 0.7 }}>
@@ -61,7 +61,7 @@ export async function GET(
             </div>
           </div>
           <div style={{ fontSize: 18, opacity: 0.75 }}>
-            devstats.app/u/{profile.username}
+            DevStats · /u/{profile.username}
           </div>
         </div>
 
@@ -83,7 +83,7 @@ export async function GET(
             ))}
           </div>
           <div style={{ marginTop: "auto", padding: "16px 36px", borderTop: `1px solid ${INK}33`, fontSize: 14, color: "#3A3A3A" }}>
-            Made for devs
+            Made with DevStats
           </div>
         </div>
       </div>

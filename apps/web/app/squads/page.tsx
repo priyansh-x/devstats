@@ -19,7 +19,7 @@ export default async function SquadsPage() {
       <header className="flex items-center justify-between border-b border-ink pb-4">
         <div className="flex items-center gap-3">
           <Link href="/" className="w-6 h-6 bg-hazard border border-ink" aria-label="home" />
-          <span className="font-bold tracking-tight">devstats</span>
+          <span className="font-bold tracking-tight">DevStats</span>
         </div>
         <div className="flex items-center gap-4 text-sm">
           <Link href="/leaderboard" className="hover:text-hazard">leaderboard</Link>

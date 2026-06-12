@@ -83,7 +83,7 @@ export default async function PublicProfile(
       <header className="flex items-center justify-between border-b border-ink pb-4 mb-8">
         <div className="flex items-center gap-3">
           <Link href="/" className="w-6 h-6 bg-hazard border border-ink" aria-label="home" />
-          <span className="font-bold tracking-tight">devstats</span>
+          <span className="font-bold tracking-tight">DevStats</span>
         </div>
         <div className="flex items-center gap-4 text-sm">
           <Link href="/leaderboard" className="hover:text-hazard">leaderboard</Link>
@@ -228,7 +228,7 @@ export default async function PublicProfile(
           href="/"
           className="text-xs font-bold uppercase tracking-wide border border-ink px-3 py-1 hover:bg-ink hover:text-bone"
         >
-          Made with devstats →
+          Made with DevStats →
         </Link>
       </footer>
     </main>

@@ -14,7 +14,7 @@ export default async function Landing() {
       <header className="flex items-center justify-between border-b border-ink pb-4 mb-10">
         <div className="flex items-center gap-3">
           <div className="w-6 h-6 bg-hazard border border-ink" />
-          <span className="font-bold tracking-tight">devstats</span>
+          <span className="font-bold tracking-tight">DevStats</span>
         </div>
         <nav className="flex items-center gap-5 text-sm">
           <Link href="/leaderboard" className="hover:text-hazard">leaderboard</Link>

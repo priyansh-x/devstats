@@ -6,7 +6,7 @@ import { NavProgress } from "@/components/nav-progress";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "devstats",
+  title: "DevStats",
   description:
     "Track tokens, sessions, streaks across Claude Code, Cursor, Copilot. Private by default.",
 };
