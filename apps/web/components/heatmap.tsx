@@ -65,10 +65,12 @@ function YearGrid({ cells }: { cells: YearHeatmap["cells"] }) {
                 : t < 0.35 ? "#FF9C66"
                 : t < 0.6  ? "#FF7A33"
                 : "#FF5A1F";
+              const dt = new Date(d.date + "T00:00:00");
+              const dayName = dt.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
               return (
                 <div
                   key={ri}
-                  title={`${d.date} — ${d.tokens.toLocaleString()} tokens, ${d.count} sessions`}
+                  title={`${dayName} — ${d.tokens.toLocaleString()} tokens, ${d.count} session${d.count !== 1 ? "s" : ""}`}
                   className="w-3 h-3 border border-ink/10"
                   style={{ background: bg }}
                 />
