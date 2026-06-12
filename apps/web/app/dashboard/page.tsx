@@ -92,16 +92,6 @@ export default async function Dashboard({
         </div>
       </div>
 
-      {/* Spend coverage disclaimer */}
-      {stats.toolBreakdown.some((t) => t.tool === "ANTIGRAVITY" || t.tool === "CURSOR") && (
-        <div className="border border-ink bg-bone-soft px-4 py-2 mb-6 text-xs text-ink/70 leading-relaxed">
-          <span className="font-bold text-hazard mr-2">Spend estimate</span>
-          Calculated from <b>Claude Code</b> with full cache splits.
-          {stats.toolBreakdown.some((t) => t.tool === "CURSOR") && " Cursor sessions use flat tokens-as-reported rates."}
-          {stats.toolBreakdown.some((t) => t.tool === "ANTIGRAVITY") && " Antigravity is counted at 0 — Google stores transcripts server-side."}
-        </div>
-      )}
-
       {/* Top metric strip */}
       <SpecCard label="Overview" meta={range.days ? `last ${range.label}` : "all-time"} className="mb-6">
         <div className="grid grid-cols-2 md:grid-cols-6 gap-6">
@@ -189,6 +179,15 @@ export default async function Dashboard({
           </table>
         )}
       </SpecCard>
+
+      {stats.toolBreakdown.some((t) => t.tool === "ANTIGRAVITY" || t.tool === "CURSOR") && (
+        <div className="border border-ink bg-bone-soft px-4 py-2 mb-6 text-xs text-ink/70 leading-relaxed">
+          <span className="font-bold text-hazard mr-2">Spend estimate</span>
+          Calculated from <b>Claude Code</b> with full cache splits.
+          {stats.toolBreakdown.some((t) => t.tool === "CURSOR") && " Cursor sessions use flat tokens-as-reported rates."}
+          {stats.toolBreakdown.some((t) => t.tool === "ANTIGRAVITY") && " Antigravity is counted at 0 — Google stores transcripts server-side."}
+        </div>
+      )}
 
       {hasData && (
         <SpecCard label="Data ops" className="mb-10">
