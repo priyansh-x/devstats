@@ -29,7 +29,7 @@ export function HourHeatmap({ data }: { data: { dow: number; hour: number; sessi
           </thead>
           <tbody>
             {grid.map((row, dow) => (
-              <tr key={dow}>
+              <tr key={dow} className="col-in" style={{ animationDelay: `${dow * 50}ms` }}>
                 <td className="spec-label text-ink/40 pr-2">{DOW_SHORT[dow]}</td>
                 {row.map((n, h) => {
                   const t = n / max;

@@ -93,7 +93,7 @@ export default async function Dashboard({
       </div>
 
       {/* Top metric strip */}
-      <SpecCard label="Overview" meta={range.days ? `last ${range.label}` : "all-time"} className="mb-6">
+      <SpecCard label="Overview" meta={range.days ? `last ${range.label}` : "all-time"} className="mb-6 fade-up">
         <div className="grid grid-cols-2 md:grid-cols-6 gap-6">
           <SpecMetric label="Tokens in"  value={fmtCompact(stats.totals.tokensIn)} />
           <SpecMetric label="Tokens out" value={fmtCompact(stats.totals.tokensOut)} />
@@ -110,28 +110,28 @@ export default async function Dashboard({
       </SpecCard>
 
       {/* Year-tabbed heatmap */}
-      <SpecCard label="Activity" meta="by year" className="mb-6">
+      <SpecCard label="Activity" meta="by year" className="mb-6 fade-up stagger-1">
         {hasData ? <YearHeatmaps years={stats.years} /> : <EmptyState />}
       </SpecCard>
 
       {/* Hour-of-week */}
       {hasData && (
-        <SpecCard label="When you code" meta="local time" className="mb-6">
+        <SpecCard label="When you code" meta="local time" className="mb-6 fade-up stagger-2">
           <HourHeatmap data={stats.hourly} />
         </SpecCard>
       )}
 
       <div className="grid md:grid-cols-2 gap-6 mb-6">
-        <SpecCard label="Token velocity" meta="last 30 days">
+        <SpecCard label="Token velocity" meta="last 30 days" className="fade-up stagger-3">
           {hasData ? <VelocityChart data={stats.velocity} /> : <p className="text-sm text-ink/60">No data yet.</p>}
         </SpecCard>
 
-        <SpecCard label="Tools">
+        <SpecCard label="Tools" className="fade-up stagger-4">
           {stats.toolBreakdown.length === 0 ? (
             <p className="text-sm text-ink/60">No data yet.</p>
           ) : (
             <ul className="space-y-3">
-              {stats.toolBreakdown.map((t) => {
+              {stats.toolBreakdown.map((t, i) => {
                 const max = stats.toolBreakdown[0]!.tokens || 1;
                 const pct = Math.round((t.tokens / max) * 100);
                 return (
@@ -143,7 +143,10 @@ export default async function Dashboard({
                       </span>
                     </div>
                     <div className="h-2 bg-bone-soft border border-ink/20">
-                      <div className="h-full bg-hazard" style={{ width: `${pct}%` }} />
+                      <div
+                        className="grow-bar h-full bg-hazard"
+                        style={{ width: `${pct}%`, animationDelay: `${0.3 + i * 0.1}s` }}
+                      />
                     </div>
                   </li>
                 );
@@ -153,7 +156,7 @@ export default async function Dashboard({
         </SpecCard>
       </div>
 
-      <SpecCard label="Top models" className="mb-6">
+      <SpecCard label="Top models" className="mb-6 fade-up stagger-5">
         {stats.topModels.length === 0 ? (
           <p className="text-sm text-ink/60">No data yet.</p>
         ) : (

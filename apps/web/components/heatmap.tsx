@@ -59,7 +59,11 @@ function YearGrid({ cells }: { cells: YearHeatmap["cells"] }) {
         {/* Columns flex to fill the card width — cells stay square via aspect-ratio */}
         <div className="flex gap-[2px]">
           {cols.map((col, ci) => (
-            <div key={ci} className="flex flex-col gap-[2px] flex-1 min-w-0">
+            <div
+              key={ci}
+              className="col-in flex flex-col gap-[2px] flex-1 min-w-0"
+              style={{ animationDelay: `${ci * 12}ms` }}
+            >
               {Array.from({ length: 7 }).map((_, ri) => {
                 const d = col[ri] ?? null;
                 if (!d) return <div key={ri} className="w-full aspect-square" />;

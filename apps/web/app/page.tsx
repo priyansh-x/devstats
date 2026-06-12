@@ -29,7 +29,7 @@ export default async function Landing() {
       </header>
 
       {/* Hero */}
-      <section className="text-center mb-14 mt-4">
+      <section className="text-center mb-14 mt-4 fade-up">
         <h1 className="font-display text-5xl md:text-6xl font-black leading-[0.95] tracking-tight mb-5">
           Tokenmaxxing<br />
           your <span className="text-hazard">editor.</span>
@@ -72,8 +72,11 @@ export default async function Landing() {
             { n: "2", t: "Install CLI", b: "One command. devstats sync reads your local AI editor logs. That's it, that's the tweet." },
             { n: "3", t: "Go public", b: "Stay lowkey and track privately, or go main character and hit the leaderboard." },
             { n: "4", t: "Make a squad", b: "Private group leaderboards. Invite the homies, compare stats, talk your trash." },
-          ].map((s) => (
-            <div key={s.n} className="border border-ink p-4 bg-bone hover:shadow-[3px_3px_0_0_#0A0A0A] transition-shadow">
+          ].map((s, i) => (
+            <div
+              key={s.n}
+              className={`border border-ink p-4 bg-bone hover:shadow-[3px_3px_0_0_#0A0A0A] transition-shadow fade-up stagger-${i + 1}`}
+            >
               <div className="font-display text-3xl font-black text-hazard leading-none mb-1.5">
                 {s.n}
               </div>

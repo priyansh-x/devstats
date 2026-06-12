@@ -29,6 +29,54 @@ body::before {
 
 #__next, main { position: relative; z-index: 1; }
 
+/* ── Motion ──────────────────────────────────────────────── */
+
+/* Brand loader: squares blink in a scanning wave. */
+@keyframes box-blink {
+  0%, 100% { opacity: 0.15; transform: scale(0.85); }
+  40%      { opacity: 1;    transform: scale(1); }
+}
+.box-loader-cell {
+  animation: box-blink 0.9s ease-in-out infinite;
+}
+
+/* Cards drift up + fade on mount. Stagger via .stagger-N. */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up {
+  animation: fade-up 0.35s ease-out both;
+}
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.12s; }
+.stagger-3 { animation-delay: 0.19s; }
+.stagger-4 { animation-delay: 0.26s; }
+.stagger-5 { animation-delay: 0.33s; }
+
+/* Horizontal bars grow from the left on mount (Tools breakdown). */
+@keyframes grow-bar {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+.grow-bar {
+  transform-origin: left;
+  animation: grow-bar 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Heatmap columns sweep in left → right (delay set inline per column). */
+@keyframes col-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.col-in {
+  animation: col-in 0.25s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-up, .grow-bar, .col-in, .box-loader-cell { animation: none; }
+}
+
 /* spec-sheet label utility */
 .spec-label {
   font-family: var(--font-geist-mono), monospace;
