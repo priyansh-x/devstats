@@ -54,68 +54,74 @@ function YearGrid({ cells }: { cells: YearHeatmap["cells"] }) {
   const sel = selected ? cells.find((c) => c.date === selected) : null;
 
   return (
-    <div className="overflow-x-auto">
-      <div className="flex gap-1 min-w-fit">
-        {cols.map((col, ci) => (
-          <div key={ci} className="flex flex-col gap-1">
-            {Array.from({ length: 7 }).map((_, ri) => {
-              const d = col[ri] ?? null;
-              if (!d) return <div key={ri} className="w-3 h-3" />;
-              const t = d.tokens / max;
-              const bg =
-                t === 0 ? "#EDE7DC"
-                : t < 0.15 ? "#FFE0CC"
-                : t < 0.35 ? "#FF9C66"
-                : t < 0.6  ? "#FF7A33"
-                : "#FF5A1F";
-              const isSelected = d.date === selected;
-              return (
-                <div
-                  key={ri}
-                  onClick={() => setSelected(isSelected ? null : d.date)}
-                  className={`w-3 h-3 cursor-pointer ${
-                    isSelected ? "ring-2 ring-ink ring-offset-1" : "border border-ink/10"
-                  }`}
-                  style={{ background: bg }}
-                />
-              );
-            })}
-          </div>
-        ))}
+    <div>
+      <div className="overflow-x-auto">
+        <div className="flex gap-[3px] min-w-fit">
+          {cols.map((col, ci) => (
+            <div key={ci} className="flex flex-col gap-[3px]">
+              {Array.from({ length: 7 }).map((_, ri) => {
+                const d = col[ri] ?? null;
+                if (!d) return <div key={ri} className="w-3 h-3" />;
+                const t = d.tokens / max;
+                const bg =
+                  t === 0 ? "#EDE7DC"
+                  : t < 0.15 ? "#FFE0CC"
+                  : t < 0.35 ? "#FF9C66"
+                  : t < 0.6  ? "#FF7A33"
+                  : "#FF5A1F";
+                const isSelected = d.date === selected;
+                return (
+                  <button
+                    key={ri}
+                    onClick={() => setSelected(isSelected ? null : d.date)}
+                    aria-label={d.date}
+                    className={`w-3 h-3 border transition-[transform,border-color] duration-100 ease-out hover:scale-125 hover:border-ink ${
+                      isSelected ? "border-ink scale-125" : "border-ink/10"
+                    }`}
+                    style={{ background: bg }}
+                  />
+                );
+              })}
+            </div>
+          ))}
+        </div>
       </div>
 
-      {sel && (
-        <div className="mt-3 flex items-center gap-3 text-sm border border-ink bg-bone px-3 py-2">
-          <span className="font-bold">
-            {new Date(sel.date + "T00:00:00").toLocaleDateString("en-US", {
-              weekday: "long",
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
-          </span>
-          <span className="text-ink/60">—</span>
-          <span>{sel.tokens.toLocaleString()} tokens</span>
-          <span className="text-ink/40">·</span>
-          <span>{sel.count} session{sel.count !== 1 ? "s" : ""}</span>
-          <button
-            onClick={() => setSelected(null)}
-            className="ml-auto text-ink/40 hover:text-ink"
-          >
-            ✕
-          </button>
-        </div>
-      )}
-
-      {!sel && (
-        <div className="flex items-center gap-2 mt-3 spec-label text-ink/60">
-          <span>LESS</span>
-          {["#EDE7DC", "#FFE0CC", "#FF9C66", "#FF7A33", "#FF5A1F"].map((c) => (
-            <span key={c} className="w-3 h-3 border border-ink/10" style={{ background: c }} />
-          ))}
-          <span>MORE</span>
-        </div>
-      )}
+      {/* Reserved-height footer: legend or detail bar — no layout shift on toggle */}
+      <div className="mt-3 min-h-[2rem] flex items-center">
+        {sel ? (
+          <div className="flex items-center gap-3 text-sm w-full animate-in fade-in duration-150">
+            <span className="w-3 h-3 bg-hazard border border-ink shrink-0" aria-hidden />
+            <span className="font-bold">
+              {new Date(sel.date + "T00:00:00").toLocaleDateString("en-US", {
+                weekday: "long",
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </span>
+            <span className="text-ink/40">·</span>
+            <span className="tabular-nums">{sel.tokens.toLocaleString()} tokens</span>
+            <span className="text-ink/40">·</span>
+            <span className="tabular-nums">{sel.count} session{sel.count !== 1 ? "s" : ""}</span>
+            <button
+              onClick={() => setSelected(null)}
+              className="ml-auto text-ink/40 hover:text-ink text-xs"
+              aria-label="close"
+            >
+              ✕
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 spec-label text-ink/60">
+            <span>LESS</span>
+            {["#EDE7DC", "#FFE0CC", "#FF9C66", "#FF7A33", "#FF5A1F"].map((c) => (
+              <span key={c} className="w-3 h-3 border border-ink/10" style={{ background: c }} />
+            ))}
+            <span>MORE</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
