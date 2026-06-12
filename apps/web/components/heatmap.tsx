@@ -43,10 +43,9 @@ function YearGrid({ cells }: { cells: YearHeatmap["cells"] }) {
 
   if (cells.length === 0) return null;
   const firstDow = new Date(cells[0]!.date).getUTCDay();
-  const todayStr = new Date().toISOString().slice(0, 10);
   const padded: (YearHeatmap["cells"][number] | null)[] = [];
   for (let i = 0; i < firstDow; i++) padded.push(null);
-  padded.push(...cells.filter((c) => c.date <= todayStr));
+  padded.push(...cells);
 
   const cols: typeof padded[] = [];
   for (let i = 0; i < padded.length; i += 7) cols.push(padded.slice(i, i + 7));

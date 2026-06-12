@@ -16,7 +16,7 @@ export function HourHeatmap({ data }: { data: { dow: number; hour: number; sessi
   return (
     <div>
       <div className="overflow-x-auto">
-        <table className="border-collapse w-full table-fixed max-w-3xl">
+        <table className="border-collapse mx-auto">
           <thead>
             <tr>
               <th className="w-6" />
