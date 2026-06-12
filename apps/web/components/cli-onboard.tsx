@@ -20,13 +20,9 @@ export function CliOnboard() {
     <div className="space-y-6 font-mono text-sm">
       <Step n="01" title="INSTALL THE CLI">
         <p className="text-ink/70 mb-3">
-          One-time setup. Clone the repo and add a shell alias:
+          One command, globally available:
         </p>
-        <Copy text={`git clone https://github.com/priyansh-x/devstats.git ~/devstats && echo 'alias devstats=~/devstats/bin/devstats' >> ~/.zshrc && source ~/.zshrc`} />
-        <p className="text-ink/50 text-xs mt-3">
-          Already cloned? Just add the alias. Once on npm this becomes{" "}
-          <code className="bg-bone-soft px-1">npm i -g devstats-cli</code>.
-        </p>
+        <Copy text={`npm i -g devstats-cli`} />
       </Step>
 
       <Step n="02" title="LOG IN WITH YOUR API KEY">
