@@ -39,6 +39,8 @@ export function YearHeatmaps({ years }: { years: YearHeatmap[] }) {
 }
 
 function YearGrid({ cells }: { cells: YearHeatmap["cells"] }) {
+  const [selected, setSelected] = useState<string | null>(null);
+
   if (cells.length === 0) return null;
   const firstDow = new Date(cells[0]!.date).getUTCDay();
   const padded: (YearHeatmap["cells"][number] | null)[] = [];
@@ -49,6 +51,7 @@ function YearGrid({ cells }: { cells: YearHeatmap["cells"] }) {
   for (let i = 0; i < padded.length; i += 7) cols.push(padded.slice(i, i + 7));
 
   const max = Math.max(1, ...cells.map((d) => d.tokens));
+  const sel = selected ? cells.find((c) => c.date === selected) : null;
 
   return (
     <div className="overflow-x-auto">
@@ -65,13 +68,14 @@ function YearGrid({ cells }: { cells: YearHeatmap["cells"] }) {
                 : t < 0.35 ? "#FF9C66"
                 : t < 0.6  ? "#FF7A33"
                 : "#FF5A1F";
-              const dt = new Date(d.date + "T00:00:00");
-              const dayName = dt.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+              const isSelected = d.date === selected;
               return (
                 <div
                   key={ri}
-                  title={`${dayName} — ${d.tokens.toLocaleString()} tokens, ${d.count} session${d.count !== 1 ? "s" : ""}`}
-                  className="w-3 h-3 border border-ink/10"
+                  onClick={() => setSelected(isSelected ? null : d.date)}
+                  className={`w-3 h-3 cursor-pointer ${
+                    isSelected ? "ring-2 ring-ink ring-offset-1" : "border border-ink/10"
+                  }`}
                   style={{ background: bg }}
                 />
               );
@@ -79,13 +83,39 @@ function YearGrid({ cells }: { cells: YearHeatmap["cells"] }) {
           </div>
         ))}
       </div>
-      <div className="flex items-center gap-2 mt-3 spec-label text-ink/60">
-        <span>LESS</span>
-        {["#EDE7DC", "#FFE0CC", "#FF9C66", "#FF7A33", "#FF5A1F"].map((c) => (
-          <span key={c} className="w-3 h-3 border border-ink/10" style={{ background: c }} />
-        ))}
-        <span>MORE</span>
-      </div>
+
+      {sel && (
+        <div className="mt-3 flex items-center gap-3 text-sm border border-ink bg-bone px-3 py-2">
+          <span className="font-bold">
+            {new Date(sel.date + "T00:00:00").toLocaleDateString("en-US", {
+              weekday: "long",
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </span>
+          <span className="text-ink/60">—</span>
+          <span>{sel.tokens.toLocaleString()} tokens</span>
+          <span className="text-ink/40">·</span>
+          <span>{sel.count} session{sel.count !== 1 ? "s" : ""}</span>
+          <button
+            onClick={() => setSelected(null)}
+            className="ml-auto text-ink/40 hover:text-ink"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {!sel && (
+        <div className="flex items-center gap-2 mt-3 spec-label text-ink/60">
+          <span>LESS</span>
+          {["#EDE7DC", "#FFE0CC", "#FF9C66", "#FF7A33", "#FF5A1F"].map((c) => (
+            <span key={c} className="w-3 h-3 border border-ink/10" style={{ background: c }} />
+          ))}
+          <span>MORE</span>
+        </div>
+      )}
     </div>
   );
 }
