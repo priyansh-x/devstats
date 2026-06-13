@@ -31,7 +31,7 @@ async function main() {
     case "logout":      return cmdLogout();
     case "-v":
     case "--version":
-      console.log("devstats-cli 0.0.1");
+      console.log("devstats-cli 0.1.1");
       return;
     case "help":
     case "--help":
@@ -521,7 +521,7 @@ async function cmdDoctor(rest: string[]) {
     generatedAt: new Date().toISOString(),
     platform: process.platform,
     nodeVersion: process.version,
-    cliVersion: "0.0.1",
+    cliVersion: "0.1.1",
     tools: {},
   };
 

@@ -98,12 +98,10 @@ async function parseRollout(
   const lines = raw.split("\n").filter((l) => l.trim());
   if (lines.length === 0) return null;
 
-  let meta: SessionMeta | undefined;
   let startTs: number | undefined;
   let endTs: number | undefined;
-  let totalIn = 0;
-  let totalCachedIn = 0;
-  let totalOut = 0;
+  // total_token_usage is cumulative — keep the latest snapshot
+  let latestUsage: TokenUsage | null = null;
   const models: string[] = [];
   let cwd: string | undefined;
 
@@ -125,7 +123,6 @@ async function parseRollout(
     const payload = obj.payload ?? obj;
 
     if (type === "session_meta") {
-      meta = payload;
       if (payload.cwd) cwd = payload.cwd;
       if (!startTs && payload.timestamp) {
         startTs = parseTimestamp(payload.timestamp);
@@ -133,19 +130,14 @@ async function parseRollout(
     }
 
     if (type === "turn_context") {
-      const tc = payload as TurnContext;
-      if (tc.model) models.push(tc.model);
+      if (payload.model) models.push(payload.model);
     }
 
-    // Token usage can appear in event_msg payloads or as top-level fields
+    // Token usage lives in event_msg lines with payload.type === "token_count".
+    // total_token_usage is cumulative per session — take the last one we see.
     const usage = extractUsage(obj);
-    if (usage) {
-      totalIn += usage.input_tokens ?? 0;
-      totalCachedIn += usage.cached_input_tokens ?? 0;
-      totalOut += usage.output_tokens ?? 0;
-    }
+    if (usage) latestUsage = usage;
 
-    // response_item may carry a model field
     if (type === "response_item" && payload?.model) {
       models.push(payload.model);
     }
@@ -154,6 +146,9 @@ async function parseRollout(
   if (!startTs) return null;
   if (sinceMs && startTs < sinceMs) return null;
 
+  const totalIn = latestUsage?.input_tokens ?? 0;
+  const totalCachedIn = latestUsage?.cached_input_tokens ?? 0;
+  const totalOut = latestUsage?.output_tokens ?? 0;
   const projectSlug = cwd ? hashProjectName(cwd) : undefined;
 
   return {
@@ -171,12 +166,18 @@ async function parseRollout(
 }
 
 function extractUsage(obj: any): TokenUsage | null {
-  // Check nested locations where Codex stores token usage
+  // Primary location: event_msg with payload.type === "token_count"
+  // Token data is at payload.info.total_token_usage (cumulative)
+  if (obj.type === "event_msg" && obj.payload?.type === "token_count") {
+    const info = obj.payload.info;
+    if (info?.total_token_usage) return info.total_token_usage as TokenUsage;
+  }
+  // Fallback: check other common locations
   const candidates = [
-    obj.usage,
-    obj.payload?.usage,
+    obj.payload?.info?.total_token_usage,
     obj.payload?.total_token_usage,
-    obj.payload?.last_token_usage,
+    obj.payload?.usage,
+    obj.usage,
     obj.message?.usage,
   ];
   for (const c of candidates) {

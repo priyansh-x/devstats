@@ -80,7 +80,7 @@ export async function parseCursor(
       a.tokensIn += tin;
       a.tokensOut += tout;
       a.bubbles += 1;
-      if (!a.model && typeof obj.modelType === "string") a.model = obj.modelType;
+      if (!a.model) a.model = bubbleModel(obj);
       bubbleAgg.set(composerId, a);
     }
 
@@ -155,11 +155,30 @@ function num(v: unknown): number {
   return typeof v === "number" && Number.isFinite(v) ? v : 0;
 }
 
-/** Best-effort model label when no bubble carried `modelType`. */
+// Cursor uses numeric IDs for unifiedMode in newer versions
+const MODE_NAMES: Record<number | string, string> = {
+  1: "agent", 2: "agent", 3: "ask",
+  "chat": "chat", "agent": "agent", "edit": "edit", "ask": "ask",
+};
+
+function resolveMode(v: unknown): string | undefined {
+  if (v == null) return undefined;
+  return MODE_NAMES[v as number | string] ?? (typeof v === "string" ? v : undefined);
+}
+
+function bubbleModel(obj: any): string | undefined {
+  if (typeof obj.modelType === "string" && obj.modelType) return obj.modelType;
+  if (typeof obj.modelId === "string" && obj.modelId) return obj.modelId;
+  if (typeof obj.model === "string" && obj.model) return obj.model;
+  const mode = resolveMode(obj.unifiedMode);
+  if (mode) return `cursor/${mode}`;
+  if (obj.isAgentic === true) return "cursor/agent";
+  return undefined;
+}
+
 function deriveModel(composer: any): string | undefined {
-  // Cursor doesn't store the chosen model on the composer object as a stable
-  // field; surface the agent mode so the UI shows *something* informative.
-  const mode = composer.unifiedMode || composer.forceMode;
-  if (mode && typeof mode === "string") return `cursor/${mode}`;
+  const mode = resolveMode(composer.unifiedMode) ?? resolveMode(composer.forceMode);
+  if (mode) return `cursor/${mode}`;
+  if (composer.isAgentic === true) return "cursor/agent";
   return undefined;
 }

@@ -18,7 +18,8 @@ describe("parseCodex", () => {
     const dayDir = join(root, "2026", "06", "13");
     mkdirSync(dayDir, { recursive: true });
 
-    // Session 1: a full rollout with session_meta, turn_context, and token usage
+    // Session 1: a full rollout with session_meta, turn_context, and token_count events
+    // Uses the real Codex format: event_msg → payload.type=token_count → payload.info.total_token_usage
     writeJsonl(join(dayDir, "rollout-2026-06-13T10-00-00-aaaa-bbbb.jsonl"), [
       {
         timestamp: "2026-06-13T10:00:00Z",
@@ -44,10 +45,17 @@ describe("parseCodex", () => {
         timestamp: "2026-06-13T10:01:00Z",
         type: "event_msg",
         payload: {
-          usage: {
-            input_tokens: 1200,
-            cached_input_tokens: 400,
-            output_tokens: 350,
+          type: "token_count",
+          info: {
+            total_token_usage: {
+              input_tokens: 1200,
+              cached_input_tokens: 400,
+              output_tokens: 350,
+            },
+            last_token_usage: {
+              input_tokens: 1200,
+              output_tokens: 350,
+            },
           },
         },
       },
@@ -62,10 +70,17 @@ describe("parseCodex", () => {
         timestamp: "2026-06-13T10:05:00Z",
         type: "event_msg",
         payload: {
-          usage: {
-            input_tokens: 800,
-            cached_input_tokens: 200,
-            output_tokens: 150,
+          type: "token_count",
+          info: {
+            total_token_usage: {
+              input_tokens: 2000,
+              cached_input_tokens: 600,
+              output_tokens: 500,
+            },
+            last_token_usage: {
+              input_tokens: 800,
+              output_tokens: 150,
+            },
           },
         },
       },
@@ -95,10 +110,17 @@ describe("parseCodex", () => {
         timestamp: "2026-06-12T15:03:00Z",
         type: "event_msg",
         payload: {
-          usage: {
-            input_tokens: 500,
-            cached_input_tokens: 0,
-            output_tokens: 200,
+          type: "token_count",
+          info: {
+            total_token_usage: {
+              input_tokens: 500,
+              cached_input_tokens: 0,
+              output_tokens: 200,
+            },
+            last_token_usage: {
+              input_tokens: 500,
+              output_tokens: 200,
+            },
           },
         },
       },
@@ -130,7 +152,7 @@ describe("parseCodex", () => {
     expect(s1.endedAt!.toISOString()).toBe("2026-06-13T10:05:00.000Z");
     expect(s1.durationMs).toBe(5 * 60 * 1000);
     expect(s1.model).toBe("o4-mini");
-    // Two usage events: 1200+800 input, 400+200 cached, 350+150 output
+    // total_token_usage is cumulative — we take the last snapshot
     expect(s1.tokensIn).toBe(2000);
     expect(s1.tokensCacheRead).toBe(600);
     expect(s1.tokensInputRaw).toBe(1400);
