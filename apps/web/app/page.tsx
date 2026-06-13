@@ -34,11 +34,16 @@ export default async function Landing() {
           Tokenmaxxing<br />
           your <span className="text-hazard">editor.</span>
         </h1>
-        <p className="text-base leading-relaxed max-w-md text-ink/80 mb-6 mx-auto">
-          Plug in your Claude Code, Cursor, or Antigravity logs
-          and watch your tokens, streaks, and spend stack up.
+        <p className="text-base leading-relaxed max-w-lg text-ink/80 mb-6 mx-auto">
+          Plug in your AI editor logs and watch your tokens,
+          streaks, and spend stack up.
           Climb the leaderboard if you&apos;re built like that.
         </p>
+        <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
+          {["Claude Code", "Cursor", "Codex", "Windsurf", "Antigravity"].map((t) => (
+            <Badge key={t} variant="outline">{t}</Badge>
+          ))}
+        </div>
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Link
             href="/login"
@@ -69,7 +74,7 @@ export default async function Landing() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             { n: "1", t: "Sign in", b: "GitHub login, literally 5 seconds. No repo access, just your handle." },
-            { n: "2", t: "Install CLI", b: "One command. devstats sync reads your local AI editor logs. That's it, that's the tweet." },
+            { n: "2", t: "Install CLI", b: "One command. devstats sync reads your local Claude Code, Cursor, Codex, Windsurf, and Antigravity logs." },
             { n: "3", t: "Go public", b: "Stay lowkey and track privately, or go main character and hit the leaderboard." },
             { n: "4", t: "Make a squad", b: "Private group leaderboards. Invite the homies, compare stats, talk your trash." },
           ].map((s, i) => (
