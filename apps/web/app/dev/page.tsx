@@ -2,13 +2,18 @@
 
 import { useState, useCallback } from "react";
 
-type Tab = "overview" | "users" | "sessions" | "live";
+type Tab = "overview" | "users" | "sessions" | "health";
 
 interface Overview {
   overview: {
     totalUsers: number; publicUsers: number; totalSessions: number;
     sessionsLastWeek: number; sessionsLastDay: number; totalSquads: number;
     activeUsersWeek: number; activeUsersDay: number;
+  };
+  health: {
+    dbOk: boolean; dbLatencyMs: number; staleUsers: number;
+    zeroTokenSessionsWeek: number;
+    syncActivity: { date: string; uploads: number; users: number }[];
   };
   byTool: { tool: string; users: number; sessions: number; tokens: number }[];
   topUsers: { username: string; isPublic: boolean; createdAt: string; sessions: number }[];
@@ -112,6 +117,7 @@ export default function DevConsole() {
     { key: "overview", label: "OVERVIEW" },
     { key: "users", label: "USERS" },
     { key: "sessions", label: "SESSION FEED" },
+    { key: "health", label: "HEALTH" },
   ];
 
   return (
@@ -161,6 +167,9 @@ export default function DevConsole() {
 
       {/* ── SESSION FEED ── */}
       {tab === "sessions" && overview && <SessionFeed sessions={overview.recentSessions} />}
+
+      {/* ── HEALTH ── */}
+      {tab === "health" && overview && <HealthTab data={overview} />}
     </main>
   );
 }
@@ -454,6 +463,87 @@ function SessionFeed({ sessions }: { sessions: Overview["recentSessions"] }) {
         ))}
       </div>
     </Section>
+  );
+}
+
+// ━━━━━━━━━━━━━━━━━━ HEALTH ━━━━━━━━━━━━━━━━━━
+
+function HealthTab({ data }: { data: Overview }) {
+  const h = data.health;
+  const o = data.overview;
+  const syncRate = o.totalUsers > 0 ? ((o.activeUsersWeek / o.totalUsers) * 100).toFixed(0) : "0";
+  return (
+    <>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+        <div className={`border p-4 ${h.dbOk ? "border-ink" : "border-red-500 bg-red-50"}`}>
+          <div className="text-ink/60 text-[10px] tracking-wider mb-1">DATABASE</div>
+          <div className="font-display text-lg font-black">
+            {h.dbOk ? <span className="text-green-600">OK</span> : <span className="text-red-600">DOWN</span>}
+            <span className="text-xs text-ink/40 ml-2">{h.dbLatencyMs}ms</span>
+          </div>
+        </div>
+        <div className="border border-ink p-4">
+          <div className="text-ink/60 text-[10px] tracking-wider mb-1">SYNC RATE (7D)</div>
+          <div className="font-display text-2xl font-black">{syncRate}%</div>
+        </div>
+        <div className={`border p-4 ${h.staleUsers > 5 ? "border-hazard" : "border-ink"}`}>
+          <div className="text-ink/60 text-[10px] tracking-wider mb-1">STALE USERS</div>
+          <div className="font-display text-2xl font-black">{h.staleUsers}</div>
+          <div className="text-[10px] text-ink/40">have key, no sync 7d</div>
+        </div>
+        <div className={`border p-4 ${h.zeroTokenSessionsWeek > 10 ? "border-hazard" : "border-ink"}`}>
+          <div className="text-ink/60 text-[10px] tracking-wider mb-1">0-TOKEN SESSIONS</div>
+          <div className="font-display text-2xl font-black">{h.zeroTokenSessionsWeek}</div>
+          <div className="text-[10px] text-ink/40">last 7d (parser issues)</div>
+        </div>
+      </div>
+
+      {h.syncActivity.length > 0 && (
+        <Section title="SYNC ACTIVITY (LAST 7 DAYS)">
+          <table className="w-full text-left">
+            <thead><tr className="border-b border-ink text-ink/60 text-xs">
+              <th className="pb-2">DATE</th><th className="pb-2">UPLOADS</th>
+              <th className="pb-2">UNIQUE USERS</th>
+            </tr></thead>
+            <tbody>{h.syncActivity.map((d) => (
+              <tr key={String(d.date)} className="border-b border-ink/10">
+                <td className="py-2 font-bold">{String(d.date).slice(0, 10)}</td>
+                <td className="py-2 tabular-nums">{d.uploads}</td>
+                <td className="py-2 tabular-nums">{d.users}</td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </Section>
+      )}
+
+      <Section title="TOOL HEALTH">
+        <table className="w-full text-left">
+          <thead><tr className="border-b border-ink text-ink/60 text-xs">
+            <th className="pb-2">TOOL</th><th className="pb-2">USERS</th>
+            <th className="pb-2">SESSIONS</th><th className="pb-2">TOKENS</th>
+            <th className="pb-2">STATUS</th>
+          </tr></thead>
+          <tbody>{data.byTool.map((t) => {
+            const hasTokens = t.tokens > 0;
+            return (
+              <tr key={t.tool} className="border-b border-ink/10">
+                <td className="py-2 font-bold">{t.tool}</td>
+                <td className="py-2">{t.users}</td>
+                <td className="py-2">{t.sessions}</td>
+                <td className="py-2">{fmt(t.tokens)}</td>
+                <td className="py-2">
+                  {t.sessions === 0
+                    ? <span className="text-ink/30">no data</span>
+                    : hasTokens
+                      ? <span className="text-green-600 font-bold">OK</span>
+                      : <span className="text-hazard font-bold">0 TOKENS</span>}
+                </td>
+              </tr>
+            );
+          })}</tbody>
+        </table>
+      </Section>
+    </>
   );
 }
 

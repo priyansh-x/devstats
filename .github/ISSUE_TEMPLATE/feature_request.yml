@@ -1,0 +1,29 @@
+name: Feature Request
+description: Suggest something new
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - CLI
+        - Dashboard
+        - Leaderboard / Squads
+        - New parser / tool support
+        - API
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What do you want?
+      placeholder: "It would be sick if..."
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why does this matter?
+      placeholder: "Because right now I have to..."

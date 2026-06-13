@@ -47,6 +47,18 @@ export function CliOnboard() {
         </p>
       </Step>
 
+      <Step n="04" title="CHECK YOUR DASHBOARD">
+        <p className="text-ink/70 mb-3">
+          Data lands instantly. Head to your dashboard or run it in the terminal:
+        </p>
+        <div className="space-y-2">
+          <Copy text={`devstats dashboard`} />
+        </div>
+        <p className="text-ink/50 text-xs mt-3">
+          Something off? Run <code className="bg-bone-soft px-1">devstats doctor</code> to diagnose.
+        </p>
+      </Step>
+
       <div className="border-t border-ink/20 pt-5">
         <div className="spec-label text-ink/60 mb-3">WHAT GETS READ</div>
         <div className="grid md:grid-cols-3 gap-3">
@@ -64,6 +76,11 @@ export function CliOnboard() {
             name="ANTIGRAVITY"
             path="state.vscdb (antigravity.notification.*)"
             note="Activity presence only — Google stores transcripts in the cloud. We capture one session per conversation; spend will read 0 until upstream exposes counts."
+          />
+          <ToolRow
+            name="WINDSURF"
+            path="state.vscdb (Cascade/Composer)"
+            note="Codeium's Windsurf editor. Sessions with token counts from Cascade conversations."
           />
           <ToolRow
             name="CODEX"

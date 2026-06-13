@@ -1,0 +1,54 @@
+name: Bug Report
+description: Something broke or isn't working right
+labels: ["bug"]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where's the bug?
+      options:
+        - CLI (devstats sync, doctor, etc.)
+        - Dashboard (web UI)
+        - Leaderboard
+        - Squads
+        - Profile
+        - Parser (Claude Code / Cursor / Codex / Windsurf / Antigravity)
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      placeholder: "I ran `devstats sync` and got..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should have happened?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Run `devstats sync`
+        2. ...
+  - type: input
+    id: cli-version
+    attributes:
+      label: CLI version
+      placeholder: "Run `devstats --version`"
+  - type: input
+    id: os
+    attributes:
+      label: OS
+      placeholder: "macOS 15, Ubuntu 24.04, Windows 11, etc."
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Doctor output
+      description: "Paste the output of `devstats doctor --report` if relevant"
+      render: text

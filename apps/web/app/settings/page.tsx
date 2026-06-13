@@ -41,8 +41,8 @@ export default async function SetupPage() {
         <div className="border-2 border-hazard bg-hazard/10 p-4 text-sm">
           <div className="font-bold text-hazard mb-1">Start here</div>
           <p className="text-ink/80">
-            Three quick steps to get your Claude Code, Cursor, and Antigravity data flowing.
-            Generate an API key, then follow the CLI walkthrough below.
+            Generate an API key below, install the CLI, run one command.
+            Works with Claude Code, Cursor, Codex, Windsurf, and Antigravity.
           </p>
         </div>
       )}

@@ -68,6 +68,37 @@ export async function GET(req: NextRequest) {
     }),
   ]);
 
+  // Health: users who have API keys but haven't synced in 7+ days
+  const [staleUsers, zeroTokenSessions, healthCheck] = await Promise.all([
+    prisma.user.count({
+      where: {
+        apiKeyIssuedAt: { not: null },
+        sessions: { none: { startedAt: { gte: weekAgo } } },
+      },
+    }),
+    prisma.session.count({
+      where: {
+        tokensIn: null,
+        tokensOut: null,
+        startedAt: { gte: weekAgo },
+      },
+    }),
+    (async () => {
+      const start = Date.now();
+      try { await prisma.$queryRaw`SELECT 1`; return { db: true, latencyMs: Date.now() - start }; }
+      catch { return { db: false, latencyMs: Date.now() - start }; }
+    })(),
+  ]);
+
+  // Sync activity: uploads per day (last 7 days)
+  const syncActivity = await prisma.$queryRaw`
+    SELECT DATE("createdAt") as date, COUNT(*) as uploads, COUNT(DISTINCT "userId") as users
+    FROM "Session"
+    WHERE "createdAt" >= ${weekAgo}
+    GROUP BY DATE("createdAt")
+    ORDER BY date DESC
+  ` as { date: Date; uploads: bigint; users: bigint }[];
+
   return NextResponse.json({
     overview: {
       totalUsers,
@@ -78,6 +109,17 @@ export async function GET(req: NextRequest) {
       totalSquads,
       activeUsersWeek,
       activeUsersDay,
+    },
+    health: {
+      dbOk: healthCheck.db,
+      dbLatencyMs: healthCheck.latencyMs,
+      staleUsers,
+      zeroTokenSessionsWeek: zeroTokenSessions,
+      syncActivity: syncActivity.map((r) => ({
+        date: r.date,
+        uploads: Number(r.uploads),
+        users: Number(r.users),
+      })),
     },
     byTool: usersByTool.map((r) => ({
       tool: r.tool,
