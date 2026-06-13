@@ -1,7 +1,8 @@
-import { createHash } from "node:crypto";
+import { basename } from "node:path";
 
 export function hashProjectName(name: string): string {
-  return createHash("sha256").update(name).digest("hex").slice(0, 12);
+  const base = basename(name);
+  return base || name;
 }
 
 export function modeOfStrings(xs: string[]): string | undefined {

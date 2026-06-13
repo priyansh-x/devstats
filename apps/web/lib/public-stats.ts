@@ -9,7 +9,7 @@ export interface PublicProfile {
   bio: string | null;
   createdAt: string;
   /** Aggregate stats — cost intentionally omitted. */
-  stats: Omit<DashboardStats, "totals" | "costVelocity" | "projectBreakdown"> & {
+  stats: Omit<DashboardStats, "totals" | "projectBreakdown"> & {
     totals: Omit<DashboardStats["totals"], "costUsd" | "cacheSavingsUsd">;
   };
 }
@@ -27,7 +27,7 @@ export async function getPublicProfile(username: string): Promise<PublicProfile 
 
   const stats = await getDashboardStats(user.id);
   const { costUsd: _c, cacheSavingsUsd: _s, ...totalsSansCost } = stats.totals;
-  const { costVelocity: _cv, projectBreakdown: _pb, ...statsSansPrivate } = stats;
+  const { projectBreakdown: _pb, ...statsSansPrivate } = stats;
   return {
     username: user.username,
     avatarUrl: user.avatarUrl,

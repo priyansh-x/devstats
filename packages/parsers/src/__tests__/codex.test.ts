@@ -145,7 +145,7 @@ describe("parseCodex", () => {
     expect(s2.model).toBe("gpt-4.1");
     expect(s2.tokensIn).toBe(500);
     expect(s2.tokensOut).toBe(200);
-    expect(s2.projectSlug).toMatch(/^[0-9a-f]{12}$/);
+    expect(s2.projectSlug).toBeTruthy();
 
     expect(s1.tool).toBe("CODEX");
     expect(s1.startedAt.toISOString()).toBe("2026-06-13T10:00:00.000Z");
@@ -177,14 +177,10 @@ describe("parseCodex", () => {
     expect(warnings).toEqual([]);
   });
 
-  it("hashes project cwd into projectSlug", async () => {
+  it("extracts folder name into projectSlug", async () => {
     const { sessions } = await parseCodex({ root });
     const slugs = sessions.map((s) => s.projectSlug);
-    // Two different cwds → two different slugs
-    expect(slugs[0]).not.toBe(slugs[1]);
-    // Both are 12-char hex
-    for (const s of slugs) {
-      expect(s).toMatch(/^[0-9a-f]{12}$/);
-    }
+    expect(slugs).toContain("my-project");
+    expect(slugs).toContain("another-project");
   });
 });

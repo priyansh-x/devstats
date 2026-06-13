@@ -5,7 +5,6 @@ import { Badge } from "@/components/badge";
 import { YearHeatmaps } from "@/components/heatmap";
 import { HourHeatmap } from "@/components/hour-heatmap";
 import { VelocityChart } from "@/components/velocity-chart";
-import { CostVelocityChart } from "@/components/cost-velocity-chart";
 import { ImportLocalButton } from "@/components/import-button";
 import { UserNav } from "@/components/user-nav";
 import { getCurrentUser } from "@/lib/auth";
@@ -128,15 +127,9 @@ export default async function Dashboard({
         </SpecCard>
       )}
 
-      <div className="grid md:grid-cols-2 gap-6 mb-6">
-        <SpecCard label="Token velocity" meta="last 30 days" className="fade-up stagger-3">
-          {hasData ? <VelocityChart data={stats.velocity} /> : <p className="text-sm text-ink/60">No data yet.</p>}
-        </SpecCard>
-
-        <SpecCard label="Spend velocity" meta="last 30 days" className="fade-up stagger-3">
-          {hasData ? <CostVelocityChart data={stats.costVelocity} /> : <p className="text-sm text-ink/60">No data yet.</p>}
-        </SpecCard>
-      </div>
+      <SpecCard label="Token velocity" meta="last 30 days" className="mb-6 fade-up stagger-3">
+        {hasData ? <VelocityChart data={stats.velocity} /> : <p className="text-sm text-ink/60">No data yet.</p>}
+      </SpecCard>
 
       <div className="grid md:grid-cols-2 gap-6 mb-6">
         <SpecCard label="Tools" className="fade-up stagger-4">
@@ -177,7 +170,7 @@ export default async function Dashboard({
                 return (
                   <li key={p.project}>
                     <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="font-bold tracking-wide font-mono">{p.project.slice(0, 8)}</span>
+                      <span className="font-bold tracking-wide font-mono">{p.project}</span>
                       <span className="text-ink/60">
                         {p.sessions} · {fmtCompact(p.tokens)} tkn · {fmtUsd(p.costUsd)}
                       </span>
@@ -192,7 +185,7 @@ export default async function Dashboard({
                 );
               })}
             </ul>
-            <p className="text-[10px] text-ink/40 mt-3">Project names are SHA-256 hashed for privacy.</p>
+            <p className="text-[10px] text-ink/40 mt-3">Showing folder names from your local machine.</p>
           </SpecCard>
         )}
       </div>

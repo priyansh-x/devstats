@@ -50,7 +50,6 @@ export interface DashboardStats {
   years: YearHeatmap[];
   hourly: { dow: number; hour: number; sessions: number }[];
   velocity: { date: string; tokens: number }[];
-  costVelocity: { date: string; cost: number }[];
   toolBreakdown: { tool: Tool; sessions: number; tokens: number; costUsd: number }[];
   topModels: { model: string; sessions: number; tokens: number; costUsd: number }[];
   projectBreakdown: { project: string; sessions: number; tokens: number; costUsd: number }[];

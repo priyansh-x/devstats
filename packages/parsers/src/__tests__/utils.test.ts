@@ -3,14 +3,19 @@ import { hashProjectName } from "../utils";
 
 describe("hashProjectName", () => {
   it("is deterministic", () => {
-    expect(hashProjectName("foo")).toBe(hashProjectName("foo"));
+    expect(hashProjectName("/Users/me/projects/foo")).toBe(hashProjectName("/Users/me/projects/foo"));
   });
 
-  it("varies by input", () => {
-    expect(hashProjectName("foo")).not.toBe(hashProjectName("bar"));
+  it("extracts basename", () => {
+    expect(hashProjectName("/Users/me/projects/devstats")).toBe("devstats");
+    expect(hashProjectName("/home/user/code/my-app")).toBe("my-app");
   });
 
-  it("is 12 hex chars", () => {
-    expect(hashProjectName("any-path/with stuff")).toMatch(/^[0-9a-f]{12}$/);
+  it("varies by folder name", () => {
+    expect(hashProjectName("/a/foo")).not.toBe(hashProjectName("/a/bar"));
+  });
+
+  it("handles bare names", () => {
+    expect(hashProjectName("foo")).toBe("foo");
   });
 });

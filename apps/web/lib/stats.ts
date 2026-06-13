@@ -47,7 +47,7 @@ async function _getDashboardStats(
   const byTool = new Map<string, { sessions: number; tokens: number; costUsd: number }>();
   const byModel = new Map<string, { sessions: number; tokens: number; costUsd: number }>();
   const byProject = new Map<string, { sessions: number; tokens: number; costUsd: number }>();
-  const byDay = new Map<string, { count: number; tokens: number; cost: number }>();
+  const byDay = new Map<string, { count: number; tokens: number }>();
   const hourly = new Map<string, number>();
 
   for (const s of sessions) {
@@ -86,8 +86,8 @@ async function _getDashboardStats(
     }
 
     const day = isoDay(s.startedAt);
-    const d = byDay.get(day) ?? { count: 0, tokens: 0, cost: 0 };
-    d.count++; d.tokens += tin + tout; d.cost += cost;
+    const d = byDay.get(day) ?? { count: 0, tokens: 0 };
+    d.count++; d.tokens += tin + tout;
     byDay.set(day, d);
 
     const dow = s.startedAt.getDay();
@@ -117,14 +117,11 @@ async function _getDashboardStats(
   // Velocity: last 30 days regardless of year
   const today = new Date();
   const velocity: { date: string; tokens: number }[] = [];
-  const costVelocity: { date: string; cost: number }[] = [];
   for (let i = 29; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
     const k = isoDay(d);
-    const dayData = byDay.get(k);
-    velocity.push({ date: k, tokens: dayData?.tokens ?? 0 });
-    costVelocity.push({ date: k, cost: dayData?.cost ?? 0 });
+    velocity.push({ date: k, tokens: byDay.get(k)?.tokens ?? 0 });
   }
 
   const hourlyArr: DashboardStats["hourly"] = [];
@@ -159,7 +156,6 @@ async function _getDashboardStats(
     years,
     hourly: hourlyArr,
     velocity,
-    costVelocity,
     toolBreakdown: [...byTool.entries()]
       .map(([tool, v]) => ({ tool: tool as Tool, ...v }))
       .sort((a, b) => b.tokens - a.tokens),

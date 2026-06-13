@@ -39,7 +39,7 @@ describe("parseAntigravity", () => {
       expect(s.tokensIn).toBeUndefined();
       expect(s.tokensOut).toBeUndefined();
       expect(s.model).toBe("antigravity/agent");
-      expect(s.projectSlug).toMatch(/^[0-9a-f]{12}$/);
+      expect(s.projectSlug).toBeTruthy();
     }
   });
 
