@@ -4,6 +4,7 @@ export type Tool =
   | "ANTIGRAVITY"
   | "WINDSURF"
   | "COPILOT"
+  | "CODEX"
   | "MANUAL";
 
 export interface NormalisedSession {

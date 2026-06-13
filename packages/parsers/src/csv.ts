@@ -19,7 +19,7 @@ export interface CsvMapping {
   projectSlug?: string;
 }
 
-const KNOWN_TOOLS: Tool[] = ["CLAUDE_CODE", "CURSOR", "WINDSURF", "COPILOT", "MANUAL"];
+const KNOWN_TOOLS: Tool[] = ["CLAUDE_CODE", "CURSOR", "WINDSURF", "COPILOT", "CODEX", "ANTIGRAVITY", "MANUAL"];
 
 export function parseCsv(
   text: string,

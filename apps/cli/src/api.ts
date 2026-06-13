@@ -19,19 +19,37 @@ export interface UploadResponse {
 }
 
 async function req<T>(cfg: CliConfig, path: string, init: RequestInit = {}): Promise<T> {
-  const res = await fetch(`${cfg.apiUrl}${path}`, {
-    ...init,
-    headers: {
-      ...(init.headers ?? {}),
-      Authorization: `Bearer ${cfg.apiKey}`,
-      "Content-Type": "application/json",
-    },
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${cfg.apiUrl}${path}`, {
+      ...init,
+      headers: {
+        ...(init.headers ?? {}),
+        Authorization: `Bearer ${cfg.apiKey}`,
+        "Content-Type": "application/json",
+      },
+    });
+  } catch (e: any) {
+    if (e.code === "ECONNREFUSED" || e.cause?.code === "ECONNREFUSED") {
+      throw new Error(`Cannot connect to ${cfg.apiUrl} — is the server running?`);
+    }
+    if (e.code === "ENOTFOUND" || e.cause?.code === "ENOTFOUND") {
+      throw new Error(`DNS lookup failed for ${cfg.apiUrl} — check your network or DEVSTATS_URL.`);
+    }
+    if (e.name === "TimeoutError" || e.code === "UND_ERR_CONNECT_TIMEOUT") {
+      throw new Error(`Request to ${cfg.apiUrl} timed out — try again later.`);
+    }
+    throw new Error(`Network error: ${e.message}`);
+  }
   const text = await res.text();
   let body: any = null;
   try { body = text ? JSON.parse(text) : null; } catch { body = text; }
   if (!res.ok) {
     const msg = (body && body.error) || text || res.statusText;
+    if (res.status === 401) throw new Error(`401: Invalid or expired API key. Re-run \`devstats login\`.`);
+    if (res.status === 403) throw new Error(`403: Access denied. ${msg}`);
+    if (res.status === 429) throw new Error(`429: Rate limited — wait a moment and retry.`);
+    if (res.status >= 500) throw new Error(`${res.status}: Server error — try again later. (${msg})`);
     throw new Error(`${res.status}: ${msg}`);
   }
   return body as T;

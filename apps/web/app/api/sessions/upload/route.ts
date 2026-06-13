@@ -5,7 +5,7 @@ import { getCurrentUser, getUserFromApiKey } from "@/lib/auth";
 import { recomputeStreak } from "@/lib/stats";
 import { ratelimit } from "@/lib/ratelimit";
 
-const ToolEnum = z.enum(["CLAUDE_CODE", "CURSOR", "ANTIGRAVITY", "WINDSURF", "COPILOT", "MANUAL"]);
+const ToolEnum = z.enum(["CLAUDE_CODE", "CURSOR", "ANTIGRAVITY", "WINDSURF", "COPILOT", "CODEX", "MANUAL"]);
 
 const SessionInput = z.object({
   tool: ToolEnum,

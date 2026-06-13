@@ -88,7 +88,7 @@ model Friendship {
 model Session {
   id           String   @id @default(cuid())
   userId       String
-  tool         String   // Tool union: CLAUDE_CODE|CURSOR|WINDSURF|COPILOT|MANUAL
+  tool         String   // Tool union: CLAUDE_CODE|CURSOR|WINDSURF|COPILOT|CODEX|ANTIGRAVITY|MANUAL
   startedAt    DateTime
   endedAt      DateTime?
   durationMs   Int?

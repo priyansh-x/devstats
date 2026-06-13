@@ -65,6 +65,11 @@ export function CliOnboard() {
             path="state.vscdb (antigravity.notification.*)"
             note="Activity presence only — Google stores transcripts in the cloud. We capture one session per conversation; spend will read 0 until upstream exposes counts."
           />
+          <ToolRow
+            name="CODEX"
+            path="~/.codex/sessions/**/*.jsonl"
+            note="OpenAI Codex CLI rollout logs. Token counts (input · cached · output), model names, per-session working directory."
+          />
         </div>
         <p className="text-ink/50 text-xs mt-4">
           DevStats never uploads message content, real file paths, or repo URLs.

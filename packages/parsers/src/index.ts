@@ -11,3 +11,5 @@ export { parseWindsurf } from "./windsurf";
 export type { WindsurfParseOptions } from "./windsurf";
 export { parseCopilot } from "./copilot";
 export type { CopilotParseOptions } from "./copilot";
+export { parseCodex } from "./codex";
+export type { CodexParseOptions } from "./codex";

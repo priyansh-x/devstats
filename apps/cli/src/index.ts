@@ -1,6 +1,6 @@
 // shebang is added by tsup's banner config at build time; in dev we go
 // through `tsx src/index.ts` so it's never needed here.
-import { parseClaudeCode, parseCursor, parseAntigravity, parseWindsurf } from "@devstats/parsers";
+import { parseClaudeCode, parseCursor, parseAntigravity, parseWindsurf, parseCodex } from "@devstats/parsers";
 import { loadConfig, saveConfig, loadCursor, saveCursor, PATHS } from "./config.js";
 import { c, bar, row, ok, warn, err, info, blank, fmt, prompt } from "./ui.js";
 import {
@@ -69,7 +69,7 @@ ${c.bold}sync flags:${c.reset}
   --dry-run                            parse + summarize, never upload
   --full                               ignore the local cursor and reupload everything
   --tool <name>                        restrict to one parser
-                                       (claude-code | cursor | antigravity | windsurf)
+                                       (claude-code | cursor | antigravity | windsurf | codex)
 
 ${c.bold}leaderboard flags:${c.reset}
   --period daily|weekly|monthly|alltime    default: weekly
@@ -180,111 +180,57 @@ async function cmdSync(rest: string[]) {
   let totalParsed = 0;
   let totalInserted = 0;
   let latest = { ...cursor };
+  const errors: { tool: string; phase: "parse" | "upload"; message: string }[] = [];
 
-  if (!onlyTool || onlyTool === "claude-code") {
-    const since = cursor["CLAUDE_CODE"];
-    if (since) info(`claude-code: only events ≥ ${new Date(since).toISOString().slice(0, 19)}Z`);
-    const { sessions, warnings } = await parseClaudeCode({ sinceMs: since });
-    totalParsed += sessions.length;
-    for (const w of warnings.slice(0, 3)) warn(w);
+  const tools: { name: string; key: string; parse: (opts?: any) => Promise<{ sessions: any[]; warnings: string[] }> }[] = [
+    { name: "claude-code", key: "CLAUDE_CODE", parse: (o) => parseClaudeCode(o) },
+    { name: "cursor",      key: "CURSOR",      parse: (o) => parseCursor(o) },
+    { name: "antigravity", key: "ANTIGRAVITY", parse: (o) => parseAntigravity(o) },
+    { name: "windsurf",    key: "WINDSURF",    parse: (o) => parseWindsurf(o) },
+    { name: "codex",       key: "CODEX",       parse: (o) => parseCodex(o) },
+  ];
 
-    if (sessions.length === 0) {
-      info("claude-code: nothing new.");
-    } else if (dryRun) {
-      printPreview("claude-code", sessions);
-    } else {
-      try {
-        const res = await upload(cfg, sessions);
-        ok(`claude-code: uploaded ${res.inserted} / ${res.received} (skipped ${res.skipped} dup).`);
-        totalInserted += res.inserted;
-        latest["CLAUDE_CODE"] = Math.max(
-          latest["CLAUDE_CODE"] ?? 0,
-          ...sessions.map((s) => s.startedAt.getTime()),
-        );
-      } catch (e: any) {
-        err(`claude-code upload failed: ${e.message}`);
-        process.exit(1);
-      }
+  for (const tool of tools) {
+    if (onlyTool && onlyTool !== tool.name) continue;
+
+    const since = cursor[tool.key];
+    if (since) info(`${tool.name}: only events ≥ ${new Date(since).toISOString().slice(0, 19)}Z`);
+
+    let sessions: any[];
+    let warnings: string[];
+    try {
+      const r = await tool.parse({ sinceMs: since });
+      sessions = r.sessions;
+      warnings = r.warnings;
+    } catch (e: any) {
+      errors.push({ tool: tool.name, phase: "parse", message: e.message });
+      err(`${tool.name}: parse failed — ${e.message}`);
+      continue;
     }
-  }
 
-  if (!onlyTool || onlyTool === "cursor") {
-    const since = cursor["CURSOR"];
-    if (since) info(`cursor: only events ≥ ${new Date(since).toISOString().slice(0, 19)}Z`);
-    const { sessions, warnings } = await parseCursor({ sinceMs: since });
     totalParsed += sessions.length;
     for (const w of warnings.slice(0, 3)) warn(w);
 
     if (sessions.length === 0) {
-      info("cursor: nothing new.");
+      info(`${tool.name}: nothing new.`);
     } else if (dryRun) {
-      printPreview("cursor", sessions);
+      printPreview(tool.name, sessions);
     } else {
       try {
         const res = await upload(cfg, sessions);
-        ok(`cursor: uploaded ${res.inserted} / ${res.received} (skipped ${res.skipped} dup).`);
+        ok(`${tool.name}: uploaded ${res.inserted} / ${res.received} (skipped ${res.skipped} dup).`);
         totalInserted += res.inserted;
-        latest["CURSOR"] = Math.max(
-          latest["CURSOR"] ?? 0,
+        latest[tool.key] = Math.max(
+          latest[tool.key] ?? 0,
           ...sessions.map((s) => s.startedAt.getTime()),
         );
       } catch (e: any) {
-        err(`cursor upload failed: ${e.message}`);
-        process.exit(1);
-      }
-    }
-  }
-
-  if (!onlyTool || onlyTool === "antigravity") {
-    const since = cursor["ANTIGRAVITY"];
-    if (since) info(`antigravity: only events ≥ ${new Date(since).toISOString().slice(0, 19)}Z`);
-    const { sessions, warnings } = await parseAntigravity({ sinceMs: since });
-    totalParsed += sessions.length;
-    for (const w of warnings.slice(0, 3)) warn(w);
-
-    if (sessions.length === 0) {
-      info("antigravity: nothing new.");
-    } else if (dryRun) {
-      printPreview("antigravity", sessions);
-    } else {
-      try {
-        const res = await upload(cfg, sessions);
-        ok(`antigravity: uploaded ${res.inserted} / ${res.received} (skipped ${res.skipped} dup).`);
-        totalInserted += res.inserted;
-        latest["ANTIGRAVITY"] = Math.max(
-          latest["ANTIGRAVITY"] ?? 0,
-          ...sessions.map((s) => s.startedAt.getTime()),
-        );
-      } catch (e: any) {
-        err(`antigravity upload failed: ${e.message}`);
-        process.exit(1);
-      }
-    }
-  }
-
-  if (!onlyTool || onlyTool === "windsurf") {
-    const since = cursor["WINDSURF"];
-    if (since) info(`windsurf: only events ≥ ${new Date(since).toISOString().slice(0, 19)}Z`);
-    const { sessions, warnings } = await parseWindsurf({ sinceMs: since });
-    totalParsed += sessions.length;
-    for (const w of warnings.slice(0, 3)) warn(w);
-
-    if (sessions.length === 0) {
-      info("windsurf: nothing new.");
-    } else if (dryRun) {
-      printPreview("windsurf", sessions);
-    } else {
-      try {
-        const res = await upload(cfg, sessions);
-        ok(`windsurf: uploaded ${res.inserted} / ${res.received} (skipped ${res.skipped} dup).`);
-        totalInserted += res.inserted;
-        latest["WINDSURF"] = Math.max(
-          latest["WINDSURF"] ?? 0,
-          ...sessions.map((s) => s.startedAt.getTime()),
-        );
-      } catch (e: any) {
-        err(`windsurf upload failed: ${e.message}`);
-        process.exit(1);
+        errors.push({ tool: tool.name, phase: "upload", message: e.message });
+        err(`${tool.name}: upload failed — ${e.message}`);
+        if (e.message.includes("401") || e.message.includes("403")) {
+          err("Auth error — remaining tools skipped. Check your API key with `devstats login`.");
+          break;
+        }
       }
     }
   }
@@ -295,6 +241,15 @@ async function cmdSync(rest: string[]) {
   bar("done");
   row("parsed",   totalParsed);
   row("uploaded", dryRun ? "(dry-run)" : totalInserted);
+
+  if (errors.length > 0) {
+    blank();
+    bar("errors", `${errors.length}`);
+    for (const e of errors) {
+      err(`${e.tool} (${e.phase}): ${e.message}`);
+    }
+    info(`Run ${c.bold}devstats doctor${c.reset} for diagnostics, or retry with ${c.bold}--tool <name>${c.reset}.`);
+  }
 
   // Honest disclosure: tell the user about Antigravity's known limitation
   // every time they sync that tool, so 0-token sessions are never a surprise.
@@ -318,6 +273,8 @@ async function cmdSync(rest: string[]) {
     } catch { /* don't fail the whole sync over a status print */ }
   }
   blank();
+
+  if (errors.length > 0) process.exit(1);
 }
 
 function printPreview(tool: string, sessions: any[]) {
@@ -338,15 +295,16 @@ async function cmdLogout() {
 }
 
 async function cmdPreview() {
-  const [claude, cursor, antigrav, windsurf] = await Promise.all([
+  const [claude, cursor, antigrav, windsurf, codex] = await Promise.all([
     parseClaudeCode(),
     parseCursor(),
     parseAntigravity(),
     parseWindsurf(),
+    parseCodex(),
   ]);
 
-  const sessions = [...claude.sessions, ...cursor.sessions, ...antigrav.sessions, ...windsurf.sessions];
-  const warnings = [...claude.warnings, ...cursor.warnings, ...antigrav.warnings, ...windsurf.warnings];
+  const sessions = [...claude.sessions, ...cursor.sessions, ...antigrav.sessions, ...windsurf.sessions, ...codex.sessions];
+  const warnings = [...claude.warnings, ...cursor.warnings, ...antigrav.warnings, ...windsurf.warnings, ...codex.warnings];
 
   const tin = sessions.reduce((s, r) => s + (r.tokensIn ?? 0), 0);
   const tout = sessions.reduce((s, r) => s + (r.tokensOut ?? 0), 0);
@@ -575,6 +533,7 @@ async function cmdDoctor(rest: string[]) {
     { name: "cursor",      key: "CURSOR",      run: () => parseCursor() },
     { name: "antigravity", key: "ANTIGRAVITY", run: () => parseAntigravity() },
     { name: "windsurf",    key: "WINDSURF",    run: () => parseWindsurf() },
+    { name: "codex",       key: "CODEX",       run: () => parseCodex() },
   ];
 
   for (const check of checks) {

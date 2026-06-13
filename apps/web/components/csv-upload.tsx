@@ -16,7 +16,7 @@ const TARGETS: { key: string; label: string; required?: boolean }[] = [
   { key: "projectSlug",     label: "PROJECT" },
 ];
 
-const TOOLS = ["CLAUDE_CODE", "CURSOR", "WINDSURF", "COPILOT", "MANUAL"];
+const TOOLS = ["CLAUDE_CODE", "CURSOR", "WINDSURF", "COPILOT", "CODEX", "MANUAL"];
 
 export function CsvUpload() {
   const router = useRouter();

@@ -5,7 +5,7 @@ import { recomputeStreak } from "@/lib/stats";
 
 export const dynamic = "force-dynamic";
 
-const TOOLS = ["CLAUDE_CODE", "CURSOR", "ANTIGRAVITY", "WINDSURF", "COPILOT", "MANUAL"];
+const TOOLS = ["CLAUDE_CODE", "CURSOR", "ANTIGRAVITY", "WINDSURF", "COPILOT", "CODEX", "MANUAL"];
 
 /**
  * Delete all sessions from one tool (?tool=ANTIGRAVITY) or everything
