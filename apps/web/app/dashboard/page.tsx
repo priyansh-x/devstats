@@ -5,6 +5,7 @@ import { Badge } from "@/components/badge";
 import { YearHeatmaps } from "@/components/heatmap";
 import { HourHeatmap } from "@/components/hour-heatmap";
 import { VelocityChart } from "@/components/velocity-chart";
+import { CostVelocityChart } from "@/components/cost-velocity-chart";
 import { ImportLocalButton } from "@/components/import-button";
 import { UserNav } from "@/components/user-nav";
 import { getCurrentUser } from "@/lib/auth";
@@ -102,11 +103,17 @@ export default async function Dashboard({
           <SpecMetric label="Streak"     value={stats.streak.current} unit="d" />
           <SpecMetric label="Spend est." value={fmtUsd(stats.totals.costUsd)} />
         </div>
-        {cacheRatio > 0 && (
-          <div className="mt-5 pt-4 border-t border-ink/20 text-xs text-ink/60">
-            {cacheRatio.toFixed(0)}% of input from cache · longest streak {stats.streak.longest}d · {stats.totals.activeDays} active days
-          </div>
-        )}
+        <div className="mt-5 pt-4 border-t border-ink/20 text-xs text-ink/60 flex flex-wrap gap-x-4 gap-y-1">
+          {cacheRatio > 0 && <span>{cacheRatio.toFixed(0)}% cache hit rate</span>}
+          {stats.totals.cacheSavingsUsd > 0 && (
+            <span className="text-hazard font-bold">{fmtUsd(stats.totals.cacheSavingsUsd)} saved by cache</span>
+          )}
+          <span>longest streak {stats.streak.longest}d</span>
+          <span>{stats.totals.activeDays} active days</span>
+          {stats.efficiency.tokensPerMinute > 0 && (
+            <span>{fmtCompact(stats.efficiency.tokensPerMinute)} tokens/min</span>
+          )}
+        </div>
       </SpecCard>
 
       {/* Year-tabbed heatmap */}
@@ -126,6 +133,12 @@ export default async function Dashboard({
           {hasData ? <VelocityChart data={stats.velocity} /> : <p className="text-sm text-ink/60">No data yet.</p>}
         </SpecCard>
 
+        <SpecCard label="Spend velocity" meta="last 30 days" className="fade-up stagger-3">
+          {hasData ? <CostVelocityChart data={stats.costVelocity} /> : <p className="text-sm text-ink/60">No data yet.</p>}
+        </SpecCard>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-6 mb-6">
         <SpecCard label="Tools" className="fade-up stagger-4">
           {stats.toolBreakdown.length === 0 ? (
             <p className="text-sm text-ink/60">No data yet.</p>
@@ -154,6 +167,34 @@ export default async function Dashboard({
             </ul>
           )}
         </SpecCard>
+
+        {stats.projectBreakdown.length > 0 && (
+          <SpecCard label="Projects" meta={`top ${stats.projectBreakdown.length}`} className="fade-up stagger-4">
+            <ul className="space-y-3">
+              {stats.projectBreakdown.map((p, i) => {
+                const max = stats.projectBreakdown[0]!.costUsd || 1;
+                const pct = Math.round((p.costUsd / max) * 100);
+                return (
+                  <li key={p.project}>
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="font-bold tracking-wide font-mono">{p.project.slice(0, 8)}</span>
+                      <span className="text-ink/60">
+                        {p.sessions} · {fmtCompact(p.tokens)} tkn · {fmtUsd(p.costUsd)}
+                      </span>
+                    </div>
+                    <div className="h-2 bg-bone-soft border border-ink/20">
+                      <div
+                        className="grow-bar h-full bg-ink"
+                        style={{ width: `${pct}%`, animationDelay: `${0.3 + i * 0.1}s` }}
+                      />
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+            <p className="text-[10px] text-ink/40 mt-3">Project names are SHA-256 hashed for privacy.</p>
+          </SpecCard>
+        )}
       </div>
 
       <SpecCard label="Top models" className="mb-6 fade-up stagger-5">
@@ -182,6 +223,33 @@ export default async function Dashboard({
           </table>
         )}
       </SpecCard>
+
+      {hasData && (
+        <SpecCard label="Efficiency" className="mb-6 fade-up stagger-5">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <SpecMetric label="Avg tokens/session" value={fmtCompact(stats.efficiency.avgTokensPerSession)} />
+            <SpecMetric label="Avg session length" value={fmtDuration(stats.efficiency.avgDurationPerSession)} />
+            <SpecMetric label="Tokens/min" value={fmtCompact(stats.efficiency.tokensPerMinute)} />
+            <SpecMetric label="Output/input ratio" value={stats.efficiency.outputInputRatio.toFixed(2)} />
+          </div>
+          {stats.totals.tokensCacheRead > 0 && (
+            <div className="mt-4 pt-3 border-t border-ink/20 grid grid-cols-3 gap-4 text-xs">
+              <div>
+                <div className="text-ink/60">Fresh input</div>
+                <div className="font-bold tabular-nums">{fmtCompact(stats.totals.tokensInputRaw)}</div>
+              </div>
+              <div>
+                <div className="text-ink/60">Cache read</div>
+                <div className="font-bold tabular-nums">{fmtCompact(stats.totals.tokensCacheRead)}</div>
+              </div>
+              <div>
+                <div className="text-ink/60">Cache write</div>
+                <div className="font-bold tabular-nums">{fmtCompact(stats.totals.tokensCacheCreate)}</div>
+              </div>
+            </div>
+          )}
+        </SpecCard>
+      )}
 
       {stats.toolBreakdown.some((t) => t.tool === "ANTIGRAVITY" || t.tool === "CURSOR") && (
         <div className="border border-ink bg-bone-soft px-4 py-2 mb-6 text-xs text-ink/70 leading-relaxed">

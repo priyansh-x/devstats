@@ -38,16 +38,27 @@ export interface DashboardStats {
     tokensIn: number;
     tokensOut: number;
     tokensCacheRead: number;
+    tokensCacheCreate: number;
+    tokensInputRaw: number;
     sessions: number;
     durationMs: number;
     activeDays: number;
     costUsd: number;
+    cacheSavingsUsd: number;
   };
   streak: { current: number; longest: number };
-  years: YearHeatmap[];                            // one entry per year of activity
-  hourly: { dow: number; hour: number; sessions: number }[]; // 7×24 grid
-  velocity: { date: string; tokens: number }[];    // last 30d
+  years: YearHeatmap[];
+  hourly: { dow: number; hour: number; sessions: number }[];
+  velocity: { date: string; tokens: number }[];
+  costVelocity: { date: string; cost: number }[];
   toolBreakdown: { tool: Tool; sessions: number; tokens: number; costUsd: number }[];
   topModels: { model: string; sessions: number; tokens: number; costUsd: number }[];
+  projectBreakdown: { project: string; sessions: number; tokens: number; costUsd: number }[];
+  efficiency: {
+    avgTokensPerSession: number;
+    avgDurationPerSession: number;
+    tokensPerMinute: number;
+    outputInputRatio: number;
+  };
   firstSessionAt: string | null;
 }

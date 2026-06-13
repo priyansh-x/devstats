@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { prisma } from "./prisma";
-import { sessionCost } from "./pricing";
+import { sessionCost, priceFor } from "./pricing";
 import type { DashboardStats, YearHeatmap, Tool } from "@devstats/types";
 
 /**
@@ -32,18 +32,23 @@ async function _getDashboardStats(
       tokensCacheRead: true,
       tokensCacheCreate: true,
       tokensOut: true,
+      projectSlug: true,
     },
   });
 
   let tokensIn = 0;
   let tokensOut = 0;
   let tokensCacheRead = 0;
+  let tokensCacheCreate = 0;
+  let tokensInputRaw = 0;
   let durationMs = 0;
   let costUsd = 0;
+  let cacheSavingsUsd = 0;
   const byTool = new Map<string, { sessions: number; tokens: number; costUsd: number }>();
   const byModel = new Map<string, { sessions: number; tokens: number; costUsd: number }>();
-  const byDay = new Map<string, { count: number; tokens: number }>();
-  const hourly = new Map<string, number>(); // key: `${dow}-${hour}`
+  const byProject = new Map<string, { sessions: number; tokens: number; costUsd: number }>();
+  const byDay = new Map<string, { count: number; tokens: number; cost: number }>();
+  const hourly = new Map<string, number>();
 
   for (const s of sessions) {
     const tin = s.tokensIn ?? 0;
@@ -52,8 +57,17 @@ async function _getDashboardStats(
     tokensIn += tin;
     tokensOut += tout;
     tokensCacheRead += s.tokensCacheRead ?? 0;
+    tokensCacheCreate += s.tokensCacheCreate ?? 0;
+    tokensInputRaw += s.tokensInputRaw ?? 0;
     durationMs += s.durationMs ?? 0;
     costUsd += cost;
+
+    // Cache savings: what cache reads would have cost at full input price
+    const cRead = s.tokensCacheRead ?? 0;
+    if (cRead > 0) {
+      const p = priceFor(s.model);
+      cacheSavingsUsd += (cRead * (p.input - p.cacheRead)) / 1_000_000;
+    }
 
     const t = byTool.get(s.tool) ?? { sessions: 0, tokens: 0, costUsd: 0 };
     t.sessions++; t.tokens += tin + tout; t.costUsd += cost;
@@ -65,12 +79,17 @@ async function _getDashboardStats(
       byModel.set(s.model, m);
     }
 
+    if (s.projectSlug) {
+      const pr = byProject.get(s.projectSlug) ?? { sessions: 0, tokens: 0, costUsd: 0 };
+      pr.sessions++; pr.tokens += tin + tout; pr.costUsd += cost;
+      byProject.set(s.projectSlug, pr);
+    }
+
     const day = isoDay(s.startedAt);
-    const d = byDay.get(day) ?? { count: 0, tokens: 0 };
-    d.count++; d.tokens += tin + tout;
+    const d = byDay.get(day) ?? { count: 0, tokens: 0, cost: 0 };
+    d.count++; d.tokens += tin + tout; d.cost += cost;
     byDay.set(day, d);
 
-    // Local-time hour-of-week bucket
     const dow = s.startedAt.getDay();
     const hour = s.startedAt.getHours();
     const k = `${dow}-${hour}`;
@@ -98,11 +117,14 @@ async function _getDashboardStats(
   // Velocity: last 30 days regardless of year
   const today = new Date();
   const velocity: { date: string; tokens: number }[] = [];
+  const costVelocity: { date: string; cost: number }[] = [];
   for (let i = 29; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
     const k = isoDay(d);
-    velocity.push({ date: k, tokens: byDay.get(k)?.tokens ?? 0 });
+    const dayData = byDay.get(k);
+    velocity.push({ date: k, tokens: dayData?.tokens ?? 0 });
+    costVelocity.push({ date: k, cost: dayData?.cost ?? 0 });
   }
 
   const hourlyArr: DashboardStats["hourly"] = [];
@@ -114,20 +136,30 @@ async function _getDashboardStats(
 
   const streak = await prisma.streak.findUnique({ where: { userId } });
 
+  const totalSessions = sessions.length;
+  const avgTokensPerSession = totalSessions > 0 ? (tokensIn + tokensOut) / totalSessions : 0;
+  const avgDurationPerSession = totalSessions > 0 ? durationMs / totalSessions : 0;
+  const tokensPerMinute = durationMs > 0 ? ((tokensIn + tokensOut) / (durationMs / 60000)) : 0;
+  const outputInputRatio = tokensIn > 0 ? tokensOut / tokensIn : 0;
+
   return {
     totals: {
       tokensIn,
       tokensOut,
       tokensCacheRead,
-      sessions: sessions.length,
+      tokensCacheCreate,
+      tokensInputRaw,
+      sessions: totalSessions,
       durationMs,
       activeDays: [...byDay.values()].filter((v) => v.count > 0).length,
       costUsd,
+      cacheSavingsUsd,
     },
     streak: { current: streak?.currentStreak ?? 0, longest: streak?.longestStreak ?? 0 },
     years,
     hourly: hourlyArr,
     velocity,
+    costVelocity,
     toolBreakdown: [...byTool.entries()]
       .map(([tool, v]) => ({ tool: tool as Tool, ...v }))
       .sort((a, b) => b.tokens - a.tokens),
@@ -135,6 +167,16 @@ async function _getDashboardStats(
       .map(([model, v]) => ({ model, ...v }))
       .sort((a, b) => b.tokens - a.tokens)
       .slice(0, 5),
+    projectBreakdown: [...byProject.entries()]
+      .map(([project, v]) => ({ project, ...v }))
+      .sort((a, b) => b.costUsd - a.costUsd)
+      .slice(0, 10),
+    efficiency: {
+      avgTokensPerSession,
+      avgDurationPerSession,
+      tokensPerMinute,
+      outputInputRatio,
+    },
     firstSessionAt: sessions[0]?.startedAt.toISOString() ?? null,
   };
 }
