@@ -15,6 +15,10 @@ export default async function LoginPage() {
 
   async function devLoginAction() {
     "use server";
+    // Dev-only escape hatch. When Supabase auth is configured (prod), refuse —
+    // otherwise this action could be replayed to mint throwaway accounts that
+    // bypass GitHub sign-in.
+    if (createSupabaseServer()) redirect("/login");
     await ensureDevUser();
     redirect("/dashboard");
   }
