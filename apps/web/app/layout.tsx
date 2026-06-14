@@ -8,7 +8,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "DevStats",
   description:
-    "Track tokens, sessions, streaks across Claude Code, Cursor, Copilot. Private by default.",
+    "Track tokens, sessions, and streaks across Claude Code, Cursor, Codex, Windsurf, and Antigravity. Climb the leaderboard. Private by default.",
   metadataBase: new URL("https://devstats.me"),
   openGraph: {
     siteName: "DevStats",
