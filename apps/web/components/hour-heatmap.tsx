@@ -33,8 +33,9 @@ export function HourHeatmap({ data }: { data: { dow: number; hour: number; sessi
                 <td className="spec-label text-ink/40 pr-2">{DOW_SHORT[dow]}</td>
                 {row.map((n, h) => {
                   const t = n / max;
+                  const isDark = document.documentElement.classList.contains("dark");
                   const bg =
-                    n === 0 ? "#EDE7DC"
+                    n === 0 ? (isDark ? "#1A1A1A" : "#EDE7DC")
                     : t < 0.2 ? "#FFE0CC"
                     : t < 0.5 ? "#FF9C66"
                     : t < 0.8 ? "#FF7A33"
@@ -77,8 +78,8 @@ export function HourHeatmap({ data }: { data: { dow: number; hour: number; sessi
         ) : (
           <div className="flex items-center gap-2 spec-label text-ink/60">
             <span>LESS</span>
-            {["#EDE7DC", "#FFE0CC", "#FF9C66", "#FF7A33", "#FF5A1F"].map((c) => (
-              <span key={c} className="w-3 h-3 border border-ink/10" style={{ background: c }} />
+            {["var(--bg-soft)", "#FFE0CC", "#FF9C66", "#FF7A33", "#FF5A1F"].map((c, i) => (
+              <span key={i} className="w-3 h-3 border border-ink/10" style={{ background: c }} />
             ))}
             <span>MORE</span>
           </div>

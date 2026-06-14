@@ -68,8 +68,9 @@ function YearGrid({ cells }: { cells: YearHeatmap["cells"] }) {
                 const d = col[ri] ?? null;
                 if (!d) return <div key={ri} className="w-full aspect-square" />;
                 const t = d.tokens / max;
+                const isDark = document.documentElement.classList.contains("dark");
                 const bg =
-                  t === 0 ? "#EDE7DC"
+                  t === 0 ? (isDark ? "#1A1A1A" : "#EDE7DC")
                   : t < 0.15 ? "#FFE0CC"
                   : t < 0.35 ? "#FF9C66"
                   : t < 0.6  ? "#FF7A33"
@@ -120,8 +121,8 @@ function YearGrid({ cells }: { cells: YearHeatmap["cells"] }) {
         ) : (
           <div className="flex items-center gap-2 spec-label text-ink/60">
             <span>LESS</span>
-            {["#EDE7DC", "#FFE0CC", "#FF9C66", "#FF7A33", "#FF5A1F"].map((c) => (
-              <span key={c} className="w-3 h-3 border border-ink/10" style={{ background: c }} />
+            {["var(--bg-soft)", "#FFE0CC", "#FF9C66", "#FF7A33", "#FF5A1F"].map((c, i) => (
+              <span key={i} className="w-3 h-3 border border-ink/10" style={{ background: c }} />
             ))}
             <span>MORE</span>
           </div>

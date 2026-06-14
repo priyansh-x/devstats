@@ -3,18 +3,31 @@
 @tailwind utilities;
 
 :root {
+  --bg: #F5F1EA;
+  --bg-soft: #EDE7DC;
+  --fg: #0A0A0A;
+  --fg-mute: rgba(10, 10, 10, 0.6);
+  --hazard: #FF5A1F;
   --tw-grid: rgba(10, 10, 10, 0.07);
 }
 
+.dark {
+  --bg: #0A0A0A;
+  --bg-soft: #1A1A1A;
+  --fg: #F5F1EA;
+  --fg-mute: rgba(245, 241, 234, 0.6);
+  --hazard: #FF5A1F;
+  --tw-grid: rgba(245, 241, 234, 0.06);
+}
+
 html, body {
-  background: #F5F1EA;
-  color: #0A0A0A;
+  background: var(--bg);
+  color: var(--fg);
   font-family: var(--font-geist-mono), ui-monospace, Menlo, monospace;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-/* Faint blueprint grid behind every page. */
 body::before {
   content: "";
   position: fixed;
@@ -29,9 +42,38 @@ body::before {
 
 #__next, main { position: relative; z-index: 1; }
 
+/* Dark mode overrides for Tailwind color utilities */
+.dark .bg-bone { background: var(--bg) !important; }
+.dark .bg-bone-soft { background: var(--bg-soft) !important; }
+.dark .bg-ink { background: var(--fg) !important; }
+.dark .text-ink { color: var(--fg) !important; }
+.dark .text-bone { color: var(--bg) !important; }
+.dark .border-ink { border-color: var(--fg) !important; }
+.dark .text-ink\/60 { color: var(--fg-mute) !important; }
+.dark .text-ink\/70 { color: rgba(245, 241, 234, 0.7) !important; }
+.dark .text-ink\/80 { color: rgba(245, 241, 234, 0.8) !important; }
+.dark .text-ink\/50 { color: rgba(245, 241, 234, 0.5) !important; }
+.dark .text-ink\/40 { color: rgba(245, 241, 234, 0.4) !important; }
+.dark .border-ink\/10 { border-color: rgba(245, 241, 234, 0.1) !important; }
+.dark .border-ink\/20 { border-color: rgba(245, 241, 234, 0.2) !important; }
+.dark .border-ink\/30 { border-color: rgba(245, 241, 234, 0.3) !important; }
+.dark .border-ink\/40 { border-color: rgba(245, 241, 234, 0.4) !important; }
+.dark .bg-ink\/10 { background: rgba(245, 241, 234, 0.1) !important; }
+.dark .bg-bone-soft { background: var(--bg-soft) !important; }
+.dark .hover\:bg-ink:hover { background: var(--fg) !important; }
+.dark .hover\:bg-ink\/10:hover { background: rgba(245, 241, 234, 0.1) !important; }
+.dark .hover\:text-bone:hover { color: var(--bg) !important; }
+.dark .hover\:bg-bone-soft:hover { background: var(--bg-soft) !important; }
+.dark .hover\:shadow-\[3px_3px_0_0_\#0A0A0A\]:hover { box-shadow: 3px 3px 0 0 rgba(245,241,234,0.3) !important; }
+.dark .hover\:shadow-\[4px_4px_0_0_\#0A0A0A\]:hover { box-shadow: 4px 4px 0 0 rgba(245,241,234,0.3) !important; }
+.dark .bg-hazard\/10 { background: rgba(255, 90, 31, 0.15) !important; }
+
+/* Recharts dark mode */
+.dark .recharts-cartesian-axis-tick text { fill: var(--fg) !important; }
+.dark .recharts-cartesian-axis-line { stroke: var(--fg) !important; }
+
 /* ── Motion ──────────────────────────────────────────────── */
 
-/* Brand loader: squares blink in a scanning wave. */
 @keyframes box-blink {
   0%, 100% { opacity: 0.15; transform: scale(0.85); }
   40%      { opacity: 1;    transform: scale(1); }
@@ -40,7 +82,6 @@ body::before {
   animation: box-blink 0.9s ease-in-out infinite;
 }
 
-/* Cards drift up + fade on mount. Stagger via .stagger-N. */
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -54,7 +95,6 @@ body::before {
 .stagger-4 { animation-delay: 0.26s; }
 .stagger-5 { animation-delay: 0.33s; }
 
-/* Horizontal bars grow from the left on mount (Tools breakdown). */
 @keyframes grow-bar {
   from { transform: scaleX(0); }
   to   { transform: scaleX(1); }
@@ -64,7 +104,6 @@ body::before {
   animation: grow-bar 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* Heatmap columns sweep in left → right (delay set inline per column). */
 @keyframes col-in {
   from { opacity: 0; }
   to   { opacity: 1; }
@@ -77,7 +116,6 @@ body::before {
   .fade-up, .grow-bar, .col-in, .box-loader-cell { animation: none; }
 }
 
-/* spec-sheet label utility */
 .spec-label {
   font-family: var(--font-geist-mono), monospace;
   font-size: 11px;

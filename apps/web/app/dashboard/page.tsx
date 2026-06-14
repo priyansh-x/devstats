@@ -7,6 +7,7 @@ import { HourHeatmap } from "@/components/hour-heatmap";
 import { VelocityChart } from "@/components/velocity-chart";
 import { ImportLocalButton } from "@/components/import-button";
 import { UserNav } from "@/components/user-nav";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { getCurrentUser } from "@/lib/auth";
 import { getDashboardStats } from "@/lib/stats";
 import { prisma } from "@/lib/prisma";
@@ -55,6 +56,7 @@ export default async function Dashboard({
         </div>
         <div className="flex items-center gap-3 sm:gap-4 text-sm">
           <Link href="/leaderboard" className="hover:text-hazard hidden sm:inline">leaderboard</Link>
+          <ThemeToggle />
           <UserNav user={{ username: user.username, isPublic: user.isPublic, avatarUrl: user.avatarUrl, countryCode: user.countryCode }} />
         </div>
       </header>

@@ -6,6 +6,7 @@ import type { Config } from "tailwindcss";
  * Mono everywhere. Heavy black bars as section headers.
  */
 const config: Config = {
+  darkMode: "class",
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
   theme: {
     extend: {

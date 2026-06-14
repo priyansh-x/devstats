@@ -2,6 +2,7 @@ import Link from "next/link";
 import { SpecCard } from "@/components/spec-card";
 import { LeaderboardClient } from "@/components/leaderboard-client";
 import { UserNav } from "@/components/user-nav";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { getLeaderboard } from "@/lib/leaderboard";
 import { getCurrentUser } from "@/lib/auth";
 
@@ -20,7 +21,8 @@ export default async function LeaderboardPage() {
           <Link href="/" className="w-6 h-6 bg-hazard border border-ink" aria-label="home" />
           <span className="font-bold tracking-tight">DevStats</span>
         </div>
-        <div className="flex items-center gap-4 text-sm">
+        <div className="flex items-center gap-3 sm:gap-4 text-sm">
+          <ThemeToggle />
           {me ? (
             <UserNav user={{ username: me.username, isPublic: me.isPublic, avatarUrl: me.avatarUrl, countryCode: me.countryCode }} />
           ) : (

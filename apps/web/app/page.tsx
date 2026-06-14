@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Badge } from "@/components/badge";
 import { LeaderboardStrip } from "@/components/leaderboard-strip";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { getPlatformStats } from "@/lib/platform-stats";
 import { fmtCompact } from "@/lib/utils";
 
@@ -19,6 +20,7 @@ export default async function Landing() {
         <nav className="flex items-center gap-3 sm:gap-5 text-sm">
           <Link href="/leaderboard" className="hover:text-hazard hidden sm:inline">leaderboard</Link>
           <Link href="/squads" className="hover:text-hazard hidden sm:inline">squads</Link>
+          <ThemeToggle />
           <Link
             href="/login"
             className="bg-ink text-bone px-3 py-1.5 hover:bg-hazard hover:text-ink"

@@ -60,7 +60,7 @@ export function UserNav({
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-1 w-56 bg-bone border border-ink shadow-[4px_4px_0_0_#0A0A0A] z-20">
+        <div className="absolute right-0 mt-1 w-56 bg-bone border border-ink shadow-[4px_4px_0_0_#0A0A0A] dark:shadow-[4px_4px_0_0_rgba(245,241,234,0.2)] z-20">
           <div className="px-3 py-2 border-b border-ink/20">
             <div className="text-xs text-ink/60">Signed in as</div>
             <div className="font-bold">{user.username}</div>
