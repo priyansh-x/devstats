@@ -1,8 +1,9 @@
 import { prisma } from "./prisma";
 import { getRedis } from "./redis";
+import { sessionCost } from "./pricing";
 
 export type LbPeriod = "daily" | "weekly" | "monthly" | "alltime";
-export type LbMetric = "tokens" | "sessions" | "duration" | "lines";
+export type LbMetric = "tokens" | "sessions" | "duration" | "lines" | "cost";
 
 export interface LbRow {
   rank: number;
@@ -54,33 +55,52 @@ export async function getLeaderboard(
   }
 
   const since = sinceFor(period);
-  const grouped = await prisma.session.groupBy({
-    by: ["userId", "tool"],
-    where: {
-      startedAt: { gte: since },
-      ...(requirePublic ? { user: { isPublic: true } } : {}),
-      ...(opts.userIds && opts.userIds.length > 0
-        ? { userId: { in: opts.userIds } }
-        : {}),
-    },
-    _sum: {
-      tokensIn: true, tokensOut: true,
-      durationMs: true, linesAdded: true, linesRemoved: true,
-    },
-    _count: { _all: true },
-  });
+  const whereBase = {
+    startedAt: { gte: since },
+    ...(requirePublic ? { user: { isPublic: true } } : {}),
+    ...(opts.userIds && opts.userIds.length > 0
+      ? { userId: { in: opts.userIds } }
+      : {}),
+  };
 
   const byUser = new Map<string, { score: number; tools: Set<string> }>();
-  for (const row of grouped) {
-    const t = byUser.get(row.userId) ?? { score: 0, tools: new Set<string>() };
-    t.tools.add(row.tool);
-    switch (metric) {
-      case "tokens":   t.score += (row._sum.tokensIn ?? 0) + (row._sum.tokensOut ?? 0); break;
-      case "sessions": t.score += row._count._all; break;
-      case "duration": t.score += row._sum.durationMs ?? 0; break;
-      case "lines":    t.score += (row._sum.linesAdded ?? 0) + (row._sum.linesRemoved ?? 0); break;
+
+  if (metric === "cost") {
+    const sessions = await prisma.session.findMany({
+      where: whereBase,
+      select: {
+        userId: true, tool: true, model: true,
+        tokensIn: true, tokensInputRaw: true, tokensCacheRead: true,
+        tokensCacheCreate: true, tokensOut: true,
+      },
+    });
+    for (const s of sessions) {
+      const t = byUser.get(s.userId) ?? { score: 0, tools: new Set<string>() };
+      t.tools.add(s.tool);
+      t.score += sessionCost(s);
+      byUser.set(s.userId, t);
     }
-    byUser.set(row.userId, t);
+  } else {
+    const grouped = await prisma.session.groupBy({
+      by: ["userId", "tool"],
+      where: whereBase,
+      _sum: {
+        tokensIn: true, tokensOut: true,
+        durationMs: true, linesAdded: true, linesRemoved: true,
+      },
+      _count: { _all: true },
+    });
+    for (const row of grouped) {
+      const t = byUser.get(row.userId) ?? { score: 0, tools: new Set<string>() };
+      t.tools.add(row.tool);
+      switch (metric) {
+        case "tokens":   t.score += (row._sum.tokensIn ?? 0) + (row._sum.tokensOut ?? 0); break;
+        case "sessions": t.score += row._count._all; break;
+        case "duration": t.score += row._sum.durationMs ?? 0; break;
+        case "lines":    t.score += (row._sum.linesAdded ?? 0) + (row._sum.linesRemoved ?? 0); break;
+      }
+      byUser.set(row.userId, t);
+    }
   }
 
   const fullRanked = [...byUser.entries()]

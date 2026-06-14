@@ -6,6 +6,7 @@ import { SpecCard } from "./spec-card";
 import { Badge } from "./badge";
 import type { LbRow, LbPeriod, LbMetric } from "@/lib/leaderboard";
 import { fmtCompact, fmtDuration } from "@/lib/utils";
+import { fmtUsd } from "@/lib/pricing";
 import { COUNTRIES, countryName, flagEmoji } from "@/lib/countries";
 
 const PERIODS: { v: LbPeriod; label: string }[] = [
@@ -19,6 +20,7 @@ const METRICS: { v: LbMetric; label: string }[] = [
   { v: "sessions", label: "Sessions" },
   { v: "duration", label: "Duration" },
   { v: "lines",    label: "Lines" },
+  { v: "cost",     label: "Spend" },
 ];
 
 export function LeaderboardClient({
@@ -59,7 +61,7 @@ export function LeaderboardClient({
   }, [period, metric, q, country, friendsOnly]);
 
   const fmtScore = (n: number) =>
-    metric === "duration" ? fmtDuration(n) : fmtCompact(n);
+    metric === "duration" ? fmtDuration(n) : metric === "cost" ? fmtUsd(n) : fmtCompact(n);
 
   const meta = useMemo(() => {
     const parts = [PERIODS.find((p) => p.v === period)?.label, METRICS.find((m) => m.v === metric)?.label];

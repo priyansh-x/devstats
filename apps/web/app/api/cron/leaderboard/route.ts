@@ -20,7 +20,7 @@ export async function GET(req: Request) {
   }
 
   const periods: LbPeriod[] = ["daily", "weekly", "monthly", "alltime"];
-  const metrics: LbMetric[] = ["tokens", "sessions", "duration", "lines"];
+  const metrics: LbMetric[] = ["tokens", "sessions", "duration", "lines", "cost"];
 
   const results: { period: LbPeriod; metric: LbMetric; rows: number }[] = [];
   for (const p of periods) {

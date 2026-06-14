@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 const PERIODS: LbPeriod[] = ["daily", "weekly", "monthly", "alltime"];
-const METRICS: LbMetric[] = ["tokens", "sessions", "duration", "lines"];
+const METRICS: LbMetric[] = ["tokens", "sessions", "duration", "lines", "cost"];
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
