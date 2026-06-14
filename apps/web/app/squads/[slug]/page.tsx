@@ -61,7 +61,6 @@ export default async function SquadPage({
         </div>
         <div className="flex items-center gap-4 text-sm">
           <Link href="/squads" className="hover:text-hazard">squads</Link>
-          <ThemeToggle />
           <UserNav user={{ username: user.username, isPublic: user.isPublic, avatarUrl: user.avatarUrl, countryCode: user.countryCode }} />
         </div>
       </header>
@@ -148,6 +147,10 @@ export default async function SquadPage({
         Members who haven't synced in this window don't appear. Squad standings
         include private profiles — joining is its own consent.
       </p>
+
+      <footer className="border-t border-ink/20 pt-4 mt-2 flex items-center justify-end">
+        <ThemeToggle />
+      </footer>
     </main>
   );
 }

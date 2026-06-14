@@ -24,7 +24,6 @@ export default async function SquadsPage() {
         </div>
         <div className="flex items-center gap-4 text-sm">
           <Link href="/leaderboard" className="hover:text-hazard">leaderboard</Link>
-          <ThemeToggle />
           <UserNav user={{ username: user.username, isPublic: user.isPublic, avatarUrl: user.avatarUrl, countryCode: user.countryCode }} />
         </div>
       </header>
@@ -68,6 +67,10 @@ export default async function SquadsPage() {
         <code className="bg-bone-soft px-1">devstats squad list</code> ·{" "}
         <code className="bg-bone-soft px-1">devstats squad &lt;slug&gt;</code>
       </p>
+
+      <footer className="border-t border-ink/20 pt-4 mt-2 flex items-center justify-end">
+        <ThemeToggle />
+      </footer>
     </main>
   );
 }

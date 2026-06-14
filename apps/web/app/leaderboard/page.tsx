@@ -22,7 +22,6 @@ export default async function LeaderboardPage() {
           <span className="font-bold tracking-tight">DevStats</span>
         </div>
         <div className="flex items-center gap-3 sm:gap-4 text-sm">
-          <ThemeToggle />
           {me ? (
             <UserNav user={{ username: me.username, isPublic: me.isPublic, avatarUrl: me.avatarUrl, countryCode: me.countryCode }} />
           ) : (
@@ -53,6 +52,10 @@ export default async function LeaderboardPage() {
         Refreshed daily. Antigravity sessions don&apos;t carry token counts (Google
         stores transcripts server-side), so they don&apos;t move the Tokens metric.
       </div>
+
+      <footer className="border-t border-ink/20 pt-4 mt-2 flex items-center justify-end">
+        <ThemeToggle />
+      </footer>
     </main>
   );
 }

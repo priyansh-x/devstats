@@ -88,7 +88,6 @@ export default async function PublicProfile(
         </div>
         <div className="flex items-center gap-4 text-sm">
           <Link href="/leaderboard" className="hover:text-hazard">leaderboard</Link>
-          <ThemeToggle />
           {me ? (
             <UserNav user={{ username: me.username, isPublic: me.isPublic, avatarUrl: me.avatarUrl, countryCode: me.countryCode }} />
           ) : (
@@ -226,12 +225,15 @@ export default async function PublicProfile(
           Total · {fmtCompact(totalTokens)} tokens
           · public since {profile.createdAt.slice(0, 10)}
         </div>
-        <Link
-          href="/"
-          className="text-xs font-bold uppercase tracking-wide border border-ink px-3 py-1 hover:bg-ink hover:text-bone"
-        >
-          Made with DevStats →
-        </Link>
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
+          <Link
+            href="/"
+            className="text-xs font-bold uppercase tracking-wide border border-ink px-3 py-1 hover:bg-ink hover:text-bone"
+          >
+            Made with DevStats →
+          </Link>
+        </div>
       </footer>
     </main>
   );

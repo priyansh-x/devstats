@@ -35,7 +35,6 @@ export default async function Landing() {
         <nav className="flex items-center gap-3 sm:gap-5 text-sm">
           <Link href="/leaderboard" className="hover:text-hazard hidden sm:inline">leaderboard</Link>
           <Link href="/squads" className="hover:text-hazard hidden sm:inline">squads</Link>
-          <ThemeToggle />
           <Link
             href="/login"
             className="bg-ink text-bone px-3 py-1.5 hover:bg-hazard hover:text-ink"
@@ -115,6 +114,7 @@ export default async function Landing() {
       <footer className="border-t border-ink pt-5 flex flex-wrap items-center justify-between gap-3 text-sm text-ink/60">
         <span>ts tuff</span>
         <div className="flex items-center gap-4">
+          <ThemeToggle />
           <Link href="/privacy" className="hover:text-hazard">privacy</Link>
           <a
             href="https://github.com/priyansh-x/devstats/issues"

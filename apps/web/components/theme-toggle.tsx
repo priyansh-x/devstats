@@ -23,10 +23,10 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggle}
-      className="text-xs text-ink/40 hover:text-hazard transition-colors"
+      className="text-xs text-ink/40 hover:text-hazard border border-ink/20 px-2 py-1 hover:border-hazard transition-colors"
       aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
     >
-      {dark ? "too bright?" : "for the weak"}
+      {dark ? "I'm not weak" : "for the weak"}
     </button>
   );
 }
