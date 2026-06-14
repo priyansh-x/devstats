@@ -59,7 +59,7 @@ describe("parseWindsurf — cursorDiskKV (Cascade/Composer) layout", () => {
   it("honours sinceMs", async () => {
     const { sessions } = await parseWindsurf({ dbPath, sinceMs: 1_700_050_000_000 });
     expect(sessions).toHaveLength(1);
-    expect(sessions[0].startedAt.getTime()).toBe(1_700_100_000_000);
+    expect(sessions[0]!.startedAt.getTime()).toBe(1_700_100_000_000);
   });
 });
 
@@ -87,9 +87,9 @@ describe("parseWindsurf — ItemTable single-blob layout", () => {
     const { sessions, warnings } = await parseWindsurf({ dbPath });
     expect(warnings).toEqual([]);
     expect(sessions).toHaveLength(1);
-    expect(sessions[0].tokensIn).toBe(10);
-    expect(sessions[0].tokensOut).toBe(90);
-    expect(sessions[0].model).toBe("windsurf-swe-1");
+    expect(sessions[0]!.tokensIn).toBe(10);
+    expect(sessions[0]!.tokensOut).toBe(90);
+    expect(sessions[0]!.model).toBe("windsurf-swe-1");
   });
 });
 
