@@ -79,7 +79,7 @@ export default async function PublicProfile(
   const hasAg = stats.toolBreakdown.some((t) => t.tool === "ANTIGRAVITY");
 
   return (
-    <main className="max-w-5xl mx-auto px-6 py-8">
+    <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
       <header className="flex items-center justify-between border-b border-ink pb-4 mb-8">
         <div className="flex items-center gap-3">
           <Link href="/" className="w-6 h-6 bg-hazard border border-ink" aria-label="home" />

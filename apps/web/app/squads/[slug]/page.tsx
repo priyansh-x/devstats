@@ -52,7 +52,7 @@ export default async function SquadPage({
   const qp = (p: LbPeriod, m: LbMetric) => `/squads/${params.slug}?period=${p}&metric=${m}`;
 
   return (
-    <main className="max-w-3xl mx-auto px-6 py-8 space-y-6">
+    <main className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
       <header className="flex items-center justify-between border-b border-ink pb-4">
         <div className="flex items-center gap-3">
           <Link href="/" className="w-6 h-6 bg-hazard border border-ink" aria-label="home" />

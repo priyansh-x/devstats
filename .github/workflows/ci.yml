@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Type-check types package
+        run: pnpm --filter @devstats/types build
+
+      - name: Type-check parsers
+        run: pnpm --filter @devstats/parsers exec tsc --noEmit
+
+      - name: Run parser tests
+        run: pnpm --filter @devstats/parsers test
+
+      - name: Lint web
+        run: pnpm --filter @devstats/web lint

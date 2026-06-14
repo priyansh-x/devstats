@@ -14,7 +14,7 @@ export default async function AccountSettings() {
   if (!user) redirect("/login");
 
   return (
-    <main className="max-w-3xl mx-auto px-6 py-8 space-y-6">
+    <main className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
       <header className="flex items-center justify-between border-b border-ink pb-4">
         <div className="flex items-center gap-3">
           <Link href="/" className="w-6 h-6 bg-hazard border border-ink" aria-label="home" />
@@ -28,7 +28,7 @@ export default async function AccountSettings() {
 
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="font-display text-4xl font-black leading-none mb-1">Account</h1>
+          <h1 className="font-display text-3xl sm:text-4xl font-black leading-none mb-1">Account</h1>
           <p className="text-ink/60 text-sm">{user.username} · {user.email}</p>
         </div>
         <Link href="/settings" className="text-sm hover:text-hazard">

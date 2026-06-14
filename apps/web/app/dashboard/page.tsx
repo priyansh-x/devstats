@@ -47,38 +47,37 @@ export default async function Dashboard({
       : 0;
 
   return (
-    <main className="max-w-6xl mx-auto px-6 py-8">
-      <header className="flex items-center justify-between border-b border-ink pb-4 mb-8">
+    <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <header className="flex items-center justify-between border-b border-ink pb-4 mb-6 sm:mb-8">
         <div className="flex items-center gap-3">
           <Link href="/" className="w-6 h-6 bg-hazard border border-ink" aria-label="home" />
           <span className="font-bold tracking-tight">DevStats</span>
         </div>
-        <div className="flex items-center gap-4 text-sm">
-          <Link href="/leaderboard" className="hover:text-hazard">leaderboard</Link>
+        <div className="flex items-center gap-3 sm:gap-4 text-sm">
+          <Link href="/leaderboard" className="hover:text-hazard hidden sm:inline">leaderboard</Link>
           <UserNav user={{ username: user.username, isPublic: user.isPublic, avatarUrl: user.avatarUrl, countryCode: user.countryCode }} />
         </div>
       </header>
 
-      <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-end justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
         <div>
-          <div className="text-sm text-ink/60">
+          <div className="text-xs sm:text-sm text-ink/60">
             {stats.firstSessionAt ? `Since ${stats.firstSessionAt.slice(0, 10)}` : "Welcome"}
             {lastSession && (
               <span> · last synced {timeAgo(lastSession.createdAt)}</span>
             )}
           </div>
-          <h1 className="font-display text-4xl font-black leading-none mt-1">
+          <h1 className="font-display text-3xl sm:text-4xl font-black leading-none mt-1">
             {user.username}
           </h1>
         </div>
-        <div className="flex items-center gap-3">
-          {/* Date-range switcher — server-rendered links, no client JS needed */}
+        <div className="flex items-center gap-2 sm:gap-3">
           <div className="flex gap-1">
             {RANGES.map((r) => (
               <Link
                 key={r.v}
                 href={r.v === "all" ? "/dashboard" : `/dashboard?range=${r.v}`}
-                className={`text-xs uppercase tracking-wide font-bold px-3 py-1 border border-ink transition-colors ${
+                className={`text-[10px] sm:text-xs uppercase tracking-wide font-bold px-2 sm:px-3 py-1 border border-ink transition-colors ${
                   r.v === range.v ? "bg-ink text-bone" : "bg-bone hover:bg-ink/10"
                 }`}
               >
@@ -87,14 +86,14 @@ export default async function Dashboard({
             ))}
           </div>
           <Badge variant={user.isPublic ? "hazard" : "outline"}>
-            {user.isPublic ? "public profile" : "private"}
+            {user.isPublic ? "public" : "private"}
           </Badge>
         </div>
       </div>
 
       {/* Top metric strip */}
       <SpecCard label="Overview" meta={range.days ? `last ${range.label}` : "all-time"} className="mb-6 fade-up">
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-6">
+        <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-6 gap-4 sm:gap-6">
           <SpecMetric label="Tokens in"  value={fmtCompact(stats.totals.tokensIn)} />
           <SpecMetric label="Tokens out" value={fmtCompact(stats.totals.tokensOut)} />
           <SpecMetric label="Sessions"   value={stats.totals.sessions} />
@@ -194,7 +193,8 @@ export default async function Dashboard({
         {stats.topModels.length === 0 ? (
           <p className="text-sm text-ink/60">No data yet.</p>
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto -mx-5 px-5">
+          <table className="w-full text-sm min-w-[400px]">
             <thead>
               <tr className="text-left text-xs uppercase tracking-wide text-ink/60 border-b border-ink/30">
                 <th className="py-2">Model</th>
@@ -214,6 +214,7 @@ export default async function Dashboard({
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </SpecCard>
 

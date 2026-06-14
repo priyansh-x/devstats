@@ -32,7 +32,7 @@ export function SpecCard({
       )}
     >
       <SectionBar label={label} right={meta} />
-      <div className="p-5">{children}</div>
+      <div className="p-4 sm:p-5">{children}</div>
     </section>
   );
 }
@@ -49,7 +49,7 @@ export function SpecMetric({
   return (
     <div className="flex flex-col gap-1">
       <span className="spec-label text-ink/60">{label}</span>
-      <span className="font-display text-3xl font-black tabular-nums leading-none">
+      <span className="font-display text-xl sm:text-3xl font-black tabular-nums leading-none">
         {value}
         {unit ? (
           <span className="ml-1 font-mono text-base font-normal text-ink/60">

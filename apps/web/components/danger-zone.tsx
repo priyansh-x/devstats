@@ -55,15 +55,23 @@ export function DangerZone({ username }: { username: string }) {
         <div>
           <div className="font-bold">Export your data</div>
           <p className="text-xs text-ink/60 mt-0.5">
-            Everything we hold: profile, sessions, streak, follow graph. One JSON file.
+            Everything we hold: profile, sessions, streak, follow graph.
           </p>
         </div>
-        <a
-          href="/api/user/export"
-          className="border border-ink font-bold px-4 py-2 hover:bg-ink hover:text-bone text-sm text-center shrink-0"
-        >
-          Download JSON →
-        </a>
+        <div className="flex gap-2 shrink-0">
+          <a
+            href="/api/user/export"
+            className="border border-ink font-bold px-4 py-2 hover:bg-ink hover:text-bone text-sm text-center"
+          >
+            JSON
+          </a>
+          <a
+            href="/api/user/export-csv"
+            className="border border-ink font-bold px-4 py-2 hover:bg-ink hover:text-bone text-sm text-center"
+          >
+            CSV
+          </a>
+        </div>
       </div>
 
       <div className="border-t border-ink/20" />

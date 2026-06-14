@@ -20,7 +20,7 @@ export default async function LoginPage() {
   }
 
   return (
-    <main className="max-w-md mx-auto px-6 py-16">
+    <main className="max-w-md mx-auto px-4 sm:px-6 py-10 sm:py-16">
       <Link href="/" className="block text-sm text-ink/60 mb-6 hover:text-ink">← Back home</Link>
       <SpecCard label="Sign in" variant="bone">
         {supabaseConfigured ? (

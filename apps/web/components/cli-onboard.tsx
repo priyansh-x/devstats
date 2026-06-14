@@ -61,7 +61,7 @@ export function CliOnboard() {
 
       <div className="border-t border-ink/20 pt-5">
         <div className="spec-label text-ink/60 mb-3">WHAT GETS READ</div>
-        <div className="grid md:grid-cols-3 gap-3">
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
           <ToolRow
             name="CLAUDE CODE"
             path="~/.claude/projects/**/*.jsonl"

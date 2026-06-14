@@ -71,7 +71,7 @@ export function LeaderboardClient({
   return (
     <SpecCard label="Standings" meta={meta}>
       {/* Period + metric toggle row */}
-      <div className="flex flex-wrap items-center gap-3 mb-4">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4">
         <Toggle options={PERIODS} value={period} onChange={setPeriod} />
         <Toggle options={METRICS} value={metric} onChange={setMetric} />
         {signedIn && (
@@ -114,13 +114,14 @@ export function LeaderboardClient({
       ) : rows.length === 0 ? (
         <EmptyState friendsOnly={friendsOnly} />
       ) : (
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto -mx-5 px-5">
+        <table className="w-full text-sm min-w-[360px]">
           <thead>
             <tr className="text-left text-xs uppercase tracking-wide text-ink/60 border-b border-ink/30">
-              <th className="py-2 w-12">#</th>
+              <th className="py-2 w-10">#</th>
               <th className="py-2">User</th>
-              <th className="py-2">Country</th>
-              <th className="py-2">Tools</th>
+              <th className="py-2 hidden sm:table-cell">Country</th>
+              <th className="py-2 hidden md:table-cell">Tools</th>
               <th className="py-2 text-right">Score</th>
             </tr>
           </thead>
@@ -145,10 +146,10 @@ export function LeaderboardClient({
                       {isMe && <span className="ml-1 text-xs text-hazard">you</span>}
                     </Link>
                   </td>
-                  <td className="py-2 text-xs text-ink/60">
+                  <td className="py-2 text-xs text-ink/60 hidden sm:table-cell">
                     {r.countryCode ? (countryName(r.countryCode) ?? "—") : (r.location ?? "—")}
                   </td>
-                  <td className="py-2">
+                  <td className="py-2 hidden md:table-cell">
                     <div className="flex flex-wrap gap-1">
                       {r.tools.map((t) => (
                         <Badge key={t} variant="outline" className="text-[10px]">
@@ -165,6 +166,7 @@ export function LeaderboardClient({
             })}
           </tbody>
         </table>
+        </div>
       )}
     </SpecCard>
   );

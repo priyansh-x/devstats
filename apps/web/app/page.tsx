@@ -10,15 +10,15 @@ export default async function Landing() {
   const stats = await getPlatformStats();
 
   return (
-    <main className="max-w-5xl mx-auto px-6 py-10">
-      <header className="flex items-center justify-between border-b border-ink pb-4 mb-10">
+    <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+      <header className="flex items-center justify-between border-b border-ink pb-4 mb-6 sm:mb-10">
         <div className="flex items-center gap-3">
           <div className="w-6 h-6 bg-hazard border border-ink" />
           <span className="font-bold tracking-tight">DevStats</span>
         </div>
-        <nav className="flex items-center gap-5 text-sm">
-          <Link href="/leaderboard" className="hover:text-hazard">leaderboard</Link>
-          <Link href="/squads" className="hover:text-hazard">squads</Link>
+        <nav className="flex items-center gap-3 sm:gap-5 text-sm">
+          <Link href="/leaderboard" className="hover:text-hazard hidden sm:inline">leaderboard</Link>
+          <Link href="/squads" className="hover:text-hazard hidden sm:inline">squads</Link>
           <Link
             href="/login"
             className="bg-ink text-bone px-3 py-1.5 hover:bg-hazard hover:text-ink"
@@ -30,7 +30,7 @@ export default async function Landing() {
 
       {/* Hero */}
       <section className="text-center mb-14 mt-4 fade-up">
-        <h1 className="font-display text-5xl md:text-6xl font-black leading-[0.95] tracking-tight mb-5">
+        <h1 className="font-display text-3xl sm:text-5xl md:text-6xl font-black leading-[0.95] tracking-tight mb-5">
           Tokenmaxxing<br />
           your <span className="text-hazard">editor.</span>
         </h1>
@@ -71,7 +71,7 @@ export default async function Landing() {
       {/* How it works — 4 steps in a grid, no scroll */}
       <section className="mb-12">
         <h2 className="font-display text-2xl font-black mb-5">How it works</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
           {[
             { n: "1", t: "Sign in", b: "GitHub login, literally 5 seconds. No repo access, just your handle." },
             { n: "2", t: "Install CLI", b: "One command. devstats sync reads your local Claude Code, Cursor, Codex, Windsurf, and Antigravity logs." },
