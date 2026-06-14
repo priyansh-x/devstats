@@ -5,6 +5,7 @@ import { ApiKeyCard } from "@/components/api-key-card";
 import { CsvUpload } from "@/components/csv-upload";
 import { PrivacyToggle } from "@/components/privacy-toggle";
 import { CliOnboard } from "@/components/cli-onboard";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { UserNav } from "@/components/user-nav";
 import { getCurrentUser } from "@/lib/auth";
 
@@ -23,6 +24,7 @@ export default async function SetupPage() {
         </div>
         <div className="flex items-center gap-4 text-sm">
           <Link href="/dashboard" className="hover:text-hazard">dashboard</Link>
+          <ThemeToggle />
           <UserNav user={{ username: user.username, isPublic: user.isPublic, avatarUrl: user.avatarUrl, countryCode: user.countryCode }} />
         </div>
       </header>

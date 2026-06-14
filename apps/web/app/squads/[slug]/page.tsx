@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { SpecCard } from "@/components/spec-card";
 import { Badge } from "@/components/badge";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { UserNav } from "@/components/user-nav";
 import { InviteCode, LeaveSquadButton } from "@/components/squad-forms";
 import { getCurrentUser } from "@/lib/auth";
@@ -60,6 +61,7 @@ export default async function SquadPage({
         </div>
         <div className="flex items-center gap-4 text-sm">
           <Link href="/squads" className="hover:text-hazard">squads</Link>
+          <ThemeToggle />
           <UserNav user={{ username: user.username, isPublic: user.isPublic, avatarUrl: user.avatarUrl, countryCode: user.countryCode }} />
         </div>
       </header>

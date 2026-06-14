@@ -7,6 +7,7 @@ import { YearHeatmaps } from "@/components/heatmap";
 import { HourHeatmap } from "@/components/hour-heatmap";
 import { ShareButton } from "@/components/share-button";
 import { FollowButton } from "@/components/follow-button";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { UserNav } from "@/components/user-nav";
 import { getPublicProfile } from "@/lib/public-stats";
 import { getCurrentUser } from "@/lib/auth";
@@ -87,6 +88,7 @@ export default async function PublicProfile(
         </div>
         <div className="flex items-center gap-4 text-sm">
           <Link href="/leaderboard" className="hover:text-hazard">leaderboard</Link>
+          <ThemeToggle />
           {me ? (
             <UserNav user={{ username: me.username, isPublic: me.isPublic, avatarUrl: me.avatarUrl, countryCode: me.countryCode }} />
           ) : (

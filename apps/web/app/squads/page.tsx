@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { SpecCard } from "@/components/spec-card";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { UserNav } from "@/components/user-nav";
 import { SquadForms, InviteCode } from "@/components/squad-forms";
 import { getCurrentUser } from "@/lib/auth";
@@ -23,6 +24,7 @@ export default async function SquadsPage() {
         </div>
         <div className="flex items-center gap-4 text-sm">
           <Link href="/leaderboard" className="hover:text-hazard">leaderboard</Link>
+          <ThemeToggle />
           <UserNav user={{ username: user.username, isPublic: user.isPublic, avatarUrl: user.avatarUrl, countryCode: user.countryCode }} />
         </div>
       </header>

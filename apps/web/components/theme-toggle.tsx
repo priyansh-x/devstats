@@ -23,11 +23,10 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggle}
-      className="w-7 h-7 border border-ink flex items-center justify-center text-xs hover:bg-ink hover:text-bone transition-colors"
+      className="text-xs text-ink/40 hover:text-hazard transition-colors"
       aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
-      title={dark ? "Light mode" : "Dark mode"}
     >
-      {dark ? "L" : "D"}
+      {dark ? "too bright?" : "for the weak"}
     </button>
   );
 }

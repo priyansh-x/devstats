@@ -4,6 +4,7 @@ import { SpecCard } from "@/components/spec-card";
 import { UsernameEdit } from "@/components/username-edit";
 import { ProfileEdit } from "@/components/profile-edit";
 import { DangerZone } from "@/components/danger-zone";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { UserNav } from "@/components/user-nav";
 import { getCurrentUser } from "@/lib/auth";
 
@@ -22,6 +23,7 @@ export default async function AccountSettings() {
         </div>
         <div className="flex items-center gap-4 text-sm">
           <Link href="/dashboard" className="hover:text-hazard">dashboard</Link>
+          <ThemeToggle />
           <UserNav user={{ username: user.username, isPublic: user.isPublic, avatarUrl: user.avatarUrl, countryCode: user.countryCode }} />
         </div>
       </header>

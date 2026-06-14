@@ -7,11 +7,26 @@ import { fmtCompact } from "@/lib/utils";
 
 export const revalidate = 300;
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "DevStats",
+  url: "https://devstats.me",
+  description: "Track tokens, sessions, streaks across Claude Code, Cursor, Copilot. Private by default.",
+  applicationCategory: "DeveloperApplication",
+  operatingSystem: "All",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+};
+
 export default async function Landing() {
   const stats = await getPlatformStats();
 
   return (
     <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <header className="flex items-center justify-between border-b border-ink pb-4 mb-6 sm:mb-10">
         <div className="flex items-center gap-3">
           <div className="w-6 h-6 bg-hazard border border-ink" />

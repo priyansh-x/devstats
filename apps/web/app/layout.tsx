@@ -9,6 +9,11 @@ export const metadata: Metadata = {
   title: "DevStats",
   description:
     "Track tokens, sessions, streaks across Claude Code, Cursor, Copilot. Private by default.",
+  metadataBase: new URL("https://devstats.me"),
+  openGraph: {
+    siteName: "DevStats",
+    type: "website",
+  },
 };
 
 const themeScript = `(function(){try{var t=localStorage.getItem('devstats-theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme:dark)').matches;if(d)document.documentElement.classList.add('dark')}catch(e){}})()`;
