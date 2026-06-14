@@ -1,7 +1,7 @@
 {
   "name": "devstats-cli",
   "version": "0.1.1",
-  "description": "Local telemetry for AI coding tools (Claude Code, Cursor, Codex, Windsurf, Antigravity) — parses your logs, uploads to devstats.app.",
+  "description": "Local telemetry for AI coding tools (Claude Code, Cursor, Codex, Windsurf, Antigravity) — parses your logs, uploads to devstats.me.",
   "keywords": [
     "claude",
     "claude-code",

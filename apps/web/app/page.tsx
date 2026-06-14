@@ -108,6 +108,45 @@ export default async function Landing() {
         </div>
       </section>
 
+      {/* What you get */}
+      <section className="mb-12">
+        <h2 className="font-display text-2xl font-black mb-5">What you get</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {[
+            { icon: "//", t: "Heatmap + streaks", b: "GitHub-style activity grid across all your AI tools. Longest streak bragging rights included." },
+            { icon: "$", t: "Cost tracking", b: "Model-aware spend estimates. Know exactly how much that refactor cost you." },
+            { icon: "#", t: "Leaderboard", b: "Opt-in public rankings by tokens, sessions, duration, or spend. Weekly resets." },
+            { icon: "{}", t: "Project breakdown", b: "Per-repo token usage. See which codebase is eating your budget." },
+            { icon: ">>", t: "Squads", b: "Private team boards. Invite code, weekly standings, competitive debugging." },
+            { icon: "~", t: "Public profiles", b: "Shareable /u/handle pages with OG cards. Put it in your bio." },
+          ].map((f, i) => (
+            <div
+              key={f.t}
+              className={`border border-ink p-4 bg-bone hover:shadow-[3px_3px_0_0_#0A0A0A] transition-shadow fade-up stagger-${i % 5 + 1}`}
+            >
+              <span className="font-mono text-hazard text-sm font-bold">{f.icon}</span>
+              <h3 className="font-display text-sm font-black mt-1 mb-1">{f.t}</h3>
+              <p className="text-xs text-ink/70 leading-relaxed">{f.b}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Terminal preview */}
+      <section className="mb-12">
+        <h2 className="font-display text-2xl font-black mb-5">3 commands. That&apos;s it.</h2>
+        <div className="border border-ink bg-[#0A0A0A] text-[#F5F1EA] p-5 font-mono text-sm leading-relaxed overflow-x-auto">
+          <div className="text-[#F5F1EA]/50 mb-3">~/my-project $</div>
+          <div><span className="text-hazard">npm</span> i -g devstats-cli</div>
+          <div className="mt-2"><span className="text-hazard">devstats</span> login</div>
+          <div className="text-[#F5F1EA]/50 text-xs mt-1">→ paste your API key from devstats.me/settings</div>
+          <div className="mt-2"><span className="text-hazard">devstats</span> sync</div>
+          <div className="text-[#F5F1EA]/50 text-xs mt-1">→ found 142 claude-code sessions, 38 cursor sessions</div>
+          <div className="text-[#F5F1EA]/50 text-xs">→ uploaded 180 sessions (12.4M tokens)</div>
+          <div className="mt-3 text-hazard">done. open devstats.me/dashboard to see your stats.</div>
+        </div>
+      </section>
+
       {/* Live leaderboard preview */}
       <LeaderboardStrip />
 
