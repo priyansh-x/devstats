@@ -31,6 +31,17 @@ Three commands. Parses local logs from every supported tool, uploads aggregate s
 
 ---
 
+## Screenshots
+
+<p align="center">
+  <img src="docs/demo.gif" alt="DevStats CLI sync + dashboard" width="700" />
+</p>
+
+> Dashboard, leaderboard, and public profiles live at **[devstats.me](https://devstats.me)**.
+> To regenerate the demo GIF: `vhs docs/demo.tape` (requires [vhs](https://github.com/charmbracelet/vhs)).
+
+---
+
 ## Features
 
 - **Heatmap + streaks** — GitHub-style activity grid across all your AI tools
