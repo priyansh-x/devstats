@@ -9,7 +9,7 @@
 
 <p align="center">
   Telemetry for AI coding tools. Track tokens, sessions, streaks, and spend<br/>
-  across <b>Claude Code</b>, <b>Cursor</b>, <b>Codex</b>, <b>Windsurf</b>, and <b>Antigravity</b>.<br/>
+  across <b>Claude Code</b>, <b>Cursor</b>, <b>Codex</b>, <b>Windsurf</b>, <b>Copilot</b>, and <b>Antigravity</b>.<br/>
   Private by default. Leaderboard if you're built like that.
 </p>
 
@@ -63,6 +63,7 @@ Three commands. Parses local logs from every supported tool, uploads aggregate s
 | **Codex** | `~/.codex/sessions/**/*.jsonl` | Cumulative token counts, model, working directory |
 | **Windsurf** | `state.vscdb` (SQLite) | Cascade conversations, tokens, models |
 | **Antigravity** | `state.vscdb` (SQLite) | Activity presence only (0 tokens — Google keeps data server-side) |
+| **Copilot** | VS Code `chatEditingSessions` | Activity presence only (0 tokens — GitHub keeps usage server-side) |
 | **CSV** | Manual upload | Column-mapping UI for anything else |
 
 ## Privacy

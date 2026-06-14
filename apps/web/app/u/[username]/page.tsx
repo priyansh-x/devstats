@@ -78,6 +78,7 @@ export default async function PublicProfile(
       ? (stats.totals.tokensCacheRead / stats.totals.tokensIn) * 100
       : 0;
   const hasAg = stats.toolBreakdown.some((t) => t.tool === "ANTIGRAVITY");
+  const hasCopilot = stats.toolBreakdown.some((t) => t.tool === "COPILOT");
 
   return (
     <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
@@ -147,10 +148,11 @@ export default async function PublicProfile(
         </div>
       </div>
 
-      {hasAg && (
+      {(hasAg || hasCopilot) && (
         <div className="border border-ink bg-bone-soft px-4 py-2 mb-6 text-xs text-ink/70">
           <span className="font-bold text-hazard mr-1">Note —</span>
-          Antigravity sessions count as 0 tokens here. Google stores transcripts server-side.
+          {hasAg && "Antigravity sessions count as 0 tokens here (Google stores transcripts server-side). "}
+          {hasCopilot && "Copilot sessions count as 0 tokens here (GitHub keeps token counts server-side — presence only)."}
         </div>
       )}
 

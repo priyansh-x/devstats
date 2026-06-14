@@ -49,8 +49,9 @@ export default async function LeaderboardPage() {
       />
 
       <div className="mt-8 text-xs text-ink/50">
-        Refreshed daily. Antigravity sessions don&apos;t carry token counts (Google
-        stores transcripts server-side), so they don&apos;t move the Tokens metric.
+        Refreshed daily. Antigravity and Copilot sessions don&apos;t carry token
+        counts (Google and GitHub keep that data server-side), so they don&apos;t
+        move the Tokens metric.
       </div>
 
       <footer className="border-t border-ink/20 pt-4 mt-2 flex items-center justify-end">

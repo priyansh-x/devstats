@@ -246,12 +246,13 @@ export default async function Dashboard({
         </SpecCard>
       )}
 
-      {stats.toolBreakdown.some((t) => t.tool === "ANTIGRAVITY" || t.tool === "CURSOR") && (
+      {stats.toolBreakdown.some((t) => t.tool === "ANTIGRAVITY" || t.tool === "CURSOR" || t.tool === "COPILOT") && (
         <div className="border border-ink bg-bone-soft px-4 py-2 mb-6 text-xs text-ink/70 leading-relaxed">
           <span className="font-bold text-hazard mr-2">Spend estimate</span>
           Calculated from <b>Claude Code</b> with full cache splits.
           {stats.toolBreakdown.some((t) => t.tool === "CURSOR") && " Cursor sessions use flat tokens-as-reported rates."}
           {stats.toolBreakdown.some((t) => t.tool === "ANTIGRAVITY") && " Antigravity is counted at 0 — Google stores transcripts server-side."}
+          {stats.toolBreakdown.some((t) => t.tool === "COPILOT") && " Copilot is counted at 0 — GitHub keeps token counts server-side, so we log presence only."}
         </div>
       )}
 

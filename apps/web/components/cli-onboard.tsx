@@ -87,10 +87,15 @@ export function CliOnboard() {
             path="~/.codex/sessions/**/*.jsonl"
             note="OpenAI Codex CLI rollout logs. Token counts (input · cached · output), model names, per-session working directory."
           />
+          <ToolRow
+            name="COPILOT"
+            path="Code/User/workspaceStorage/**/chatEditingSessions"
+            note="GitHub Copilot Chat (VS Code). Activity presence only — GitHub keeps token counts server-side. One session per edit/agent chat; spend reads 0."
+          />
         </div>
         <p className="text-ink/50 text-xs mt-4">
           DevStats never uploads message content, real file paths, or repo URLs.
-          Project names are SHA-256 hashed before they leave your machine.
+          Only the project folder&apos;s basename leaves your machine.
         </p>
       </div>
     </div>

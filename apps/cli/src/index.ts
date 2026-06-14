@@ -1,6 +1,6 @@
 // shebang is added by tsup's banner config at build time; in dev we go
 // through `tsx src/index.ts` so it's never needed here.
-import { parseClaudeCode, parseCursor, parseAntigravity, parseWindsurf, parseCodex } from "@devstats/parsers";
+import { parseClaudeCode, parseCursor, parseAntigravity, parseWindsurf, parseCodex, parseCopilot } from "@devstats/parsers";
 import { loadConfig, saveConfig, loadCursor, saveCursor, PATHS } from "./config.js";
 import { c, bar, row, ok, warn, err, info, blank, fmt, prompt } from "./ui.js";
 import {
@@ -188,6 +188,7 @@ async function cmdSync(rest: string[]) {
     { name: "antigravity", key: "ANTIGRAVITY", parse: (o) => parseAntigravity(o) },
     { name: "windsurf",    key: "WINDSURF",    parse: (o) => parseWindsurf(o) },
     { name: "codex",       key: "CODEX",       parse: (o) => parseCodex(o) },
+    { name: "copilot",     key: "COPILOT",     parse: (o) => parseCopilot(o) },
   ];
 
   for (const tool of tools) {
@@ -295,16 +296,17 @@ async function cmdLogout() {
 }
 
 async function cmdPreview() {
-  const [claude, cursor, antigrav, windsurf, codex] = await Promise.all([
+  const [claude, cursor, antigrav, windsurf, codex, copilot] = await Promise.all([
     parseClaudeCode(),
     parseCursor(),
     parseAntigravity(),
     parseWindsurf(),
     parseCodex(),
+    parseCopilot(),
   ]);
 
-  const sessions = [...claude.sessions, ...cursor.sessions, ...antigrav.sessions, ...windsurf.sessions, ...codex.sessions];
-  const warnings = [...claude.warnings, ...cursor.warnings, ...antigrav.warnings, ...windsurf.warnings, ...codex.warnings];
+  const sessions = [...claude.sessions, ...cursor.sessions, ...antigrav.sessions, ...windsurf.sessions, ...codex.sessions, ...copilot.sessions];
+  const warnings = [...claude.warnings, ...cursor.warnings, ...antigrav.warnings, ...windsurf.warnings, ...codex.warnings, ...copilot.warnings];
 
   const tin = sessions.reduce((s, r) => s + (r.tokensIn ?? 0), 0);
   const tout = sessions.reduce((s, r) => s + (r.tokensOut ?? 0), 0);
@@ -534,6 +536,7 @@ async function cmdDoctor(rest: string[]) {
     { name: "antigravity", key: "ANTIGRAVITY", run: () => parseAntigravity() },
     { name: "windsurf",    key: "WINDSURF",    run: () => parseWindsurf() },
     { name: "codex",       key: "CODEX",       run: () => parseCodex() },
+    { name: "copilot",     key: "COPILOT",     run: () => parseCopilot() },
   ];
 
   for (const check of checks) {

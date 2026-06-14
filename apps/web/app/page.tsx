@@ -19,7 +19,7 @@ const jsonLd = {
   offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
 };
 
-const TOOLS = ["Claude Code", "Cursor", "Codex", "Windsurf", "Antigravity"];
+const TOOLS = ["Claude Code", "Cursor", "Codex", "Windsurf", "Copilot", "Antigravity"];
 
 export default async function Landing() {
   const stats = await getPlatformStats();
